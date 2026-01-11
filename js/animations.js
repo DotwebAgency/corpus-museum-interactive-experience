@@ -280,6 +280,111 @@ export class CursorGradient {
 }
 
 // ==============================================
+// TEXT SPLITTING UTILITY (Free alternative to SplitText)
+// ==============================================
+
+export class TextSplitter {
+  /**
+   * Split text into characters for animation
+   * @param {HTMLElement} element - Element containing text to split
+   * @returns {Object} - { chars: Array<HTMLSpanElement>, revert: Function }
+   */
+  static splitChars(element) {
+    const originalText = element.textContent;
+    const originalHTML = element.innerHTML;
+    
+    // Create character spans
+    const chars = [];
+    element.innerHTML = '';
+    
+    for (let i = 0; i < originalText.length; i++) {
+      const char = originalText[i];
+      const span = document.createElement('span');
+      span.textContent = char === ' ' ? '\u00A0' : char; // Preserve spaces
+      span.style.display = 'inline-block';
+      span.style.willChange = 'transform, opacity';
+      span.className = 'split-char';
+      element.appendChild(span);
+      chars.push(span);
+    }
+    
+    return {
+      chars,
+      revert: () => {
+        element.innerHTML = originalHTML;
+      }
+    };
+  }
+  
+  /**
+   * Split text into words for animation
+   * @param {HTMLElement} element - Element containing text to split
+   * @returns {Object} - { words: Array<HTMLSpanElement>, revert: Function }
+   */
+  static splitWords(element) {
+    const originalHTML = element.innerHTML;
+    const text = element.textContent;
+    const wordList = text.split(/\s+/);
+    
+    element.innerHTML = '';
+    const words = [];
+    
+    wordList.forEach((word, index) => {
+      const span = document.createElement('span');
+      span.textContent = word;
+      span.style.display = 'inline-block';
+      span.style.willChange = 'transform, opacity';
+      span.className = 'split-word';
+      element.appendChild(span);
+      words.push(span);
+      
+      // Add space after word (except last)
+      if (index < wordList.length - 1) {
+        element.appendChild(document.createTextNode(' '));
+      }
+    });
+    
+    return {
+      words,
+      revert: () => {
+        element.innerHTML = originalHTML;
+      }
+    };
+  }
+  
+  /**
+   * Split text into lines (based on <br> tags)
+   * @param {HTMLElement} element - Element containing text with <br> tags
+   * @returns {Object} - { lines: Array<HTMLSpanElement>, revert: Function }
+   */
+  static splitLines(element) {
+    const originalHTML = element.innerHTML;
+    const htmlContent = element.innerHTML;
+    const lineParts = htmlContent.split(/<br\s*\/?>/gi);
+    
+    element.innerHTML = '';
+    const lines = [];
+    
+    lineParts.forEach((line, index) => {
+      const span = document.createElement('span');
+      span.innerHTML = line.trim();
+      span.style.display = 'block';
+      span.style.willChange = 'transform, opacity, filter';
+      span.className = 'split-line';
+      element.appendChild(span);
+      lines.push(span);
+    });
+    
+    return {
+      lines,
+      revert: () => {
+        element.innerHTML = originalHTML;
+      }
+    };
+  }
+}
+
+// ==============================================
 // INTRO SCREEN ANIMATIONS — AWWWARD QUALITY
 // ==============================================
 
@@ -288,6 +393,7 @@ export const IntroAnimations = {
   // Store particle system reference
   particleSystem: null,
   cursorGradient: null,
+  textSplits: [], // Store text splits for cleanup
   
   /**
    * Initialize ambient effects
@@ -321,6 +427,10 @@ export const IntroAnimations = {
   pageReveal(gsap, elements) {
     const tl = gsap.timeline();
     
+    // Clear previous text splits
+    this.textSplits.forEach(split => split.revert && split.revert());
+    this.textSplits = [];
+    
     // Initial setup - everything hidden
     gsap.set([
       elements.logo,
@@ -344,6 +454,36 @@ export const IntroAnimations = {
       gsap.set(elements.cta, { scale: 0.95 });
     }
     
+    // Split title into characters for AWWWARD-quality reveal
+    let titleChars = null;
+    if (elements.title) {
+      const titleSplit = TextSplitter.splitChars(elements.title);
+      this.textSplits.push(titleSplit);
+      titleChars = titleSplit.chars;
+      // Set initial state for chars
+      gsap.set(titleChars, { 
+        opacity: 0, 
+        y: 80, 
+        rotationX: -40,
+        transformOrigin: 'bottom center'
+      });
+      gsap.set(elements.title, { opacity: 1, y: 0 }); // Container visible
+    }
+    
+    // Split subtitle into lines for blur-sharpen effect
+    let subtitleLines = null;
+    if (elements.subtitle) {
+      const subtitleSplit = TextSplitter.splitLines(elements.subtitle);
+      this.textSplits.push(subtitleSplit);
+      subtitleLines = subtitleSplit.lines;
+      gsap.set(subtitleLines, { 
+        opacity: 0, 
+        y: 30, 
+        filter: 'blur(8px)' 
+      });
+      gsap.set(elements.subtitle, { opacity: 1, y: 0 }); // Container visible
+    }
+    
     tl
       // Stage 1: Logo materializes with blur clear (0-1.2s)
       .to(elements.logo, {
@@ -355,15 +495,25 @@ export const IntroAnimations = {
         ease: EASINGS.luxuryOut
       })
       
-      // Stage 2: Title reveals with character stagger effect (0.6-2.0s)
-      .to(elements.title, {
+      // Stage 2: Title reveals CHARACTER BY CHARACTER (0.6-2.0s)
+      .to(titleChars || elements.title, titleChars ? {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        duration: 1.0,
+        stagger: {
+          each: 0.06,
+          from: 'center'
+        },
+        ease: 'back.out(1.7)'
+      } : {
         opacity: 1,
         y: 0,
         duration: 1.4,
         ease: EASINGS.elegant
       }, "-=0.6")
       
-      // Stage 3: Tagline with elegant fade (1.2-2.4s)
+      // Stage 3: Tagline with elegant italic sweep (1.2-2.4s)
       .to(elements.tagline, {
         opacity: 1,
         y: 0,
@@ -371,8 +521,15 @@ export const IntroAnimations = {
         ease: EASINGS.soft
       }, "-=0.8")
       
-      // Stage 4: Subtitle with slight blur clear (1.6-2.8s)
-      .to(elements.subtitle, {
+      // Stage 4: Subtitle LINE BY LINE with blur-sharpen effect (1.6-2.8s)
+      .to(subtitleLines || elements.subtitle, subtitleLines ? {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        duration: 0.8,
+        stagger: 0.2,
+        ease: EASINGS.elegant
+      } : {
         opacity: 1,
         y: 0,
         duration: 1.0,
@@ -610,16 +767,27 @@ export const IntroAnimations = {
   },
   
   /**
-   * Cleanup ambient effects
+   * Cleanup ambient effects and text splits
    */
   cleanup() {
+    // Clean up particle system
     if (this.particleSystem) {
       this.particleSystem.destroy();
       this.particleSystem = null;
     }
+    // Clean up cursor gradient
     if (this.cursorGradient) {
       this.cursorGradient.destroy();
       this.cursorGradient = null;
+    }
+    // Revert text splits to original HTML
+    if (this.textSplits && this.textSplits.length > 0) {
+      this.textSplits.forEach(split => {
+        if (split && split.revert) {
+          split.revert();
+        }
+      });
+      this.textSplits = [];
     }
   }
 };
@@ -667,7 +835,7 @@ export const LoadingAnimations = {
     
     return tl;
   },
-  
+
   /**
    * Update Progress with Animation
    */
@@ -700,7 +868,7 @@ export const LoadingAnimations = {
         ease: EASINGS.fadeIn
       });
   },
-  
+
   /**
    * Completion Flourish
    */
