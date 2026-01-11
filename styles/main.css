@@ -845,15 +845,14 @@ button {
   color: var(--canvas-deep);
 }
 
-.sound-toggle .icon-sound-off { display: none; }
-.sound-toggle.active .icon-sound-on { display: none; }
-.sound-toggle.active .icon-sound-off { display: block; }
-
-/* Wait, flip the logic - sound-on when active */
-.sound-toggle .icon-sound-on { display: block; }
-.sound-toggle .icon-sound-off { display: none; }
-.sound-toggle:not(.active) .icon-sound-on { opacity: 0.5; }
-.sound-toggle.active .icon-sound-on { opacity: 1; }
+/* Sound icon logic: 
+   - NOT active (sound OFF): show muted icon with X
+   - Active (sound ON): show speaker with sound waves
+*/
+.sound-toggle .icon-sound-on { display: none; }
+.sound-toggle .icon-sound-off { display: block; opacity: 0.5; }
+.sound-toggle.active .icon-sound-on { display: block; opacity: 1; }
+.sound-toggle.active .icon-sound-off { display: none; }
 
 /* Scale Selector - Musical Scale Dropdown */
 .scale-select {

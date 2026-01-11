@@ -66,8 +66,8 @@ export class BodyInstrument {
     this.velocityHistory = { left: [], right: [] };
     this.historyLength = 5;
     
-    // Thresholds
-    this.velocityThreshold = 0.015; // Minimum movement to trigger
+    // Thresholds - lower = more sensitive
+    this.velocityThreshold = 0.008; // Minimum movement to trigger (lowered for better response)
     this.gestureDebounce = 300; // ms between gesture triggers
     this.chordDebounce = 500; // ms between chord strums
     
@@ -234,7 +234,13 @@ export class BodyInstrument {
   // ==============================================
   
   update(pose, hands, velocityTracker, gestures, faceBlendshapes) {
-    if (!this.isInitialized || this.isMuted || !this.isEnabled || !pose) return;
+    if (!this.isInitialized || this.isMuted || !this.isEnabled) return;
+    if (!pose || pose.length < 17) return; // Need at least wrist landmarks
+    
+    // Ensure audio context is running (can get suspended)
+    if (this.Tone && this.Tone.context.state !== 'running') {
+      this.Tone.context.resume().catch(e => console.warn('[BodyInstrument] Context resume failed:', e));
+    }
     
     // Extract relevant landmarks
     const rightWrist = pose[16];
@@ -242,16 +248,19 @@ export class BodyInstrument {
     const rightElbow = pose[14];
     const leftElbow = pose[13];
     
+    // Safety check - need valid wrists
+    if (!rightWrist && !leftWrist) return;
+    
     // Get velocities from tracker or calculate
     let rightVel = 0, leftVel = 0;
     
     if (velocityTracker) {
       const vels = velocityTracker.getVelocities?.() || {};
-      rightVel = vels.wrists?.[1] || this.calculateVelocity(rightWrist, 'right');
-      leftVel = vels.wrists?.[0] || this.calculateVelocity(leftWrist, 'left');
+      rightVel = vels.wrists?.[1] || (rightWrist ? this.calculateVelocity(rightWrist, 'right') : 0);
+      leftVel = vels.wrists?.[0] || (leftWrist ? this.calculateVelocity(leftWrist, 'left') : 0);
     } else {
-      rightVel = this.calculateVelocity(rightWrist, 'right');
-      leftVel = this.calculateVelocity(leftWrist, 'left');
+      rightVel = rightWrist ? this.calculateVelocity(rightWrist, 'right') : 0;
+      leftVel = leftWrist ? this.calculateVelocity(leftWrist, 'left') : 0;
     }
     
     // Smooth velocities
@@ -575,6 +584,17 @@ export class BodyInstrument {
   setEnabled(enabled) {
     this.isEnabled = enabled;
     console.log('[BodyInstrument]', enabled ? '🔊 Enabled' : '🔇 Disabled');
+    
+    // When enabling, ensure audio context is running
+    if (enabled && this.Tone) {
+      if (this.Tone.context.state !== 'running') {
+        this.Tone.context.resume().then(() => {
+          console.log('[BodyInstrument] Audio context resumed');
+        }).catch(e => {
+          console.warn('[BodyInstrument] Failed to resume context:', e);
+        });
+      }
+    }
   }
   
   setMuted(muted) {

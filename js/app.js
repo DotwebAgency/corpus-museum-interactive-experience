@@ -1089,6 +1089,12 @@ function updateFullscreenUI() {
 // ==============================================
 
 async function toggleSound() {
+  // Check if Tone.js is loaded
+  if (!window.Tone) {
+    console.error('[CORPUS] Tone.js not loaded');
+    return;
+  }
+  
   if (!bodyInstrument.isInitialized) {
     // First time - initialize with Tone.js
     try {
@@ -1097,6 +1103,7 @@ async function toggleSound() {
         console.error('[CORPUS] Failed to initialize sound');
         return;
       }
+      console.log('[CORPUS] 🎵 Body Instrument initialized');
     } catch (e) {
       console.error('[CORPUS] Sound init error:', e);
       return;
@@ -1106,6 +1113,19 @@ async function toggleSound() {
   // Toggle enabled state
   state.soundEnabled = !state.soundEnabled;
   bodyInstrument.setEnabled(state.soundEnabled);
+  
+  // Ensure audio context is running when enabling
+  if (state.soundEnabled && window.Tone) {
+    try {
+      await window.Tone.start();
+      if (window.Tone.context.state !== 'running') {
+        await window.Tone.context.resume();
+      }
+      console.log('[CORPUS] 🎵 Audio context state:', window.Tone.context.state);
+    } catch (e) {
+      console.warn('[CORPUS] Audio context issue:', e);
+    }
+  }
   
   // Update UI
   updateSoundUI();

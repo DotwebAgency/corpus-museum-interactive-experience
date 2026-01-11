@@ -1,3 +1,5 @@
 Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-Look, if I wave my arms around really fast, the hand can't keep up. Know what I mean? The forearm bone is really accurate, but the hand can't keep up. Can we prove that? 
+So the audio feature was working for a moment, it was working beautifully, but now it just doesn't work anymore. Click on the audio thing. By the way, the logic is inverted there. When it's enabled, you have a closing X there, right?
+
+That doesn't make sense. It should be a lot of around. Anyways, it doesn't work no matter which one I select. Japanese, Dorian, Pentatonic, I lift my arms and stuff and the audio doesn't happen anymore. Why? 
