@@ -1662,7 +1662,7 @@ button {
   transition: width var(--transition-normal);
 }
 
-/* ===================== AWAKENING LOADING SCREEN ===================== */
+/* ===================== AWAKENING LOADING SCREEN — AWWWARD QUALITY ===================== */
 .awakening-overlay {
   position: fixed;
   inset: 0;
@@ -1685,143 +1685,231 @@ button {
   pointer-events: none;
 }
 
+/* Ambient particles background */
+.awakening-particles {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, var(--gold-glow) 1px, transparent 1px),
+    radial-gradient(circle at 80% 20%, var(--rose-glow) 1px, transparent 1px),
+    radial-gradient(circle at 40% 70%, var(--lavender-glow) 1px, transparent 1px),
+    radial-gradient(circle at 70% 60%, var(--gold-glow) 1px, transparent 1px),
+    radial-gradient(circle at 10% 80%, var(--blue-glow) 1px, transparent 1px);
+  background-size: 200px 200px, 150px 180px, 180px 160px, 160px 200px, 220px 180px;
+  animation: awakeningParticles 30s linear infinite;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+@keyframes awakeningParticles {
+  0% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-50px) translateX(25px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
 .awakening-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
+  gap: 48px;
+  position: relative;
+  z-index: 10;
 }
 
-.awakening-ring {
-  width: 120px;
+/* Animated Eye Symbol Container */
+.awakening-eye-container {
+  width: 160px;
   height: 120px;
   position: relative;
 }
 
-.awakening-svg {
+.awakening-eye-svg {
   width: 100%;
   height: 100%;
   color: var(--gold-muted);
+  filter: drop-shadow(0 4px 20px var(--gold-glow));
 }
 
-[data-theme="light"] .awakening-svg {
+[data-theme="light"] .awakening-eye-svg {
   color: var(--dusty-rose);
+  filter: drop-shadow(0 4px 20px var(--rose-glow));
 }
 
-.awakening-pulse {
-  animation: awakeningPulse 2s ease-in-out infinite;
+/* Eye outline draws in */
+.eye-outline, .eye-inner {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: eyeDrawIn 1.5s ease-out forwards;
+}
+
+.eye-inner {
+  animation-delay: 0.3s;
+}
+
+@keyframes eyeDrawIn {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Iris pulses */
+.eye-iris {
   transform-origin: center;
+  animation: irisPulse 2.5s ease-in-out infinite;
 }
 
-.awakening-center {
-  animation: awakeningGlow 2s ease-in-out infinite;
-}
-
-@keyframes awakeningPulse {
+@keyframes irisPulse {
   0%, 100% { 
-    transform: scale(1); 
-    opacity: 0.8;
+    transform: scale(1);
+    opacity: 0.9;
   }
   50% { 
-    transform: scale(1.15); 
+    transform: scale(1.08);
     opacity: 1;
   }
 }
 
-@keyframes awakeningGlow {
-  0%, 100% { 
-    r: 8;
-    opacity: 1;
-  }
-  50% { 
-    r: 12;
-    opacity: 0.7;
-  }
+/* Pupil dilates with progress */
+.eye-pupil {
+  transform-origin: center;
+  animation: pupilBreathe 3s ease-in-out infinite;
 }
 
-.awakening-text {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 300;
-  letter-spacing: 0.4em;
-  color: var(--ivory-warm);
-  display: flex;
-  gap: 4px;
+@keyframes pupilBreathe {
+  0%, 100% { r: 8; }
+  50% { r: 10; }
 }
 
-[data-theme="light"] .awakening-text {
-  color: #5A5550;
+/* Highlight twinkle */
+.eye-highlight {
+  animation: highlightTwinkle 2s ease-in-out infinite;
 }
 
-.awakening-letter {
-  opacity: 0;
-  animation: letterReveal 0.5s ease forwards;
+@keyframes highlightTwinkle {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.4; }
 }
 
-.awakening-letter:nth-child(1) { animation-delay: 0.1s; }
-.awakening-letter:nth-child(2) { animation-delay: 0.15s; }
-.awakening-letter:nth-child(3) { animation-delay: 0.2s; }
-.awakening-letter:nth-child(4) { animation-delay: 0.25s; }
-.awakening-letter:nth-child(5) { animation-delay: 0.3s; }
-.awakening-letter:nth-child(6) { animation-delay: 0.35s; }
-.awakening-letter:nth-child(7) { animation-delay: 0.4s; }
-.awakening-letter:nth-child(8) { animation-delay: 0.45s; }
-.awakening-letter:nth-child(9) { animation-delay: 0.5s; }
-
-.awakening-ellipsis {
-  animation: letterReveal 0.5s ease forwards, ellipsisPulse 1.2s ease-in-out infinite 0.7s;
+/* Golden rays (activated on completion) */
+.eye-rays line {
+  stroke: var(--gold-bright);
+  stroke-width: 1.5;
 }
 
-.awakening-letter:nth-child(10) { animation-delay: 0.6s; }
-.awakening-letter:nth-child(11) { animation-delay: 0.75s; }
-.awakening-letter:nth-child(12) { animation-delay: 0.9s; }
+.eye-rays.active {
+  animation: raysExpand 0.8s ease-out forwards;
+}
 
-@keyframes letterReveal {
+@keyframes raysExpand {
   from { 
-    opacity: 0; 
-    transform: translateY(10px);
+    opacity: 0;
+    transform: scale(0.5);
   }
   to { 
-    opacity: 1; 
-    transform: translateY(0);
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-@keyframes ellipsisPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+/* Progress Container */
+.awakening-progress-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 280px;
 }
 
-.awakening-progress {
+/* Progress Track - elegant golden bar */
+.awakening-progress-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(212, 175, 55, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+[data-theme="light"] .awakening-progress-track {
+  background: rgba(216, 168, 168, 0.2);
+}
+
+/* Progress Fill with shimmer */
+.awakening-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, 
+    var(--gold-muted) 0%, 
+    var(--gold-bright) 50%, 
+    var(--gold-muted) 100%);
+  background-size: 200% 100%;
+  animation: progressShimmer 2s linear infinite;
+  border-radius: 2px;
+  transition: width 0.3s ease-out;
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+
+[data-theme="light"] .awakening-progress-fill {
+  background: linear-gradient(90deg, 
+    var(--dusty-rose) 0%, 
+    #E8A0A8 50%, 
+    var(--dusty-rose) 100%);
+  box-shadow: 0 0 10px var(--rose-glow);
+}
+
+@keyframes progressShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Progress Info */
+.awakening-progress-info {
   display: flex;
   align-items: baseline;
   gap: 2px;
   font-family: var(--font-mono);
-  font-size: var(--text-3xl);
-  color: var(--gold-bright);
 }
 
-[data-theme="light"] .awakening-progress {
+.awakening-percent {
+  font-size: var(--text-2xl);
+  font-weight: 300;
+  color: var(--gold-bright);
+  letter-spacing: 0.05em;
+}
+
+[data-theme="light"] .awakening-percent {
   color: var(--dusty-rose);
 }
 
 .awakening-percent-symbol {
-  font-size: var(--text-lg);
-  opacity: 0.6;
+  font-size: var(--text-base);
+  opacity: 0.5;
+  color: var(--gold-muted);
 }
 
+[data-theme="light"] .awakening-percent-symbol {
+  color: var(--dusty-rose);
+}
+
+/* Status Text - elegant italics */
 .awakening-status {
   font-family: var(--font-display);
   font-size: var(--text-sm);
   font-weight: 300;
   color: var(--ivory-muted);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: lowercase;
   font-style: italic;
+  opacity: 0.8;
+  transition: all 0.3s ease;
 }
 
 [data-theme="light"] .awakening-status {
-  color: #9A958F;
+  color: #8A8580;
+}
+
+/* Status transition animation */
+.awakening-status.changing {
+  opacity: 0;
+  transform: translateY(-5px);
 }
 
 /* ===================== DUAL HAND GESTURE DISPLAY ===================== */

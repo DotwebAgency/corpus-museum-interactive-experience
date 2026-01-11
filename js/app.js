@@ -94,10 +94,12 @@ function getElements() {
   elements.leftGestureState = document.getElementById('left-gesture-state');
   elements.rightGestureState = document.getElementById('right-gesture-state');
   
-  // NEW: Awakening overlay elements
+  // NEW: Awakening overlay elements (AWWWARD quality)
   elements.awakeningOverlay = document.getElementById('awakening-overlay');
   elements.awakeningPercent = document.getElementById('awakening-percent');
   elements.awakeningStatus = document.getElementById('awakening-status');
+  elements.awakeningProgressFill = document.getElementById('awakening-progress-fill');
+  elements.awakeningEyeRays = document.querySelector('.eye-rays');
   
   // Legacy alias
   elements.statusPanel = elements.detectionPanel;
@@ -322,9 +324,30 @@ function showAwakening() {
 }
 
 function updateAwakeningProgress(percent, status) {
+  const roundedPercent = Math.round(percent);
+  
+  // Update percentage display
   if (elements.awakeningPercent) {
-    elements.awakeningPercent.textContent = Math.round(percent);
+    elements.awakeningPercent.textContent = roundedPercent;
   }
+  
+  // Update progress bar fill
+  if (elements.awakeningProgressFill) {
+    elements.awakeningProgressFill.style.width = `${roundedPercent}%`;
+    
+    // At 100%, add extra glow
+    if (roundedPercent >= 100) {
+      elements.awakeningProgressFill.style.boxShadow = '0 0 30px var(--gold-glow)';
+    }
+  }
+  
+  // Activate eye rays at completion
+  if (roundedPercent >= 100 && elements.awakeningEyeRays) {
+    elements.awakeningEyeRays.classList.add('active');
+    elements.awakeningEyeRays.style.opacity = '1';
+  }
+  
+  // Update status text with transition
   if (elements.awakeningStatus && status) {
     // Translate German status messages - Louvre elegance
     const statusMap = {
@@ -335,7 +358,17 @@ function updateAwakeningProgress(percent, status) {
       'Aktiviere Kamera...': 'Opening the eye of the canvas',
       'Bereit': 'The sitting may begin'
     };
-    elements.awakeningStatus.textContent = statusMap[status] || status;
+    
+    const newStatus = statusMap[status] || status;
+    
+    // Only update if status changed
+    if (elements.awakeningStatus.textContent !== newStatus) {
+      elements.awakeningStatus.classList.add('changing');
+      setTimeout(() => {
+        elements.awakeningStatus.textContent = newStatus;
+        elements.awakeningStatus.classList.remove('changing');
+      }, 200);
+    }
   }
 }
 
