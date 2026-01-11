@@ -432,7 +432,7 @@ export const IntroAnimations = {
     this.textSplits = [];
     
     // Initial setup - everything hidden
-    gsap.set([
+    const allElements = [
       elements.logo,
       elements.title,
       elements.tagline,
@@ -440,7 +440,9 @@ export const IntroAnimations = {
       elements.cta,
       elements.privacy,
       elements.footer
-    ].filter(Boolean), { 
+    ].filter(Boolean);
+    
+    gsap.set(allElements, { 
       clearProps: "animation",
       opacity: 0,
       y: 60
@@ -492,7 +494,8 @@ export const IntroAnimations = {
         scale: 1,
         filter: 'blur(0px)',
         duration: 1.2,
-        ease: EASINGS.luxuryOut
+        ease: EASINGS.luxuryOut,
+        onStart: () => console.log('[CORPUS] Logo animation started')
       })
       
       // Stage 2: Title reveals CHARACTER BY CHARACTER (0.6-2.0s)
@@ -565,6 +568,7 @@ export const IntroAnimations = {
         if (elements.cta) {
           this.startButtonShimmer(gsap, elements.cta);
         }
+        console.log('[CORPUS] pageReveal timeline completed');
       });
     
     return tl;
