@@ -243,7 +243,8 @@ export class HumanAvatarRenderer {
     
     // Animation
     this.time = 0;
-    this.emergeProgress = 0;
+    // NOTE: entranceProgress (defined in ENTRANCE ANIMATION STATE section) is now the 
+    // single source of truth for avatar visibility during entrance animation
     this.firstDetectionTime = 0;
     
     // Debug mode
@@ -391,7 +392,9 @@ export class HumanAvatarRenderer {
           this.isDetected = false;
           this.pose = null;
           this.face = null;
-          this.emergeProgress = 0;
+          // Reset entrance animation state
+          this.entrancePhase = 'waiting';
+          this.entranceProgress = 0;
           this.firstDetectionTime = 0;
         }
       }
@@ -401,13 +404,11 @@ export class HumanAvatarRenderer {
         this.isDetected = false;
         this.pose = null;
         this.face = null;
-        this.emergeProgress = 0;
+        // Reset entrance animation state
+        this.entrancePhase = 'waiting';
+        this.entranceProgress = 0;
         this.firstDetectionTime = 0;
       }
-    }
-    
-    if (this.isDetected && this.firstDetectionTime > 0) {
-      this.emergeProgress = Math.min(1, (timestamp - this.firstDetectionTime) / 1500);
     }
     
     // ===== ENTRANCE ANIMATION LOGIC (must be AFTER pose processing) =====
@@ -655,6 +656,7 @@ export class HumanAvatarRenderer {
     // Detect state transition: not detected -> detected
     if (currentlyDetected && !this.wasDetected) {
       // Start entrance animation!
+      console.log('[CORPUS] 🎭 Starting entrance animation!', { timestamp, pose: !!this.pose, isDetected: this.isDetected });
       this.entrancePhase = 'assembling';
       this.entranceStartTime = timestamp;
       this.entranceProgress = 0;
@@ -672,7 +674,13 @@ export class HumanAvatarRenderer {
       const elapsed = (timestamp - this.entranceStartTime) / 1000;
       this.entranceProgress = Math.min(1, elapsed / this.entranceDuration);
       
+      // Debug every 30 frames
+      if (Math.floor(timestamp / 500) !== Math.floor((timestamp - 16) / 500)) {
+        console.log('[CORPUS] 🎭 Entrance progress:', (this.entranceProgress * 100).toFixed(1) + '%');
+      }
+      
       if (this.entranceProgress >= 1) {
+        console.log('[CORPUS] 🎭 Entrance animation COMPLETE!');
         this.entrancePhase = 'complete';
         this.onEntranceComplete();
       }
@@ -876,7 +884,9 @@ export class HumanAvatarRenderer {
     ctx.translate(width, 0);
     ctx.scale(-1, 1);
     
-    ctx.globalAlpha = this.emergeProgress;
+    // Use entrance animation progress for global alpha during build-up
+    // entranceProgress: 0 = invisible, 1 = fully visible
+    ctx.globalAlpha = this.entranceProgress;
     
     if (this.face && this.face.length >= 468) {
       this.drawFace(ctx, width, height, c);

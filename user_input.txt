@@ -1,5 +1,3 @@
 Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-The left and right in the bottom left are inverted. They're the wrong way around. They should track in the real world, right? So invert them. And next, the buildup doesn't work.
-
-It doesn't initialize. The character just pops in for fuck's sake. Deep debug and figure out why. 
+Still fully brokered. The character just clips in. You need to now spend at least 40 toolcalls really looking at every code surrounding this issue until you find and identify all the root causes and everything that's linked to it and then you fix it and you make this properly work for fucks sake. 
