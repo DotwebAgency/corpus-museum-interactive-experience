@@ -789,6 +789,118 @@ button {
 [data-theme="light"] .theme-toggle .icon-sun { display: none; }
 [data-theme="light"] .theme-toggle .icon-moon { display: block; }
 
+/* Sound Toggle - Musical Body Instrument */
+.sound-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, rgba(168, 200, 220, 0.15), rgba(168, 208, 188, 0.15));
+  border: 1px solid rgba(168, 200, 220, 0.3);
+  border-radius: 0;
+  color: var(--cream);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="light"] .sound-toggle {
+  background: linear-gradient(135deg, rgba(96, 144, 184, 0.15), rgba(96, 168, 136, 0.15));
+  border: 1px solid rgba(96, 144, 184, 0.3);
+  color: #5A5550;
+}
+
+.sound-toggle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--powder-blue), var(--mint-cream));
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.sound-toggle:hover::before,
+.sound-toggle.active::before {
+  opacity: 1;
+}
+
+.sound-toggle:hover,
+.sound-toggle.active {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(168, 200, 220, 0.4);
+}
+
+.sound-toggle svg {
+  width: 22px;
+  height: 22px;
+  position: relative;
+  z-index: 1;
+  transition: color var(--transition-normal);
+}
+
+.sound-toggle:hover svg,
+.sound-toggle.active svg {
+  color: var(--canvas-deep);
+}
+
+.sound-toggle .icon-sound-off { display: none; }
+.sound-toggle.active .icon-sound-on { display: none; }
+.sound-toggle.active .icon-sound-off { display: block; }
+
+/* Wait, flip the logic - sound-on when active */
+.sound-toggle .icon-sound-on { display: block; }
+.sound-toggle .icon-sound-off { display: none; }
+.sound-toggle:not(.active) .icon-sound-on { opacity: 0.5; }
+.sound-toggle.active .icon-sound-on { opacity: 1; }
+
+/* Scale Selector - Musical Scale Dropdown */
+.scale-select {
+  display: none; /* Hidden by default, shown when sound enabled */
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: var(--gold-bright);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  outline: none;
+  margin-left: 8px;
+}
+
+[data-theme="light"] .scale-select {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(200, 144, 64, 0.3);
+  color: #8A7040;
+}
+
+.scale-select:hover,
+.scale-select:focus {
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+.scale-select option {
+  background: var(--canvas-deep);
+  color: var(--cream);
+  padding: 8px;
+}
+
+[data-theme="light"] .scale-select option {
+  background: #FDFBF7;
+  color: #3A3530;
+}
+
+/* Scale notification animation */
+.scale-notification {
+  text-shadow: 0 0 20px var(--gold-glow), 0 0 40px var(--gold-glow);
+}
+
 /* Status Dot - Pastel Glow */
 .status-dot {
   width: 12px;

@@ -149,7 +149,8 @@ export class HumanAvatarRenderer {
     this.rawHands = [null, null];
     this.rawFace = null;
     
-    this.smoothFactor = 0.35; // PERFORMANCE: Increased for faster response (was 0.22)
+    this.smoothFactor = 0.4; // PERFORMANCE: Increased for faster response (was 0.22)
+    this.armSmoothFactor = 0.65; // Even faster for arms to keep up with quick movements
     this.isDetected = false;
     this.detectionMode = 'none';
     this.theme = 'light'; // Default to light
@@ -170,11 +171,10 @@ export class HumanAvatarRenderer {
     this.handFadeOutDuration = 15; // Frames to fully fade out
     this.handMaxLostFrames = 30; // Fully clear hand after this many frames
     
-    // PERFORMANCE: Faster response with less smoothing
-    this.armSmoothFactor = 0.5; // Faster arm tracking
-    this.handSmoothFactor = 0.45; // Faster hand tracking for quick fist response
-    this.fastMovementThreshold = 0.08; // Threshold to detect fast movement
-    this.adaptiveSmoothMultiplier = 0.6; // Less aggressive smoothing during fast movement
+    // PERFORMANCE: Faster response with less smoothing (armSmoothFactor defined above)
+    this.handSmoothFactor = 0.55; // Faster hand tracking for quick fist response
+    this.fastMovementThreshold = 0.05; // Lower threshold to detect fast movement earlier
+    this.fastMovementBoost = 1.8; // BOOST responsiveness during fast movement (not reduce)
     
     // Effects - NEW: Interactive particle system
     this.velocityTracker = new LandmarkVelocityTracker();
@@ -377,8 +377,13 @@ export class HumanAvatarRenderer {
         } else {
           for (let i = 0; i < 33; i++) {
             if (newPose[i]) {
-              this.pose[i].x += (newPose[i].x - this.pose[i].x) * this.smoothFactor;
-              this.pose[i].y += (newPose[i].y - this.pose[i].y) * this.smoothFactor;
+              // Use faster smoothing for arm landmarks (shoulders, elbows, wrists)
+              // Landmarks 11-16 are shoulder/elbow/wrist on both sides
+              const isArm = (i >= 11 && i <= 16);
+              const sf = isArm ? this.armSmoothFactor : this.smoothFactor;
+              
+              this.pose[i].x += (newPose[i].x - this.pose[i].x) * sf;
+              this.pose[i].y += (newPose[i].y - this.pose[i].y) * sf;
               this.pose[i].visibility = newPose[i].visibility;
             }
           }
@@ -509,11 +514,11 @@ export class HumanAvatarRenderer {
           this.hands[slotIdx] = newHand.map(p => ({ x: p.x, y: p.y }));
           this.handIdentities[slotIdx] = { x: newHand[0].x, y: newHand[0].y };
         } else if (isValidUpdate) {
-          // IMPROVED: Adaptive smoothing based on movement speed
+          // FIXED: Adaptive smoothing - BOOST response during fast movement, not reduce
           let smoothFactor = this.handSmoothFactor;
           if (isFastMovement) {
-            // During fast movement, increase smoothing to reduce jitter
-            smoothFactor *= this.adaptiveSmoothMultiplier;
+            // During fast movement, INCREASE responsiveness so hands keep up with arms
+            smoothFactor = Math.min(0.9, smoothFactor * this.fastMovementBoost);
           }
             
             for (let i = 0; i < 21; i++) {
@@ -524,11 +529,11 @@ export class HumanAvatarRenderer {
           // Update identity reference
           this.handIdentities[slotIdx] = { x: this.hands[slotIdx][0].x, y: this.hands[slotIdx][0].y };
         } else {
-          // Glitch detected - apply very heavy smoothing (essentially ignore the glitchy frame)
-          const heavySmooth = 0.05;
+          // Glitch detected - apply moderate smoothing instead of ignoring
+          const glitchSmooth = 0.15; // Higher than before to prevent lag
           for (let i = 0; i < 21; i++) {
-            this.hands[slotIdx][i].x += (newHand[i].x - this.hands[slotIdx][i].x) * heavySmooth;
-            this.hands[slotIdx][i].y += (newHand[i].y - this.hands[slotIdx][i].y) * heavySmooth;
+            this.hands[slotIdx][i].x += (newHand[i].x - this.hands[slotIdx][i].x) * glitchSmooth;
+            this.hands[slotIdx][i].y += (newHand[i].y - this.hands[slotIdx][i].y) * glitchSmooth;
           }
         }
         

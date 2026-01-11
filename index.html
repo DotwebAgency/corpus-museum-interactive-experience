@@ -21,6 +21,9 @@
   <!-- GSAP Animation Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   
+  <!-- Tone.js for Musical Body Instrument -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  
   <!-- PWA -->
   <meta name="theme-color" content="#1A1410">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -102,6 +105,18 @@
           <span class="status-dot" id="status-dot"></span>
           <span class="status-text" id="status-text">Seeking presence</span>
         </div>
+        <button id="sound-toggle" class="header-btn sound-toggle" aria-label="Toggle sound" title="Musical Body Instrument">
+          <svg class="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+          <svg class="icon-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line x1="23" y1="9" x2="17" y2="15"/>
+            <line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        </button>
         <button id="fullscreen-toggle" class="header-btn fullscreen-toggle" aria-label="Toggle fullscreen">
           <svg class="icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="15 3 21 3 21 9"/>
@@ -310,7 +325,15 @@
             <span>Face</span>
           </span>
         </div>
-        <span class="footer-instruction">Make a fist to summon the ethereal sparks</span>
+        <span class="footer-instruction" id="footer-instruction">Make a fist to summon the ethereal sparks</span>
+        <select id="scale-select" class="scale-select" title="Musical Scale">
+          <option value="pentatonic">♫ Pentatonic</option>
+          <option value="minor">♫ Minor</option>
+          <option value="major">♫ Major</option>
+          <option value="blues">♫ Blues</option>
+          <option value="japanese">♫ Japanese</option>
+          <option value="dorian">♫ Dorian</option>
+        </select>
       </div>
       
       <!-- Right: Particles & FPS -->

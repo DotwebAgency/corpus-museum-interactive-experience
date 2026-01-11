@@ -13,6 +13,7 @@ import {
   LoadingAnimations,
   setupKeyboardNavigation 
 } from './animations.js';
+import { bodyInstrument } from './body-instrument.js';
 
 // ==============================================
 // STATE
@@ -33,7 +34,8 @@ const state = {
   sparkPulseTl: null,
   animationsReady: false,
   currentGestures: [], // Native MediaPipe gesture detection
-  cinemaMode: false    // Fullscreen cinema mode for recording
+  cinemaMode: false,   // Fullscreen cinema mode for recording
+  soundEnabled: false  // Musical Body Instrument enabled state
 };
 
 // Roman numerals
@@ -133,6 +135,11 @@ function getElements() {
   elements.introFooter = document.querySelector('.intro-footer');
   elements.introVignette = document.querySelector('.intro-vignette');
   elements.ctaFlourish = document.querySelector('.cta-flourish');
+  
+  // Sound controls (Musical Body Instrument)
+  elements.soundToggle = document.getElementById('sound-toggle');
+  elements.scaleSelect = document.getElementById('scale-select');
+  elements.footerInstruction = document.getElementById('footer-instruction');
 }
 
 // ==============================================
@@ -589,6 +596,17 @@ function handleTrackingResults(results) {
     // Handle spark activation/deactivation
     const wasSpark = state.sparkActive;
     state.sparkActive = status.spark;
+    
+    // Update Musical Body Instrument
+    if (bodyInstrument.isEnabled && results.poseLandmarks?.[0]) {
+      bodyInstrument.update(
+        results.poseLandmarks[0],
+        results.handLandmarks,
+        avatarRenderer.velocityTracker,
+        state.currentGestures,
+        results.faceBlendshapes
+      );
+    }
   }
   
   const hasPose = results.poseLandmarks && results.poseLandmarks.length > 0;
@@ -1019,6 +1037,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   elements.enableCameraBtn?.addEventListener('click', handleEnableCamera);
   elements.themeToggle?.addEventListener('click', toggleTheme);
+  elements.soundToggle?.addEventListener('click', toggleSound);
+  elements.scaleSelect?.addEventListener('change', handleScaleChange);
+  
+  // Setup sound visual feedback
+  bodyInstrument.onSoundTrigger = handleSoundTrigger;
 });
 
 // ==============================================
@@ -1059,6 +1082,136 @@ function toggleFullscreen() {
 function updateFullscreenUI() {
   const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
   document.body.classList.toggle('fullscreen-active', !!isFullscreen);
+}
+
+// ==============================================
+// MUSICAL BODY INSTRUMENT
+// ==============================================
+
+async function toggleSound() {
+  if (!bodyInstrument.isInitialized) {
+    // First time - initialize with Tone.js
+    try {
+      const success = await bodyInstrument.initialize(window.Tone);
+      if (!success) {
+        console.error('[CORPUS] Failed to initialize sound');
+        return;
+      }
+    } catch (e) {
+      console.error('[CORPUS] Sound init error:', e);
+      return;
+    }
+  }
+  
+  // Toggle enabled state
+  state.soundEnabled = !state.soundEnabled;
+  bodyInstrument.setEnabled(state.soundEnabled);
+  
+  // Update UI
+  updateSoundUI();
+  
+  // Update instruction text
+  if (elements.footerInstruction) {
+    if (state.soundEnabled) {
+      elements.footerInstruction.textContent = '♫ Move arms to play · Fist = drums · Palm = chords';
+    } else {
+      elements.footerInstruction.textContent = 'Make a fist to summon the ethereal sparks';
+    }
+  }
+  
+  console.log('[CORPUS] 🎵 Sound', state.soundEnabled ? 'enabled' : 'disabled');
+}
+
+function updateSoundUI() {
+  if (elements.soundToggle) {
+    elements.soundToggle.classList.toggle('active', state.soundEnabled);
+    elements.soundToggle.setAttribute('aria-pressed', state.soundEnabled);
+  }
+  
+  if (elements.scaleSelect) {
+    elements.scaleSelect.style.display = state.soundEnabled ? 'block' : 'none';
+    elements.scaleSelect.value = bodyInstrument.getCurrentScale();
+  }
+}
+
+function handleScaleChange(e) {
+  const scale = e.target.value;
+  bodyInstrument.setScale(scale);
+  console.log('[CORPUS] 🎼 Scale changed to:', scale);
+}
+
+function handleSoundTrigger(type, note, volume) {
+  // Visual feedback for sound events
+  if (state.gsap) {
+    // Pulse effect on sound
+    if (type === 'scale') {
+      // Show scale name briefly
+      showScaleNotification(note);
+    } else if (type === 'kick' || type === 'snare') {
+      // Pulse the canvas border on drums
+      pulseOnDrum(type);
+    }
+  }
+}
+
+function showScaleNotification(scaleName) {
+  // Create temporary notification
+  const notification = document.createElement('div');
+  notification.className = 'scale-notification';
+  notification.textContent = `♫ ${scaleName.toUpperCase()}`;
+  notification.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-display);
+    font-size: 24px;
+    color: var(--gold-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    pointer-events: none;
+    z-index: 1000;
+  `;
+  document.body.appendChild(notification);
+  
+  // Animate and remove
+  if (state.gsap) {
+    state.gsap.fromTo(notification, 
+      { opacity: 0, scale: 0.8 },
+      { 
+        opacity: 1, 
+        scale: 1, 
+        duration: 0.3,
+        onComplete: () => {
+          state.gsap.to(notification, {
+            opacity: 0,
+            y: -20,
+            duration: 0.5,
+            delay: 1,
+            onComplete: () => notification.remove()
+          });
+        }
+      }
+    );
+  } else {
+    setTimeout(() => notification.remove(), 2000);
+  }
+}
+
+function pulseOnDrum(type) {
+  // Brief pulse effect on frame borders
+  const borders = document.querySelectorAll('.frame-border');
+  if (borders.length && state.gsap) {
+    const color = type === 'kick' ? 'rgba(200, 160, 64, 0.5)' : 'rgba(232, 180, 184, 0.5)';
+    borders.forEach(border => {
+      state.gsap.to(border, {
+        boxShadow: `0 0 20px ${color}`,
+        duration: 0.1,
+        yoyo: true,
+        repeat: 1
+      });
+    });
+  }
 }
 
 window.addEventListener('load', resizeCanvas);
