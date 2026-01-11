@@ -1,5 +1,11 @@
 Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-So look, when I play the game, like I make music, everything works perfect the first time, but I have to make sure both hands are in the screen when I turn on the mode, when I click on the speaker icon, right? But then once I move my hands down and the music stops, I cannot bring them back up and continue.
+Yeah, we need the full screen toggle and the dark mode toggle on the enter page, that's what I meant. Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-I have to like reload the entire page and start this whole process again. We need to make this proper, proper reliable and fix all this mess, okay? 
+And the light version of the enter page really doesn't look that nice actually. And the enter button has severe issues. We need a full redesign here. Elevate something on a much higher GSAP level.
+
+Beautiful design. Without this thick man, okay? Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
+
+In general the light mode seems to have severe issues, the dark mode looks much better. Optimize the light mode system-wide properly. Okay, so it's production ready, unicorn level, artistic ready for the louvre to be presented. Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
+
+And what the f**k is this scroll to explore? There is no scrolling going on, is there? If you scroll, it should trigger the card that happens if I click on enter, okay? 

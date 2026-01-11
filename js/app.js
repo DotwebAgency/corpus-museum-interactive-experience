@@ -112,6 +112,7 @@ function getElements() {
   elements.introTitleWrapper = document.getElementById('intro-title-wrapper');
   elements.introTaglineWrapper = document.getElementById('intro-tagline-wrapper');
   elements.introScrollIndicator = document.getElementById('intro-scroll-indicator');
+  elements.introFullscreenBtn = document.getElementById('intro-fullscreen-btn');
   
   // Legacy alias
   elements.statusPanel = elements.detectionPanel;
@@ -1210,6 +1211,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Camera/portal button - support both legacy and GSAP-first
   elements.enableCameraBtn?.addEventListener('click', handleEnableCamera);
   elements.portalButton?.addEventListener('click', handleEnableCamera);
+  
+  // Intro fullscreen button - enter fullscreen before starting experience
+  elements.introFullscreenBtn?.addEventListener('click', () => {
+    const doc = document.documentElement;
+    if (doc.requestFullscreen) {
+      doc.requestFullscreen();
+    } else if (doc.webkitRequestFullscreen) {
+      doc.webkitRequestFullscreen();
+    }
+  });
   
   elements.themeToggle?.addEventListener('click', toggleTheme);
   

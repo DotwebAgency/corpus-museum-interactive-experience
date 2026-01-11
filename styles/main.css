@@ -60,34 +60,40 @@
   --theme-transition: 0.5s ease;
 }
 
-/* ===================== TYPOGRAPHY - LOUVRE ELEGANCE ===================== */
+/* ===================== TYPOGRAPHY - SWISS MINIMALIST LUXURY ===================== */
+/* 
+ * "The secret to luxury is that large headers are NOT bold."
+ * - DM Sans: Geometric sans-serif for clean Swiss aesthetic
+ * - H1, H2, H3: font-weight: 400 (Regular)
+ * - Body base: 18px
+ */
 :root {
-  /* Typography - Playfair Display for headings, Cormorant Garamond for body */
-  --font-display: 'Playfair Display', 'EB Garamond', Georgia, serif;
-  --font-serif: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
+  /* Typography - DM Sans for Swiss Minimalist Luxury */
+  --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'DM Mono', 'SF Mono', 'Monaco', monospace;
   
-  /* Intro Page Typography - Extra elegant */
-  --font-intro-title: 'Playfair Display', Georgia, serif;
-  --font-intro-tagline: 'Cormorant Garamond', Georgia, serif;
-  --font-intro-history: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
+  /* Intro Page Typography - Clean geometric */
+  --font-intro-title: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-intro-tagline: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-intro-history: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   
-  /* Type Scale - Optimized for 100" display viewing */
-  --text-xs: 14px;
-  --text-sm: 16px;
-  --text-base: 20px;
-  --text-lg: 24px;
-  --text-xl: 32px;
+  /* Type Scale - Swiss Luxury (base 18px) */
+  --text-xs: 12px;
+  --text-sm: 15px;
+  --text-base: 18px;      /* Global base - NOT 16px! */
+  --text-lg: 24px;        /* H3 equivalent */
+  --text-xl: 36px;        /* H2 equivalent - line-height: 1.2, tracking: -0.01em */
   --text-2xl: 48px;
-  --text-3xl: 64px;
-  --text-4xl: 80px;      /* Hero title - visible from distance */
-  --text-nav: 16px;
+  --text-3xl: 56px;       /* H1 Hero - line-height: 1.1, tracking: -0.02em */
+  --text-4xl: 64px;       /* Hero title for dramatic effect */
+  --text-nav: 15px;       /* Nav links - tracking: 0.01em */
   
-  /* Swiss Text Colors - high contrast for readability */
-  --text-charcoal: #1A1A1A;
-  --text-body: #3A3A3A;
-  --text-muted-swiss: #5A5A5A;
+  /* Swiss Text Colors - soft charcoal, NOT pure black */
+  --text-charcoal: #1A1A1A;  /* Headers - replace #000000 */
+  --text-body: #4A4A4A;      /* Body text - lighter grey */
+  --text-muted-swiss: #6A6A6A;
   
   /* Layout - generous spacing for gallery feel */
   --header-height: 72px;
@@ -339,33 +345,31 @@ button {
 
 .intro-title {
   font-family: var(--font-display);
-  font-size: var(--text-4xl);
-  font-weight: 300;
-  letter-spacing: 0.2em;
+  font-size: var(--text-3xl);  /* 56px - Swiss H1 size */
+  font-weight: 400;            /* Swiss Luxury: Regular, NOT bold */
+  letter-spacing: -0.02em;     /* Swiss: tight tracking */
   text-transform: uppercase;
-  line-height: 1.0;
+  line-height: 1.1;            /* Swiss: tight line-height */
   color: var(--ivory);
   text-shadow: 
-    0 2px 4px rgba(0,0,0,0.3),
-    0 0 60px var(--gold-glow);
+    0 2px 4px rgba(0,0,0,0.2);
   margin-bottom: 16px;
   /* GSAP handles opacity */
   animation: fadeInUp 1.2s ease forwards 0.4s;
 }
 
 [data-theme="light"] .intro-title {
-  color: #2A2520;
+  color: var(--text-charcoal);  /* Swiss: soft charcoal, NOT pure black */
   text-shadow: 
-    0 2px 4px rgba(0,0,0,0.1),
-    0 0 40px rgba(200, 144, 64, 0.3);
+    0 2px 4px rgba(0,0,0,0.05);
 }
 
 .intro-tagline {
   font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 300;
-  color: var(--gold-muted);
-  letter-spacing: 0.08em;
+  font-size: var(--text-lg);   /* 24px - Swiss H3 size */
+  font-weight: 400;            /* Swiss Luxury: Regular, NOT bold */
+  color: var(--text-body);     /* Swiss: lighter grey for body */
+  letter-spacing: 0;           /* Swiss: no extra spacing for body */
   margin-bottom: 40px;
   /* GSAP handles animation */
 }
@@ -504,6 +508,46 @@ button {
 
 [data-theme="light"] .footer-latin {
   color: #9080B8;
+}
+
+/* Intro Fullscreen Button - Flat design */
+.intro-fullscreen-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--gold-muted);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.intro-fullscreen-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.intro-fullscreen-btn:hover {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: var(--gold-bright);
+  color: var(--gold-bright);
+}
+
+.intro-fullscreen-btn:focus {
+  outline: none;
+}
+
+[data-theme="light"] .intro-fullscreen-btn {
+  border-color: rgba(168, 136, 64, 0.3);
+  color: #A08040;
+}
+
+[data-theme="light"] .intro-fullscreen-btn:hover {
+  background: rgba(168, 136, 64, 0.1);
+  border-color: #C9A040;
+  color: #C9A040;
 }
 
 /* ===================== GSAP-FIRST INTRO PAGE - LOUVRE MASTERPIECE ===================== */
@@ -1236,9 +1280,9 @@ button {
 /* Flat design brand wordmark */
 .brand-name {
   font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  font-size: 15px;
+  font-weight: 400;  /* Swiss Luxury: NOT bold */
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: #E8E4DE;
   /* NO: text-shadow, pseudo-elements */
@@ -1371,117 +1415,92 @@ button {
 .fullscreen-active .fullscreen-toggle .icon-expand { display: none; }
 .fullscreen-active .fullscreen-toggle .icon-compress { display: block; }
 
-/* Theme Toggle - Ethereal */
+/* Theme Toggle - Flat Design */
 .theme-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(135deg, rgba(232, 180, 184, 0.15), rgba(200, 184, 216, 0.15));
-  border: 1px solid var(--rose-glow);
-  border-radius: 0; /* Sharp corners for uniform design */
-  color: var(--cream);
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  color: #8A8680;
   cursor: pointer;
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
+  transition: all 150ms ease;
 }
 
 [data-theme="light"] .theme-toggle {
-  background: linear-gradient(135deg, rgba(208, 128, 144, 0.15), rgba(144, 128, 184, 0.15));
-  border: 1px solid rgba(208, 128, 144, 0.3);
-  color: #5A5550;
-}
-
-.theme-toggle::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--rose-blush), var(--lavender));
-  opacity: 0;
-  transition: opacity var(--transition-normal);
-}
-
-.theme-toggle:hover::before {
-  opacity: 1;
+  color: #6A6660;
 }
 
 .theme-toggle:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 20px var(--rose-glow);
+  background: #242220;
+  border-color: #3A3634;
+  color: #E8E4DE;
+}
+
+[data-theme="light"] .theme-toggle:hover {
+  background: #F0EDE8;
+  border-color: #E5E2DD;
+  color: #2A2826;
 }
 
 .theme-toggle svg {
-  width: 22px;
-  height: 22px;
-  position: relative;
-  z-index: 1;
-  transition: color var(--transition-normal);
-}
-
-.theme-toggle:hover svg {
-  color: var(--canvas-deep);
+  width: 18px;
+  height: 18px;
 }
 
 .theme-toggle .icon-moon { display: none; }
 [data-theme="light"] .theme-toggle .icon-sun { display: none; }
 [data-theme="light"] .theme-toggle .icon-moon { display: block; }
 
-/* Sound Toggle - Musical Body Instrument */
+/* Sound Toggle - Flat Design */
 .sound-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(135deg, rgba(168, 200, 220, 0.15), rgba(168, 208, 188, 0.15));
-  border: 1px solid rgba(168, 200, 220, 0.3);
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: 0;
-  color: var(--cream);
+  color: #8A8680;
   cursor: pointer;
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
+  transition: all 150ms ease;
 }
 
 [data-theme="light"] .sound-toggle {
-  background: linear-gradient(135deg, rgba(96, 144, 184, 0.15), rgba(96, 168, 136, 0.15));
-  border: 1px solid rgba(96, 144, 184, 0.3);
-  color: #5A5550;
+  color: #6A6660;
 }
 
-.sound-toggle::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--powder-blue), var(--mint-cream));
-  opacity: 0;
-  transition: opacity var(--transition-normal);
+.sound-toggle:hover {
+  background: #242220;
+  border-color: #3A3634;
+  color: #E8E4DE;
 }
 
-.sound-toggle:hover::before,
-.sound-toggle.active::before {
-  opacity: 1;
+[data-theme="light"] .sound-toggle:hover {
+  background: #F0EDE8;
+  border-color: #E5E2DD;
+  color: #2A2826;
 }
 
-.sound-toggle:hover,
 .sound-toggle.active {
-  transform: scale(1.05);
-  box-shadow: 0 4px 20px rgba(168, 200, 220, 0.4);
+  background: #C9A227;
+  border-color: #C9A227;
+  color: #1A1816;
+}
+
+[data-theme="light"] .sound-toggle.active {
+  background: #B8860B;
+  border-color: #B8860B;
+  color: #FFFFFF;
 }
 
 .sound-toggle svg {
-  width: 22px;
-  height: 22px;
-  position: relative;
-  z-index: 1;
-  transition: color var(--transition-normal);
-}
-
-.sound-toggle:hover svg,
-.sound-toggle.active svg {
-  color: var(--canvas-deep);
+  width: 18px;
+  height: 18px;
 }
 
 /* Sound icon logic: 
@@ -1489,7 +1508,7 @@ button {
    - Active (sound ON): show speaker with sound waves
 */
 .sound-toggle .icon-sound-on { display: none; }
-.sound-toggle .icon-sound-off { display: block; opacity: 0.5; }
+.sound-toggle .icon-sound-off { display: block; opacity: 0.6; }
 .sound-toggle.active .icon-sound-on { display: block; opacity: 1; }
 .sound-toggle.active .icon-sound-off { display: none; }
 
@@ -4375,16 +4394,16 @@ body.cinema-mode.letterbox .cinema-letterbox {
 /* ===================== HELP PANEL (Slide-in from right) ===================== */
 .help-modal {
   position: fixed;
-  top: var(--header-height);
-  right: 0;
-  bottom: var(--footer-height);
+  /* Account for header + frame on top, footer + frame on bottom */
+  top: calc(var(--header-height) + var(--frame-width));
+  right: var(--frame-width);
+  bottom: calc(var(--footer-height) + var(--frame-width));
   width: 360px;
-  max-width: 90vw;
+  max-width: calc(100vw - 2 * var(--frame-width));
   z-index: 500;
-  transform: translateX(100%);
+  transform: translateX(calc(100% + var(--frame-width)));
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
-  margin: var(--frame-width);
 }
 
 .help-modal.visible {

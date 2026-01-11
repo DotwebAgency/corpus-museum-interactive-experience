@@ -336,6 +336,8 @@ export class BodyInstrument {
     
     const rightWrist = pose[16];  // Right wrist
     const leftWrist = pose[15];   // Left wrist
+    const Tone = this.Tone;
+    const now = Tone.now();
     
     // === RIGHT ARM (MELODY) ===
     if (rightWrist && rightWrist.visibility > this.armVisibilityThreshold) {
@@ -346,13 +348,25 @@ export class BodyInstrument {
       this.lastRightFreq = this.lerp(this.lastRightFreq, targetFreq, this.armSmoothFactor);
       
       if (!this.rightArmActive) {
-        // Start playing
-        this.rightArmSynth.triggerAttack(this.lastRightFreq);
-        this.rightArmActive = true;
-        console.log('[BodyInstrument] 🎹 Right arm ON:', Math.round(this.lastRightFreq), 'Hz');
+        // CRUCIAL: Cancel any ongoing release and force restart
+        try {
+          // Force synth to immediately attack at current frequency
+          this.rightArmSynth.triggerAttack(this.lastRightFreq, now);
+          this.rightArmActive = true;
+          this.rightArmReleaseTime = 0; // Reset release timer
+          console.log('[BodyInstrument] 🎹 Right arm ON:', Math.round(this.lastRightFreq), 'Hz');
+        } catch (e) {
+          console.warn('[BodyInstrument] Right arm triggerAttack failed:', e);
+          // Force recreation if stuck
+          this.recreateContinuousArmSynth('right');
+        }
       } else {
         // Update frequency (portamento handles smoothing)
-        this.rightArmSynth.setNote(this.lastRightFreq);
+        try {
+          this.rightArmSynth.setNote(this.lastRightFreq);
+        } catch (e) {
+          console.warn('[BodyInstrument] Right arm setNote failed:', e);
+        }
       }
       
       // Visual feedback
@@ -360,9 +374,15 @@ export class BodyInstrument {
         this.onSoundTrigger('continuous_melody', this.lastRightFreq, rightWrist.y);
       }
     } else if (this.rightArmActive) {
-      // Arm left frame - release note
-      this.rightArmSynth.triggerRelease();
+      // Arm left frame - release note with fast fade
+      try {
+        this.rightArmSynth.triggerRelease(now);
+        this.rightArmReleaseTime = Date.now();
+      } catch (e) {
+        console.warn('[BodyInstrument] Right arm release failed:', e);
+      }
       this.rightArmActive = false;
+      this.lastRightFreq = 0; // Reset frequency so it starts fresh next time
       console.log('[BodyInstrument] 🎹 Right arm OFF');
     }
     
@@ -374,20 +394,73 @@ export class BodyInstrument {
       this.lastLeftFreq = this.lerp(this.lastLeftFreq, targetFreq, this.armSmoothFactor);
       
       if (!this.leftArmActive) {
-        this.leftArmSynth.triggerAttack(this.lastLeftFreq);
-        this.leftArmActive = true;
-        console.log('[BodyInstrument] 🎸 Left arm ON:', Math.round(this.lastLeftFreq), 'Hz');
+        // CRUCIAL: Cancel any ongoing release and force restart
+        try {
+          this.leftArmSynth.triggerAttack(this.lastLeftFreq, now);
+          this.leftArmActive = true;
+          this.leftArmReleaseTime = 0;
+          console.log('[BodyInstrument] 🎸 Left arm ON:', Math.round(this.lastLeftFreq), 'Hz');
+        } catch (e) {
+          console.warn('[BodyInstrument] Left arm triggerAttack failed:', e);
+          this.recreateContinuousArmSynth('left');
+        }
       } else {
-        this.leftArmSynth.setNote(this.lastLeftFreq);
+        try {
+          this.leftArmSynth.setNote(this.lastLeftFreq);
+        } catch (e) {
+          console.warn('[BodyInstrument] Left arm setNote failed:', e);
+        }
       }
       
       if (this.onSoundTrigger) {
         this.onSoundTrigger('continuous_bass', this.lastLeftFreq, leftWrist.y);
       }
     } else if (this.leftArmActive) {
-      this.leftArmSynth.triggerRelease();
+      try {
+        this.leftArmSynth.triggerRelease(now);
+        this.leftArmReleaseTime = Date.now();
+      } catch (e) {
+        console.warn('[BodyInstrument] Left arm release failed:', e);
+      }
       this.leftArmActive = false;
+      this.lastLeftFreq = 0; // Reset frequency
       console.log('[BodyInstrument] 🎸 Left arm OFF');
+    }
+  }
+  
+  // Recreate a stuck synth (fallback recovery)
+  recreateContinuousArmSynth(side) {
+    const Tone = this.Tone;
+    if (!Tone) return;
+    
+    console.log(`[BodyInstrument] 🔧 Recreating ${side} arm synth...`);
+    
+    if (side === 'right') {
+      if (this.rightArmSynth) {
+        try { this.rightArmSynth.dispose(); } catch (e) {}
+      }
+      this.rightArmSynth = new Tone.MonoSynth({
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.05, decay: 0.2, sustain: 0.8, release: 0.3 },
+        filterEnvelope: { attack: 0.02, decay: 0.3, sustain: 0.5, release: 0.3, baseFrequency: 200, octaves: 4 },
+        portamento: 0.05
+      });
+      this.rightArmSynth.volume.value = -8;
+      this.rightArmSynth.connect(this.delay);
+      this.rightArmActive = false;
+    } else {
+      if (this.leftArmSynth) {
+        try { this.leftArmSynth.dispose(); } catch (e) {}
+      }
+      this.leftArmSynth = new Tone.MonoSynth({
+        oscillator: { type: 'triangle' },
+        envelope: { attack: 0.1, decay: 0.3, sustain: 0.7, release: 0.4 },
+        filterEnvelope: { attack: 0.05, decay: 0.4, sustain: 0.4, release: 0.4, baseFrequency: 80, octaves: 2.5 },
+        portamento: 0.08
+      });
+      this.leftArmSynth.volume.value = -10;
+      this.leftArmSynth.connect(this.filter);
+      this.leftArmActive = false;
     }
   }
   
@@ -418,14 +491,23 @@ export class BodyInstrument {
     
     // Stop any active continuous sounds when disabling
     if (!enabled) {
+      const now = this.Tone?.now();
       if (this.rightArmActive && this.rightArmSynth) {
-        this.rightArmSynth.triggerRelease();
+        try { this.rightArmSynth.triggerRelease(now); } catch (e) {}
         this.rightArmActive = false;
+        this.lastRightFreq = 0;
       }
       if (this.leftArmActive && this.leftArmSynth) {
-        this.leftArmSynth.triggerRelease();
+        try { this.leftArmSynth.triggerRelease(now); } catch (e) {}
         this.leftArmActive = false;
+        this.lastLeftFreq = 0;
       }
+    } else {
+      // Reset state when enabling
+      this.rightArmActive = false;
+      this.leftArmActive = false;
+      this.lastRightFreq = 0;
+      this.lastLeftFreq = 0;
     }
     
     console.log('[BodyInstrument] Continuous mode:', enabled ? 'ON' : 'OFF');
