@@ -311,7 +311,7 @@ export class TutorialManager {
         detected = gestureData.gestures?.some(g => g?.name === 'Victory');
         break;
       case 'face':
-        detected = gestureData.mouthOpen > 0.3;
+        detected = gestureData.mouthOpen > 0.15; // Lower threshold for easier detection
         break;
     }
     

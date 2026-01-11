@@ -67,7 +67,7 @@ export class BodyInstrument {
     this.historyLength = 5;
     
     // Thresholds - lower = more sensitive
-    this.velocityThreshold = 0.008; // Minimum movement to trigger (lowered for better response)
+    this.velocityThreshold = 0.004; // Very sensitive - any movement plays notes
     this.gestureDebounce = 300; // ms between gesture triggers
     this.chordDebounce = 500; // ms between chord strums
     

@@ -237,7 +237,8 @@ export class HumanAvatarRenderer {
       smile: 0,        // mouthSmileLeft + mouthSmileRight average
       surprise: 0,     // browInnerUp + jawOpen average
       blink: 0,        // eyeBlinkLeft + eyeBlinkRight average
-      intensity: 0     // Composite emotional intensity
+      intensity: 0,    // Composite emotional intensity
+      mouthOpen: 0     // jawOpen - for tutorial detection
     };
     this.expressionSmooth = 0.2; // Smoothing factor for expressions
     
@@ -293,6 +294,7 @@ export class HumanAvatarRenderer {
     this.faceExpression.smile += (targetSmile - this.faceExpression.smile) * this.expressionSmooth;
     this.faceExpression.surprise += (targetSurprise - this.faceExpression.surprise) * this.expressionSmooth;
     this.faceExpression.blink += (targetBlink - this.faceExpression.blink) * this.expressionSmooth;
+    this.faceExpression.mouthOpen += (jawOpen - this.faceExpression.mouthOpen) * this.expressionSmooth;
     
     // Composite intensity (positive emotions)
     this.faceExpression.intensity = Math.min(1, 

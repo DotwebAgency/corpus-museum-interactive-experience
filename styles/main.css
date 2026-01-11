@@ -1559,20 +1559,23 @@ button {
 
 /* ===================== APP FOOTER - Integrated Status Bar ===================== */
 .app-footer {
-  min-height: var(--footer-height);
+  min-height: auto; /* Remove forced height */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
-  background: var(--canvas-mid);
-  backdrop-filter: blur(24px);
-  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.15);
+  padding: 8px 20px;
+  background: linear-gradient(180deg, 
+    rgba(42, 38, 36, 0.85) 0%, 
+    rgba(30, 28, 26, 0.9) 100%);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 -1px 12px rgba(0, 0, 0, 0.1);
   margin: 0 var(--frame-width) var(--frame-width);
   z-index: 100;
   position: relative;
   transition: background var(--theme-transition), box-shadow var(--theme-transition);
-  gap: 16px;
+  gap: 12px;
   flex-wrap: nowrap;
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
 }
 
 [data-theme="light"] .app-footer {
@@ -1783,7 +1786,7 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   flex: 1;
   min-width: 0; /* Allow shrinking */
 }
@@ -2057,7 +2060,7 @@ button {
 
 @keyframes irisPulse {
   0%, 100% { 
-    transform: scale(1);
+    transform: scale(1); 
     opacity: 0.9;
   }
   50% { 
@@ -2099,11 +2102,11 @@ button {
 
 @keyframes raysExpand {
   from { 
-    opacity: 0;
+    opacity: 0; 
     transform: scale(0.5);
   }
   to { 
-    opacity: 1;
+    opacity: 1; 
     transform: scale(1);
   }
 }
@@ -2711,27 +2714,37 @@ body.cinema-mode.letterbox .cinema-letterbox {
 .tutorial-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
 }
 
 .tutorial-card {
   position: relative;
   width: 100%;
-  max-width: 480px;
-  background: linear-gradient(145deg, var(--canvas-mid) 0%, var(--canvas-deep) 100%);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 16px;
-  padding: 32px;
+  max-width: 440px;
+  background: linear-gradient(145deg, 
+    rgba(42, 38, 36, 0.85) 0%, 
+    rgba(30, 28, 26, 0.9) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 20px;
+  padding: 28px 32px;
   text-align: center;
   box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.5),
-    0 0 100px rgba(212, 175, 55, 0.1);
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 60px rgba(212, 175, 55, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="light"] .tutorial-card {
-  background: linear-gradient(145deg, #FFFFFF 0%, #F5F0E8 100%);
-  border-color: rgba(200, 144, 64, 0.3);
+  background: linear-gradient(145deg, 
+    rgba(255, 255, 255, 0.85) 0%, 
+    rgba(245, 240, 232, 0.9) 100%);
+  border-color: rgba(200, 144, 64, 0.25);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 0 60px rgba(200, 144, 64, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .tutorial-progress {
@@ -2935,29 +2948,35 @@ body.cinema-mode.letterbox .cinema-letterbox {
 .help-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(3px);
 }
 
 .help-modal-content {
   position: relative;
   width: 100%;
-  max-width: 700px;
-  max-height: 85vh;
-  background: linear-gradient(145deg, var(--canvas-mid) 0%, var(--canvas-deep) 100%);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 16px;
+  max-width: 650px;
+  max-height: 80vh;
+  background: linear-gradient(145deg, 
+    rgba(42, 38, 36, 0.88) 0%, 
+    rgba(30, 28, 26, 0.92) 100%);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 20px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.5),
-    0 0 100px rgba(212, 175, 55, 0.1);
+    0 20px 40px rgba(0, 0, 0, 0.35),
+    0 0 60px rgba(212, 175, 55, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 [data-theme="light"] .help-modal-content {
-  background: linear-gradient(145deg, #FFFFFF 0%, #F5F0E8 100%);
-  border-color: rgba(200, 144, 64, 0.3);
+  background: linear-gradient(145deg, 
+    rgba(255, 255, 255, 0.88) 0%, 
+    rgba(245, 240, 232, 0.92) 100%);
+  border-color: rgba(200, 144, 64, 0.2);
 }
 
 .help-modal-header {
@@ -3176,28 +3195,28 @@ body.cinema-mode.letterbox .cinema-letterbox {
 .gesture-palette {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 [data-theme="light"] .gesture-palette {
   background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.03);
 }
 
 .gesture-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  gap: 2px;
+  padding: 4px 8px;
+  border-radius: 6px;
   transition: all 0.2s ease;
   cursor: default;
-  min-width: 60px;
+  min-width: 44px;
 }
 
 .gesture-item:hover {
@@ -3210,8 +3229,9 @@ body.cinema-mode.letterbox .cinema-letterbox {
 }
 
 .gesture-item-icon {
-  font-size: 24px;
+  font-size: 18px;
   transition: transform 0.2s ease;
+  line-height: 1;
 }
 
 .gesture-item.active .gesture-item-icon {
@@ -3277,35 +3297,51 @@ body.cinema-mode.letterbox .cinema-letterbox {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: var(--ivory-muted);
+  width: 32px;
+  height: 32px;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 50%;
+  color: var(--gold-bright);
   font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 400;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  animation: help-pulse 3s ease-in-out infinite;
+}
+
+@keyframes help-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(212, 175, 55, 0); }
 }
 
 .help-btn:hover {
-  background: rgba(212, 175, 55, 0.1);
-  border-color: var(--gold-muted);
-  color: var(--gold-bright);
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--gold-bright);
+  transform: scale(1.05);
+  animation: none;
 }
 
 [data-theme="light"] .help-btn {
-  background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: var(--text-muted);
+  background: rgba(200, 144, 64, 0.1);
+  border-color: rgba(200, 144, 64, 0.25);
+  color: #B8860B;
 }
 
 [data-theme="light"] .help-btn:hover {
-  background: rgba(200, 144, 64, 0.1);
-  border-color: rgba(200, 144, 64, 0.3);
-  color: var(--gold-bright);
+  background: rgba(200, 144, 64, 0.2);
+  border-color: #B8860B;
+}
+
+/* Sound toggle attention pulse (when not enabled) */
+.sound-toggle:not(.active) {
+  animation: sound-attention 4s ease-in-out infinite 2s;
+}
+
+@keyframes sound-attention {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 12px rgba(212, 175, 55, 0.4); }
 }
 
 /* ===================== REDUCED MOTION ===================== */

@@ -613,15 +613,18 @@ function handleTrackingResults(results) {
     const wasSpark = state.sparkActive;
     state.sparkActive = status.spark;
     
-    // Update Musical Body Instrument
-    if (bodyInstrument.isEnabled && results.poseLandmarks?.[0]) {
-      bodyInstrument.update(
-        results.poseLandmarks[0],
-        results.handLandmarks,
-        avatarRenderer.velocityTracker,
-        state.currentGestures,
-        results.faceBlendshapes
-      );
+    // Update Musical Body Instrument (always update if enabled for consistent response)
+    if (bodyInstrument.isEnabled && bodyInstrument.isInitialized) {
+      const pose = results.poseLandmarks?.[0];
+      if (pose && pose.length >= 17) {
+        bodyInstrument.update(
+          pose,
+          results.handLandmarks,
+          avatarRenderer.velocityTracker,
+          state.currentGestures,
+          results.faceBlendshapes
+        );
+      }
     }
   }
   
@@ -1168,9 +1171,9 @@ async function toggleSound() {
   // Update instruction text
   if (elements.footerInstruction) {
     if (state.soundEnabled) {
-      elements.footerInstruction.textContent = '♫ Move arms to play · Fist = drums · Palm = chords';
+      elements.footerInstruction.textContent = '♫ Move arms up/down for melody · ✊ = drums · ✋ = chords';
     } else {
-      elements.footerInstruction.textContent = 'Make a fist to summon the ethereal sparks';
+      elements.footerInstruction.textContent = 'Click [?] for guide · 🔊 enables music · ✊ summons sparks';
     }
   }
   
