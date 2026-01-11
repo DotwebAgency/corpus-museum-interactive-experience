@@ -235,21 +235,21 @@ async function initAnimations() {
     IntroAnimations.pageReveal(gsap, gsapFirstElements);
   } else {
     // Legacy intro reveal sequence
-    const introElements = {
-      logo: elements.introLogo,
-      title: elements.introTitle,
-      tagline: elements.introTagline,
-      subtitle: elements.introSubtitle,
-      cta: elements.enableCameraBtn,
-      privacy: elements.introPrivacy,
-      footer: elements.introFooter
-    };
-    
-    IntroAnimations.pageReveal(gsap, introElements);
-    
+  const introElements = {
+    logo: elements.introLogo,
+    title: elements.introTitle,
+    tagline: elements.introTagline,
+    subtitle: elements.introSubtitle,
+    cta: elements.enableCameraBtn,
+    privacy: elements.introPrivacy,
+    footer: elements.introFooter
+  };
+  
+  IntroAnimations.pageReveal(gsap, introElements);
+  
     // Setup button hover animation (for legacy button)
     if (elements.enableCameraBtn) {
-      state.buttonHoverTl = IntroAnimations.createButtonHover(gsap, elements.enableCameraBtn);
+  state.buttonHoverTl = IntroAnimations.createButtonHover(gsap, elements.enableCameraBtn);
     }
   }
   
@@ -341,15 +341,23 @@ function resizeCanvas() {
 
 async function handleEnableCamera() {
   const gsap = state.gsap;
+  const isGSAPFirst = elements.introScreen.classList.contains('gsap-first-experience');
   
-  // Button press animation
-  if (gsap) {
+  // Determine which button was clicked
+  const clickedButton = elements.portalButton || elements.enableCameraBtn;
+  
+  // Portal transition for GSAP-first, simple fade for legacy
+  if (gsap && isGSAPFirst && clickedButton) {
+    // Use portal expansion transition
+    IntroAnimations.portalTransition(gsap, clickedButton, () => {
+      // Portal animation complete, hide intro
+      elements.introScreen.style.visibility = 'hidden';
+      elements.introScreen.classList.add('hidden');
+    });
+  } else if (gsap) {
+    // Legacy button press animation
     IntroAnimations.buttonPress(gsap, elements.enableCameraBtn);
-  }
-  
-  // IMPORTANT: Hide intro screen IMMEDIATELY when button is clicked
-  // This prevents it from showing again when awakening overlay fades out
-  if (gsap) {
+    
     gsap.to(elements.introScreen, {
       opacity: 0,
       duration: 0.5,
@@ -1156,7 +1164,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize GSAP animations
   await initAnimations();
   
+  // Camera/portal button - support both legacy and GSAP-first
   elements.enableCameraBtn?.addEventListener('click', handleEnableCamera);
+  elements.portalButton?.addEventListener('click', handleEnableCamera);
+  
   elements.themeToggle?.addEventListener('click', toggleTheme);
   elements.soundToggle?.addEventListener('click', toggleSound);
   elements.scaleSelect?.addEventListener('change', handleScaleChange);

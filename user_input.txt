@@ -2,4 +2,6 @@ Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
 Redesign the enter button on the landing page. I don't like when I have over it, how it turns square basically. It looks so weird. We need something much much much better than more suitable.
 
-And don't have a repetition of the stickman we already use in the square above. Thank you. 
+And don't have a repetition of the stickman we already use in the square above. Thank you. Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
+
+This portly effect doesn't work well, it's just a golden card and it suddenly goes brown to the other actual loading screen. And also when I hold the peace sign it doesn't change the tone anymore, something is broken there now. 
