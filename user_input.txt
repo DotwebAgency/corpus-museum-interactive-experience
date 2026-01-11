@@ -1,11 +1,3 @@
 Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-Yeah, we need the full screen toggle and the dark mode toggle on the enter page, that's what I meant. Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
-
-And the light version of the enter page really doesn't look that nice actually. And the enter button has severe issues. We need a full redesign here. Elevate something on a much higher GSAP level.
-
-Beautiful design. Without this thick man, okay? Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
-
-In general the light mode seems to have severe issues, the dark mode looks much better. Optimize the light mode system-wide properly. Okay, so it's production ready, unicorn level, artistic ready for the louvre to be presented. Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
-
-And what the f**k is this scroll to explore? There is no scrolling going on, is there? If you scroll, it should trigger the card that happens if I click on enter, okay? 
+Can we make it so when I open my mouth we play an 808 bass line? So I can basically make a beat. Get the idea? Is this possible in any way or something like it? 

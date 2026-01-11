@@ -113,6 +113,7 @@ function getElements() {
   elements.introTaglineWrapper = document.getElementById('intro-tagline-wrapper');
   elements.introScrollIndicator = document.getElementById('intro-scroll-indicator');
   elements.introFullscreenBtn = document.getElementById('intro-fullscreen-btn');
+  elements.introThemeToggle = document.getElementById('intro-theme-toggle');
   
   // Legacy alias
   elements.statusPanel = elements.detectionPanel;
@@ -1221,6 +1222,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       doc.webkitRequestFullscreen();
     }
   });
+  
+  // Intro theme toggle - same functionality as main app toggle
+  elements.introThemeToggle?.addEventListener('click', toggleTheme);
   
   elements.themeToggle?.addEventListener('click', toggleTheme);
   

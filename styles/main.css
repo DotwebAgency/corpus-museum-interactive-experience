@@ -359,9 +359,8 @@ button {
 }
 
 [data-theme="light"] .intro-title {
-  color: var(--text-charcoal);  /* Swiss: soft charcoal, NOT pure black */
-  text-shadow: 
-    0 2px 4px rgba(0,0,0,0.05);
+  color: #2A2520;  /* Rich charcoal - refined, not pure black */
+  text-shadow: none;  /* Clean, no shadow in light mode */
 }
 
 .intro-tagline {
@@ -375,7 +374,7 @@ button {
 }
 
 [data-theme="light"] .intro-tagline {
-  color: #A08040;
+  color: #6A5A40;  /* Muted gold-brown, NOT bright gold */
 }
 
 .intro-subtitle {
@@ -494,7 +493,7 @@ button {
 }
 
 [data-theme="light"] .footer-brand {
-  color: #A08040;
+  color: #8A8070;  /* Muted, not bright */
 }
 
 .footer-latin {
@@ -507,47 +506,59 @@ button {
 }
 
 [data-theme="light"] .footer-latin {
-  color: #9080B8;
+  color: #7A7090;  /* Subtle lavender */
 }
 
-/* Intro Fullscreen Button - Flat design */
-.intro-fullscreen-btn {
+/* Intro Footer Controls Container */
+.intro-footer-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Intro Control Buttons - Flat minimal design */
+.intro-control-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: transparent;
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  color: var(--gold-muted);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: all 150ms ease;
 }
 
-.intro-fullscreen-btn svg {
-  width: 18px;
-  height: 18px;
+.intro-control-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
-.intro-fullscreen-btn:hover {
-  background: rgba(212, 175, 55, 0.1);
-  border-color: var(--gold-bright);
-  color: var(--gold-bright);
+.intro-control-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
 }
 
-.intro-fullscreen-btn:focus {
+.intro-control-btn:focus {
   outline: none;
 }
 
-[data-theme="light"] .intro-fullscreen-btn {
-  border-color: rgba(168, 136, 64, 0.3);
-  color: #A08040;
+/* Theme toggle icon switching */
+#intro-theme-toggle .icon-moon { display: none; }
+[data-theme="light"] #intro-theme-toggle .icon-sun { display: none; }
+[data-theme="light"] #intro-theme-toggle .icon-moon { display: block; }
+
+[data-theme="light"] .intro-control-btn {
+  border-color: rgba(0, 0, 0, 0.15);
+  color: rgba(0, 0, 0, 0.4);
 }
 
-[data-theme="light"] .intro-fullscreen-btn:hover {
-  background: rgba(168, 136, 64, 0.1);
-  border-color: #C9A040;
-  color: #C9A040;
+[data-theme="light"] .intro-control-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.25);
+  color: rgba(0, 0, 0, 0.7);
 }
 
 /* ===================== GSAP-FIRST INTRO PAGE - LOUVRE MASTERPIECE ===================== */
@@ -709,7 +720,7 @@ button {
 
 [data-theme="light"] .intro-title-wrapper .intro-title {
   color: #2A2520;
-  text-shadow: 0 2px 20px rgba(212, 175, 55, 0.3);
+  text-shadow: none;  /* Clean Swiss design - no shadows in light mode */
 }
 
 /* Tagline wrapper for typewriter effect */
@@ -751,7 +762,7 @@ button {
 }
 
 [data-theme="light"] .intro-tagline-wrapper .intro-tagline {
-  color: #A08040;
+  color: #6A5A40;  /* Muted, refined - not bright gold */
 }
 
 /* Historical quotes rotation */
@@ -797,7 +808,7 @@ button {
 }
 
 [data-theme="light"] .intro-history-attribution {
-  color: #A08040;
+  color: #8A7A50;  /* Muted gold-brown */
 }
 
 /* Portal button - Vitruvian circle design */
@@ -839,7 +850,7 @@ button {
 .portal-ring {
   position: absolute;
   inset: 0;
-  border: 2px solid var(--gold-muted);
+  border: 1px solid rgba(212, 175, 55, 0.4);  /* Thinner, softer */
   border-radius: 50%;
   opacity: 0;
   will-change: transform, opacity;
@@ -847,8 +858,8 @@ button {
 
 .portal-ring-inner {
   position: absolute;
-  inset: 15px;
-  border: 1px solid var(--gold-muted);
+  inset: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.2);  /* Even softer */
   border-radius: 50%;
   opacity: 0;
   will-change: transform, opacity;
@@ -879,12 +890,18 @@ button {
   will-change: transform;
 }
 
-/* Portal hover state - smooth transition */
+/* Portal hover state - elegant glow */
 .intro-portal-button:hover .portal-ring,
 .intro-portal-button:active .portal-ring {
-  border-color: var(--gold-bright);
-  box-shadow: 0 0 30px var(--gold-glow);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  border-color: rgba(212, 175, 55, 0.7);
+  box-shadow: 0 0 40px rgba(212, 175, 55, 0.15);
+  transition: all 0.4s ease;
+}
+
+.intro-portal-button:hover .portal-ring-inner,
+.intro-portal-button:active .portal-ring-inner {
+  border-color: rgba(212, 175, 55, 0.4);
+  transition: all 0.4s ease;
 }
 
 .intro-portal-button:hover .portal-text,
@@ -899,62 +916,35 @@ button {
   background: transparent;
 }
 
-[data-theme="light"] .portal-ring,
+/* Light mode portal - refined gold on cream */
+[data-theme="light"] .portal-ring {
+  border-color: rgba(168, 136, 64, 0.3);
+}
+
 [data-theme="light"] .portal-ring-inner {
-  border-color: #A08040;
+  border-color: rgba(168, 136, 64, 0.15);
 }
 
 [data-theme="light"] .portal-vitruvian {
-  color: #C9A040;
+  color: #9A8050;
 }
 
 [data-theme="light"] .portal-text {
-  color: #A08040;
+  color: #8A7040;
 }
 
 [data-theme="light"] .intro-portal-button:hover .portal-ring {
-  border-color: #C9A040;
-  box-shadow: 0 0 30px rgba(200, 160, 64, 0.4);
+  border-color: rgba(168, 136, 64, 0.6);
+  box-shadow: 0 0 30px rgba(168, 136, 64, 0.15);
 }
 
 [data-theme="light"] .intro-portal-button:hover .portal-text {
-  color: #2A2520;
+  color: #5A4A30;
 }
 
-/* Scroll indicator at bottom */
+/* Scroll indicator - HIDDEN (not functional) */
 .intro-scroll-indicator {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  opacity: 0;
-  will-change: opacity;
-}
-
-.scroll-line {
-  width: 1px;
-  height: 40px;
-  background: linear-gradient(to bottom, var(--gold-muted), transparent);
-  animation: scrollPulse 2s ease-in-out infinite;
-}
-
-@keyframes scrollPulse {
-  0%, 100% { opacity: 0.3; height: 30px; }
-  50% { opacity: 0.8; height: 50px; }
-}
-
-.scroll-text {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold-muted);
+  display: none !important;
 }
 
 /* ===================== GSAP-FIRST LOADING SCREEN ===================== */
