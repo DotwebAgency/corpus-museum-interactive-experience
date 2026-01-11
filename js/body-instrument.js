@@ -497,22 +497,31 @@ export class BodyInstrument {
     
     const now = Date.now();
     
+    // DEBUG: Log raw gesture data once per second
+    if (now - (this._lastGestureLog || 0) > 1000) {
+      console.log('[BodyInstrument] 📡 All gestures:', JSON.stringify(gestures.map(g => g?.name)));
+      this._lastGestureLog = now;
+    }
+    
     gestures.forEach((gesture, idx) => {
       if (!gesture || !gesture.name) return;
       
       const side = idx === 0 ? 'left' : 'right';
+      const gestureName = gesture.name;
       
-      // DEBUG: Log all detected gestures
-      console.log(`[BodyInstrument] Gesture detected: ${gesture.name} (${side})`);
+      // Skip "None" gestures
+      if (gestureName === 'None') return;
       
-      // Debounce gestures
+      // Debounce gestures (except for scale changes which use longer debounce)
       const timeSinceLast = now - this.lastGestureTime[side];
-      if (timeSinceLast < this.gestureDebounce) {
-        console.log(`[BodyInstrument] Debounced: ${timeSinceLast}ms < ${this.gestureDebounce}ms`);
+      const isScaleGesture = gestureName === 'Victory' || gestureName === 'ILoveYou' || gestureName === 'Thumb_Down';
+      const debounceTime = isScaleGesture ? 800 : this.gestureDebounce; // Longer debounce for scale changes
+      
+      if (timeSinceLast < debounceTime) {
         return;
       }
       
-      switch(gesture.name) {
+      switch(gestureName) {
         case 'Open_Palm':
           this.playPadChord('major');
           this.lastGestureTime[side] = now;
@@ -527,11 +536,21 @@ export class BodyInstrument {
           }
           this.lastGestureTime[side] = now;
           break;
-          
+        
+        // === SCALE CHANGE GESTURES ===
+        // Multiple gestures can change scale for reliability:
+        // - Victory (✌️ peace sign)
+        // - ILoveYou (🤟 rock/metal sign - pinky, index, thumb up)
+        // - Thumb_Down (👎 thumbs down)
         case 'Victory':
-          console.log('[BodyInstrument] ✌️ Victory gesture - cycling scale!');
-          this.cycleScale();
+        case 'ILoveYou':
+        case 'Thumb_Down':
+          console.log(`[BodyInstrument] 🎼 Scale change gesture: ${gestureName} (${side})`);
+          const newScale = this.cycleScale();
+          console.log(`[BodyInstrument] 🎼 Now playing: ${newScale}`);
           this.lastGestureTime[side] = now;
+          // Also update the other hand's debounce to prevent double-triggers
+          this.lastGestureTime[side === 'left' ? 'right' : 'left'] = now;
           break;
           
         case 'Pointing_Up':

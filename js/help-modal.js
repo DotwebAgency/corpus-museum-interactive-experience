@@ -86,10 +86,10 @@ export class HelpModal {
                 </div>
               </div>
               <div class="help-item">
-                <div class="help-item-icon">✌️</div>
+                <div class="help-item-icon">🤟</div>
                 <div class="help-item-content">
-                  <strong>Victory Sign</strong>
-                  <span>Change musical scale</span>
+                  <strong>Rock Sign / Thumbs Down</strong>
+                  <span>Change musical scale (🤟 or 👎)</span>
                 </div>
               </div>
               <div class="help-item">
@@ -187,7 +187,7 @@ export class HelpModal {
               <span class="help-scale">Japanese</span>
               <span class="help-scale">Dorian</span>
             </div>
-            <p class="help-scale-hint">Use the ✌️ Victory gesture to cycle through scales</p>
+            <p class="help-scale-hint">Use 🤟 (rock sign) or 👎 (thumbs down) to cycle through scales</p>
           </div>
           
           <div class="help-section help-section-tips">

@@ -715,6 +715,12 @@ function handleTrackingResults(results) {
       }
       return null;
     }).filter(Boolean);
+    
+    // DEBUG: Log non-None gestures to console
+    const meaningfulGestures = state.currentGestures.filter(g => g.name !== 'None');
+    if (meaningfulGestures.length > 0) {
+      console.log('[CORPUS] 👋 Gestures detected:', meaningfulGestures.map(g => `${g.name}(${(g.confidence*100).toFixed(0)}%)`).join(', '));
+    }
   } else {
     state.currentGestures = [];
   }
@@ -1298,7 +1304,7 @@ async function toggleSound() {
   // Update instruction text
   if (elements.footerInstruction) {
     if (state.soundEnabled) {
-      elements.footerInstruction.textContent = '♫ Move arms up/down for melody · ✊ = drums · ✋ = chords';
+      elements.footerInstruction.textContent = '♫ Arms = melody · ✊ = drums · 🤟/👎 = change scale';
     } else {
       elements.footerInstruction.textContent = 'Click [?] for guide · 🔊 enables music · ✊ summons sparks';
     }

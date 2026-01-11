@@ -61,14 +61,14 @@ const TUTORIAL_STEPS = [
     successText: 'What a lovely chord!'
   },
   {
-    id: 'victory',
-    title: 'Victory Sign',
-    subtitle: 'Change the musical scale',
-    description: 'Make a peace sign (✌️) to cycle through different musical scales: Pentatonic, Minor, Major, Blues, Japanese, Dorian.',
-    icon: '✌️',
-    gesture: 'Victory',
-    actionText: 'Show the victory sign...',
-    successText: 'Scale changed! Try different ones!'
+    id: 'scale',
+    title: 'Change Scale',
+    subtitle: 'Rock sign or thumbs down',
+    description: 'Make the 🤟 rock sign (pinky + index + thumb up) or 👎 thumbs down to cycle through scales: Pentatonic, Minor, Major, Blues, Japanese, Dorian.',
+    icon: '🤟',
+    gesture: 'scale_change',
+    actionText: 'Show 🤟 rock sign or 👎 thumbs down...',
+    successText: 'Scale changed! Each sounds different!'
   },
   {
     id: 'face',
@@ -307,8 +307,11 @@ export class TutorialManager {
       case 'Open_Palm':
         detected = gestureData.gestures?.some(g => g?.name === 'Open_Palm');
         break;
-      case 'Victory':
-        detected = gestureData.gestures?.some(g => g?.name === 'Victory');
+      case 'scale_change':
+        // Accept Victory, ILoveYou, or Thumb_Down for scale changing
+        detected = gestureData.gestures?.some(g => 
+          g?.name === 'Victory' || g?.name === 'ILoveYou' || g?.name === 'Thumb_Down'
+        );
         break;
       case 'face':
         detected = gestureData.mouthOpen > 0.15; // Lower threshold for easier detection
