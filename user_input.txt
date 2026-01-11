@@ -1,7 +1,3 @@
-Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
+ Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-Once I move one hand out of the frame it gets really buggy and the hands get stuck just in the screen. But this connects from arm because it's out of the frame. How do we handle this edge case in a clean way? Reliable? Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
-
-Yeah, yeah, yeah, and then it randomly starts to just like flash and whatnot the end and we need to really deep debug to make sure that the edge case is properly handled. m -Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
-
-Now the GSAP entrance animation of the actual, like, you know, the main area, like the main screen is broken. I see the background of the header and the bottom bar and then suddenly like the G-SAP animates in something wrong that DeepDebug can fix it. Okay. 
+No, we need to optimize the whole GSAP experience for the main area, so the main window, the main screen. And also the character just clips in, he doesn't have an entrance animation, he doesn't build up in any way. He should like initialize, know what I mean? He should build up. 

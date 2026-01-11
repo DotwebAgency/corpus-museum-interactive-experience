@@ -769,6 +769,42 @@ export class HumanAvatarRenderer {
   }
   
   /**
+   * Get visibility for a bone (connecting two joints)
+   * Bone appears when BOTH connected joints are at least partially visible
+   * @param {number} jointA - First joint index
+   * @param {number} jointB - Second joint index
+   * @returns {number} 0-1 visibility factor
+   */
+  getBoneVisibility(jointA, jointB) {
+    if (this.entrancePhase === 'waiting') return 0;
+    if (this.entrancePhase === 'complete') return 1;
+    
+    const visA = this.getJointVisibility(jointA);
+    const visB = this.getJointVisibility(jointB);
+    
+    // Bone only starts appearing when first joint is mostly visible
+    // and grows toward second joint
+    if (visA < 0.3) return 0;
+    
+    // Return the minimum visibility (bone is limited by least-visible joint)
+    return Math.min(visA, visB);
+  }
+  
+  /**
+   * Get visibility for spine/neck bones (center of body)
+   * @returns {number} 0-1 visibility factor
+   */
+  getSpineVisibility() {
+    if (this.entrancePhase === 'waiting') return 0;
+    if (this.entrancePhase === 'complete') return 1;
+    
+    // Spine appears early in the animation (part of core body)
+    const coreStart = 0.05;
+    const coreDuration = 0.3;
+    return Math.min(1, Math.max(0, (this.entranceProgress - coreStart) / coreDuration));
+  }
+  
+  /**
    * IMPROVED: Match incoming hands to existing tracked slots to prevent swap glitch
    * Uses Hungarian-style nearest-neighbor matching
    * @param {Array} incomingHands - New hand landmarks from MediaPipe
@@ -1414,7 +1450,9 @@ export class HumanAvatarRenderer {
   drawFullSkeleton(ctx, w, h, c) {
     const p = this.pose;
     const vis = (idx) => (p[idx]?.visibility || 0) > 0.3;
+    const spineVis = this.getSpineVisibility();
     
+    // Core body (spine + shoulders) - appears first
     if (vis(11) && vis(12)) {
       const neckX = (p[11].x + p[12].x) / 2;
       const neckY = (p[11].y + p[12].y) / 2;
@@ -1423,43 +1461,47 @@ export class HumanAvatarRenderer {
         headX = this.face[152].x;
         headY = this.face[152].y;
       }
-      this.drawBone(ctx, neckX * w, neckY * h, headX * w, headY * h, c.lavender, c);
-      this.drawJoint(ctx, neckX * w, neckY * h, 5, c);
-      this.drawBone(ctx, neckX * w, neckY * h, p[11].x * w, p[11].y * h, c.roseBlush, c);
-      this.drawBone(ctx, neckX * w, neckY * h, p[12].x * w, p[12].y * h, c.roseBlush, c);
+      this.drawBone(ctx, neckX * w, neckY * h, headX * w, headY * h, c.lavender, c, spineVis);
+      this.drawJoint(ctx, neckX * w, neckY * h, 5, c, spineVis);
+      this.drawBone(ctx, neckX * w, neckY * h, p[11].x * w, p[11].y * h, c.roseBlush, c, this.getBoneVisibility(11, 12));
+      this.drawBone(ctx, neckX * w, neckY * h, p[12].x * w, p[12].y * h, c.roseBlush, c, this.getBoneVisibility(11, 12));
     }
     
+    // Torso (neck to pelvis)
     if (vis(11) && vis(12) && vis(23) && vis(24)) {
       const neckX = (p[11].x + p[12].x) / 2;
       const neckY = (p[11].y + p[12].y) / 2;
       const pelvisX = (p[23].x + p[24].x) / 2;
       const pelvisY = (p[23].y + p[24].y) / 2;
-      this.drawBone(ctx, neckX * w, neckY * h, pelvisX * w, pelvisY * h, c.mintCream, c);
-      this.drawJoint(ctx, pelvisX * w, pelvisY * h, 5, c);
+      this.drawBone(ctx, neckX * w, neckY * h, pelvisX * w, pelvisY * h, c.mintCream, c, spineVis);
+      this.drawJoint(ctx, pelvisX * w, pelvisY * h, 5, c, spineVis);
     }
     
+    // Hip bones
     if (vis(23) && vis(24)) {
       const pelvisX = (p[23].x + p[24].x) / 2;
       const pelvisY = (p[23].y + p[24].y) / 2;
-      this.drawBone(ctx, pelvisX * w, pelvisY * h, p[23].x * w, p[23].y * h, c.peach, c);
-      this.drawBone(ctx, pelvisX * w, pelvisY * h, p[24].x * w, p[24].y * h, c.peach, c);
+      this.drawBone(ctx, pelvisX * w, pelvisY * h, p[23].x * w, p[23].y * h, c.peach, c, this.getBoneVisibility(23, 24));
+      this.drawBone(ctx, pelvisX * w, pelvisY * h, p[24].x * w, p[24].y * h, c.peach, c, this.getBoneVisibility(23, 24));
       
       // Extended spine continuation below pelvis - for seated users
-      const spineEndY = 1.5; // Goes off screen
-      this.drawBone(ctx, pelvisX * w, pelvisY * h, pelvisX * w, spineEndY * h, c.mintCream, c);
+      const spineEndY = 1.5;
+      this.drawBone(ctx, pelvisX * w, pelvisY * h, pelvisX * w, spineEndY * h, c.mintCream, c, spineVis);
     }
     
-    if (vis(11) && vis(13)) this.drawBone(ctx, p[11].x * w, p[11].y * h, p[13].x * w, p[13].y * h, c.powderBlue, c);
-    if (vis(13) && vis(15)) this.drawBone(ctx, p[13].x * w, p[13].y * h, p[15].x * w, p[15].y * h, c.powderBlue, c);
-    if (vis(12) && vis(14)) this.drawBone(ctx, p[12].x * w, p[12].y * h, p[14].x * w, p[14].y * h, c.lavender, c);
-    if (vis(14) && vis(16)) this.drawBone(ctx, p[14].x * w, p[14].y * h, p[16].x * w, p[16].y * h, c.lavender, c);
+    // Arms with entrance visibility
+    if (vis(11) && vis(13)) this.drawBone(ctx, p[11].x * w, p[11].y * h, p[13].x * w, p[13].y * h, c.powderBlue, c, this.getBoneVisibility(11, 13));
+    if (vis(13) && vis(15)) this.drawBone(ctx, p[13].x * w, p[13].y * h, p[15].x * w, p[15].y * h, c.powderBlue, c, this.getBoneVisibility(13, 15));
+    if (vis(12) && vis(14)) this.drawBone(ctx, p[12].x * w, p[12].y * h, p[14].x * w, p[14].y * h, c.lavender, c, this.getBoneVisibility(12, 14));
+    if (vis(14) && vis(16)) this.drawBone(ctx, p[14].x * w, p[14].y * h, p[16].x * w, p[16].y * h, c.lavender, c, this.getBoneVisibility(14, 16));
     
-    if (vis(23) && vis(25)) this.drawBone(ctx, p[23].x * w, p[23].y * h, p[25].x * w, p[25].y * h, c.mintCream, c);
-    if (vis(25) && vis(27)) this.drawBone(ctx, p[25].x * w, p[25].y * h, p[27].x * w, p[27].y * h, c.mintCream, c);
-    if (vis(27) && vis(31)) this.drawBone(ctx, p[27].x * w, p[27].y * h, p[31].x * w, p[31].y * h, c.mintCream, c);
-    if (vis(24) && vis(26)) this.drawBone(ctx, p[24].x * w, p[24].y * h, p[26].x * w, p[26].y * h, c.roseBlush, c);
-    if (vis(26) && vis(28)) this.drawBone(ctx, p[26].x * w, p[26].y * h, p[28].x * w, p[28].y * h, c.roseBlush, c);
-    if (vis(28) && vis(32)) this.drawBone(ctx, p[28].x * w, p[28].y * h, p[32].x * w, p[32].y * h, c.roseBlush, c);
+    // Legs with entrance visibility
+    if (vis(23) && vis(25)) this.drawBone(ctx, p[23].x * w, p[23].y * h, p[25].x * w, p[25].y * h, c.mintCream, c, this.getBoneVisibility(23, 25));
+    if (vis(25) && vis(27)) this.drawBone(ctx, p[25].x * w, p[25].y * h, p[27].x * w, p[27].y * h, c.mintCream, c, this.getBoneVisibility(25, 27));
+    if (vis(27) && vis(31)) this.drawBone(ctx, p[27].x * w, p[27].y * h, p[31].x * w, p[31].y * h, c.mintCream, c, this.getBoneVisibility(27, 31));
+    if (vis(24) && vis(26)) this.drawBone(ctx, p[24].x * w, p[24].y * h, p[26].x * w, p[26].y * h, c.roseBlush, c, this.getBoneVisibility(24, 26));
+    if (vis(26) && vis(28)) this.drawBone(ctx, p[26].x * w, p[26].y * h, p[28].x * w, p[28].y * h, c.roseBlush, c, this.getBoneVisibility(26, 28));
+    if (vis(28) && vis(32)) this.drawBone(ctx, p[28].x * w, p[28].y * h, p[32].x * w, p[32].y * h, c.roseBlush, c, this.getBoneVisibility(28, 32));
     
     this.drawAllJoints(ctx, w, h, 'full', c);
   }
@@ -1467,7 +1509,9 @@ export class HumanAvatarRenderer {
   drawUpperSkeleton(ctx, w, h, c) {
     const p = this.pose;
     const vis = (idx) => (p[idx]?.visibility || 0) > 0.3;
+    const spineVis = this.getSpineVisibility();
     
+    // Core body (spine + neck + shoulders) - appears first
     if (vis(11) && vis(12)) {
       const neckX = (p[11].x + p[12].x) / 2;
       const neckY = (p[11].y + p[12].y) / 2;
@@ -1476,20 +1520,21 @@ export class HumanAvatarRenderer {
         headX = this.face[152].x;
         headY = this.face[152].y;
       }
-      this.drawBone(ctx, neckX * w, neckY * h, headX * w, headY * h, c.lavender, c);
-      this.drawJoint(ctx, neckX * w, neckY * h, 5, c);
-      this.drawBone(ctx, neckX * w, neckY * h, p[11].x * w, p[11].y * h, c.roseBlush, c);
-      this.drawBone(ctx, neckX * w, neckY * h, p[12].x * w, p[12].y * h, c.roseBlush, c);
+      this.drawBone(ctx, neckX * w, neckY * h, headX * w, headY * h, c.lavender, c, spineVis);
+      this.drawJoint(ctx, neckX * w, neckY * h, 5, c, spineVis);
+      this.drawBone(ctx, neckX * w, neckY * h, p[11].x * w, p[11].y * h, c.roseBlush, c, this.getBoneVisibility(11, 12));
+      this.drawBone(ctx, neckX * w, neckY * h, p[12].x * w, p[12].y * h, c.roseBlush, c, this.getBoneVisibility(11, 12));
       
-      // Extended spine for seated users - goes all the way off screen
-      const spineEndY = 1.5; // 150% of screen height = well off screen
-      this.drawBone(ctx, neckX * w, neckY * h, neckX * w, spineEndY * h, c.mintCream, c);
+      // Extended spine for seated users
+      const spineEndY = 1.5;
+      this.drawBone(ctx, neckX * w, neckY * h, neckX * w, spineEndY * h, c.mintCream, c, spineVis);
     }
     
-    if (vis(11) && vis(13)) this.drawBone(ctx, p[11].x * w, p[11].y * h, p[13].x * w, p[13].y * h, c.powderBlue, c);
-    if (vis(13) && vis(15)) this.drawBone(ctx, p[13].x * w, p[13].y * h, p[15].x * w, p[15].y * h, c.powderBlue, c);
-    if (vis(12) && vis(14)) this.drawBone(ctx, p[12].x * w, p[12].y * h, p[14].x * w, p[14].y * h, c.lavender, c);
-    if (vis(14) && vis(16)) this.drawBone(ctx, p[14].x * w, p[14].y * h, p[16].x * w, p[16].y * h, c.lavender, c);
+    // Arms with entrance visibility
+    if (vis(11) && vis(13)) this.drawBone(ctx, p[11].x * w, p[11].y * h, p[13].x * w, p[13].y * h, c.powderBlue, c, this.getBoneVisibility(11, 13));
+    if (vis(13) && vis(15)) this.drawBone(ctx, p[13].x * w, p[13].y * h, p[15].x * w, p[15].y * h, c.powderBlue, c, this.getBoneVisibility(13, 15));
+    if (vis(12) && vis(14)) this.drawBone(ctx, p[12].x * w, p[12].y * h, p[14].x * w, p[14].y * h, c.lavender, c, this.getBoneVisibility(12, 14));
+    if (vis(14) && vis(16)) this.drawBone(ctx, p[14].x * w, p[14].y * h, p[16].x * w, p[16].y * h, c.lavender, c, this.getBoneVisibility(14, 16));
     
     this.drawAllJoints(ctx, w, h, 'upper', c);
   }
