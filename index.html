@@ -6,10 +6,10 @@
   <title>CORPUS — Behold the Form</title>
   <meta name="description" content="A living digital portrait. Real-time anatomical visualization inspired by the Old Masters.">
   
-  <!-- Swiss Luxury Fonts -->
+  <!-- Luxury Museum Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://storage.googleapis.com">
@@ -30,57 +30,99 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
 </head>
 <body>
-  <!-- ===================== INTRO SCREEN ===================== -->
-  <div id="intro-screen" class="intro-screen">
+  <!-- ===================== INTRO SCREEN - GSAP FIRST EXPERIENCE ===================== -->
+  <div id="intro-screen" class="intro-screen gsap-first-experience">
+    <!-- Background layers -->
     <div class="intro-vignette"></div>
+    <canvas id="intro-background-canvas" class="intro-background-canvas"></canvas>
     <div class="intro-dust" id="intro-dust"></div>
     
+    <!-- Main content -->
     <div class="intro-content">
-      <div class="intro-logo">
-        <svg viewBox="0 0 100 100" class="logo-vitruvian">
-          <!-- Ornate frame -->
-          <rect x="5" y="5" width="90" height="90" rx="2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"/>
-          <rect x="10" y="10" width="80" height="80" rx="1" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
-          <!-- Vitruvian figure -->
-          <circle cx="50" cy="28" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="50" y1="36" x2="50" y2="62" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="50" y1="42" x2="32" y2="52" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="50" y1="42" x2="68" y2="52" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="50" y1="62" x2="36" y2="85" stroke="currentColor" stroke-width="1.5"/>
-          <line x1="50" y1="62" x2="64" y2="85" stroke="currentColor" stroke-width="1.5"/>
-          <!-- Golden joints -->
-          <circle cx="50" cy="28" r="2" fill="currentColor" opacity="0.8"/>
-          <circle cx="50" cy="42" r="2" fill="currentColor"/>
-          <circle cx="32" cy="52" r="1.5" fill="currentColor"/>
-          <circle cx="68" cy="52" r="1.5" fill="currentColor"/>
-          <circle cx="50" cy="62" r="2" fill="currentColor"/>
+      <!-- Animated Vitruvian Logo -->
+      <div class="intro-logo" id="intro-logo">
+        <svg viewBox="0 0 100 100" class="logo-vitruvian" id="logo-vitruvian">
+          <!-- Outer frame - DrawSVG animated -->
+          <rect class="logo-frame-outer" x="5" y="5" width="90" height="90" rx="2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"/>
+          <rect class="logo-frame-inner" x="10" y="10" width="80" height="80" rx="1" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+          <!-- Vitruvian figure - skeletal paths -->
+          <circle class="logo-head" cx="50" cy="28" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <line class="logo-spine" x1="50" y1="36" x2="50" y2="62" stroke="currentColor" stroke-width="1.5"/>
+          <line class="logo-arm-left" x1="50" y1="42" x2="32" y2="52" stroke="currentColor" stroke-width="1.5"/>
+          <line class="logo-arm-right" x1="50" y1="42" x2="68" y2="52" stroke="currentColor" stroke-width="1.5"/>
+          <line class="logo-leg-left" x1="50" y1="62" x2="36" y2="85" stroke="currentColor" stroke-width="1.5"/>
+          <line class="logo-leg-right" x1="50" y1="62" x2="64" y2="85" stroke="currentColor" stroke-width="1.5"/>
+          <!-- Golden joints - elastic pop-in -->
+          <circle class="logo-joint logo-joint-head" cx="50" cy="28" r="2" fill="currentColor" opacity="0.8"/>
+          <circle class="logo-joint logo-joint-shoulders" cx="50" cy="42" r="2" fill="currentColor"/>
+          <circle class="logo-joint logo-joint-hand-left" cx="32" cy="52" r="1.5" fill="currentColor"/>
+          <circle class="logo-joint logo-joint-hand-right" cx="68" cy="52" r="1.5" fill="currentColor"/>
+          <circle class="logo-joint logo-joint-hips" cx="50" cy="62" r="2" fill="currentColor"/>
         </svg>
       </div>
       
-      <h1 class="intro-title">CORPUS</h1>
+      <!-- CORPUS Title - Letter Assembly Animation -->
+      <div class="intro-title-wrapper" id="intro-title-wrapper">
+        <h1 class="intro-title" id="intro-title">CORPUS</h1>
+      </div>
       
-      <p class="intro-tagline">Behold the form.</p>
+      <!-- Tagline with Typewriter Effect -->
+      <div class="intro-tagline-wrapper" id="intro-tagline-wrapper">
+        <p class="intro-tagline" id="intro-tagline">
+          <span class="musical-note">♩</span>
+          Behold the form.
+          <span class="musical-note">♪</span>
+        </p>
+      </div>
       
-      <p class="intro-subtitle">
-        A living digital portrait in the tradition of the Old Masters.<br>
-        See yourself rendered as timeless art.
-      </p>
+      <!-- Historical Quotes Rotation -->
+      <div class="intro-history-text" id="intro-history-text">
+        <p class="intro-history-quote" data-quote="1">"Music is the movement of sound to reach the soul."</p>
+        <p class="intro-history-quote" data-quote="2">"The body is the harp of the soul."</p>
+        <p class="intro-history-quote" data-quote="3">"Where words fail, music speaks."</p>
+        <span class="intro-history-attribution" id="intro-history-attribution">— Plato, 400 BCE</span>
+      </div>
       
-      <button id="enable-camera-btn" class="intro-cta">
-        <span class="cta-text">Begin the Sitting</span>
-        <span class="cta-flourish">❧</span>
+      <!-- Portal Button - Circular Vitruvian Design -->
+      <button id="enable-camera-btn" class="intro-portal-button">
+        <div class="portal-circle">
+          <!-- Animated rings -->
+          <div class="portal-ring" id="portal-ring-outer"></div>
+          <div class="portal-ring-inner" id="portal-ring-inner"></div>
+          <!-- Vitruvian silhouette inside -->
+          <svg class="portal-vitruvian" id="portal-vitruvian" viewBox="0 0 60 60">
+            <circle cx="30" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1"/>
+            <line x1="30" y1="17" x2="30" y2="38" stroke="currentColor" stroke-width="1"/>
+            <line x1="30" y1="22" x2="18" y2="30" stroke="currentColor" stroke-width="1"/>
+            <line x1="30" y1="22" x2="42" y2="30" stroke="currentColor" stroke-width="1"/>
+            <line x1="30" y1="38" x2="20" y2="52" stroke="currentColor" stroke-width="1"/>
+            <line x1="30" y1="38" x2="40" y2="52" stroke="currentColor" stroke-width="1"/>
+          </svg>
+          <!-- Button text -->
+          <span class="portal-text">
+            <span class="portal-text-inner" id="portal-text">Enter</span>
+          </span>
+        </div>
       </button>
       
-      <p class="intro-privacy">
+      <!-- Privacy note -->
+      <p class="intro-privacy" id="intro-privacy">
         Position yourself as you would for a portrait.<br>
         <span class="privacy-note">All processing occurs locally. Nothing leaves your device.</span>
       </p>
     </div>
     
-    <footer class="intro-footer">
+    <!-- Footer -->
+    <footer class="intro-footer" id="intro-footer">
       <span class="footer-brand">CORPUS · MMXXVI</span>
       <span class="footer-latin">Memento vivere</span>
     </footer>
+    
+    <!-- Scroll indicator -->
+    <div class="intro-scroll-indicator" id="intro-scroll-indicator">
+      <div class="scroll-line"></div>
+      <span class="scroll-text">Scroll to explore</span>
+    </div>
   </div>
 
   <!-- ===================== MAIN APPLICATION ===================== -->
@@ -310,12 +352,84 @@
     </div>
   </div>
   
-  <!-- ===================== AWAKENING LOADING SCREEN — AWWWARD QUALITY ===================== -->
-  <div id="awakening-overlay" class="awakening-overlay hidden">
+  <!-- ===================== AWAKENING LOADING SCREEN — GSAP-FIRST EXPERIENCE ===================== -->
+  <div id="awakening-overlay" class="awakening-overlay gsap-first-experience hidden">
     <!-- Ambient particles layer -->
     <div class="awakening-particles"></div>
     
     <div class="awakening-content">
+      <!-- History of Music Text -->
+      <p class="loading-history-text" id="loading-history-text">
+        "Since the dawn of humanity, we have expressed ourselves through movement and sound..."
+      </p>
+      
+      <!-- Instrument Icons - Phase Indicators -->
+      <div class="loading-instrument-icons" id="loading-instrument-icons">
+        <!-- Drums (0-25%) -->
+        <div class="instrument-icon" id="instrument-drums" data-phase="drums">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <ellipse cx="24" cy="32" rx="18" ry="8"/>
+            <path d="M6,32 L6,16 A18,8 0 0,1 42,16 L42,32"/>
+            <ellipse cx="24" cy="16" rx="18" ry="8"/>
+            <line x1="14" y1="8" x2="14" y2="2"/>
+            <line x1="34" y1="8" x2="34" y2="2"/>
+            <circle cx="14" cy="2" r="2"/>
+            <circle cx="34" cy="2" r="2"/>
+          </svg>
+        </div>
+        <!-- Strings (25-50%) -->
+        <div class="instrument-icon" id="instrument-strings" data-phase="strings">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12,4 Q8,24 12,44"/>
+            <path d="M36,4 Q40,24 36,44"/>
+            <ellipse cx="24" cy="34" rx="12" ry="10"/>
+            <ellipse cx="24" cy="34" rx="4" ry="3"/>
+            <line x1="12" y1="4" x2="36" y2="4"/>
+            <line x1="16" y1="4" x2="16" y2="24"/>
+            <line x1="24" y1="4" x2="24" y2="24"/>
+            <line x1="32" y1="4" x2="32" y2="24"/>
+          </svg>
+        </div>
+        <!-- Wind (50-75%) -->
+        <div class="instrument-icon" id="instrument-wind" data-phase="wind">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M8,8 L8,40 A4,4 0 0,0 16,40 L16,8"/>
+            <path d="M20,12 L20,36 A3,3 0 0,0 26,36 L26,12"/>
+            <path d="M30,16 L30,32 A2,2 0 0,0 34,32 L34,16"/>
+            <path d="M38,20 L38,28 A1.5,1.5 0 0,0 41,28 L41,20"/>
+            <ellipse cx="12" cy="44" rx="6" ry="2"/>
+          </svg>
+        </div>
+        <!-- Synth/Modern (75-100%) -->
+        <div class="instrument-icon" id="instrument-synth" data-phase="synth">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="4" y="16" width="40" height="24" rx="2"/>
+            <line x1="8" y1="24" x2="8" y2="36"/>
+            <line x1="12" y1="24" x2="12" y2="36"/>
+            <line x1="16" y1="24" x2="16" y2="32"/>
+            <line x1="20" y1="24" x2="20" y2="36"/>
+            <line x1="24" y1="24" x2="24" y2="32"/>
+            <line x1="28" y1="24" x2="28" y2="36"/>
+            <line x1="32" y1="24" x2="32" y2="32"/>
+            <line x1="36" y1="24" x2="36" y2="36"/>
+            <line x1="40" y1="24" x2="40" y2="32"/>
+            <circle cx="36" cy="12" r="2"/>
+            <circle cx="42" cy="12" r="2"/>
+          </svg>
+        </div>
+        <!-- Human Silhouette (100% - merge) -->
+        <div class="instrument-icon" id="instrument-human" data-phase="human">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="24" cy="10" r="6"/>
+            <line x1="24" y1="16" x2="24" y2="32"/>
+            <line x1="24" y1="20" x2="14" y2="28"/>
+            <line x1="24" y1="20" x2="34" y2="28"/>
+            <line x1="24" y1="32" x2="16" y2="46"/>
+            <line x1="24" y1="32" x2="32" y2="46"/>
+          </svg>
+        </div>
+      </div>
+      
       <!-- Animated Eye Symbol -->
       <div class="awakening-eye-container">
         <svg viewBox="0 0 120 80" class="awakening-eye-svg">
@@ -343,19 +457,21 @@
         </svg>
       </div>
       
-      <!-- Progress Bar -->
+      <!-- Progress Bar with Golden Shimmer -->
+      <div class="loading-progress-bar" id="loading-progress-bar">
+        <div class="loading-progress-fill" id="loading-progress-fill"></div>
+      </div>
+      
+      <!-- Progress Percentage -->
       <div class="awakening-progress-container">
-        <div class="awakening-progress-track">
-          <div id="awakening-progress-fill" class="awakening-progress-fill"></div>
-        </div>
         <div class="awakening-progress-info">
-        <span id="awakening-percent" class="awakening-percent">0</span>
-        <span class="awakening-percent-symbol">%</span>
+          <span id="awakening-percent" class="awakening-percent">0</span>
+          <span class="awakening-percent-symbol">%</span>
         </div>
       </div>
       
-      <!-- Status Text -->
-      <p id="awakening-status" class="awakening-status">The canvas stirs</p>
+      <!-- Status Text with Phase Messages -->
+      <p id="awakening-status" class="awakening-status loading-status-message">Awakening the instruments...</p>
     </div>
   </div>
 

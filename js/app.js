@@ -105,6 +105,23 @@ function getElements() {
   elements.awakeningProgressFill = document.getElementById('awakening-progress-fill');
   elements.awakeningEyeRays = document.querySelector('.eye-rays');
   
+  // GSAP-First Loading Elements
+  elements.loadingHistoryText = document.getElementById('loading-history-text');
+  elements.loadingInstrumentIcons = document.getElementById('loading-instrument-icons');
+  elements.loadingProgressBar = document.getElementById('loading-progress-bar');
+  elements.loadingProgressFill = document.getElementById('loading-progress-fill');
+  
+  // GSAP-First Intro Elements
+  elements.introHistoryText = document.getElementById('intro-history-text');
+  elements.portalButton = document.querySelector('.intro-portal-button');
+  elements.portalRingOuter = document.getElementById('portal-ring-outer');
+  elements.portalRingInner = document.getElementById('portal-ring-inner');
+  elements.portalVitruvian = document.getElementById('portal-vitruvian');
+  elements.portalText = document.getElementById('portal-text');
+  elements.introTitleWrapper = document.getElementById('intro-title-wrapper');
+  elements.introTaglineWrapper = document.getElementById('intro-tagline-wrapper');
+  elements.introScrollIndicator = document.getElementById('intro-scroll-indicator');
+  
   // Legacy alias
   elements.statusPanel = elements.detectionPanel;
   elements.appHeader = document.querySelector('.app-header');
@@ -175,26 +192,59 @@ async function initAnimations() {
   // Initialize AWWWARD-quality ambient effects (particles, cursor gradient)
   IntroAnimations.initAmbient(gsap, elements.introScreen);
   
+  // Check if this is the new GSAP-first intro
+  const isGSAPFirst = elements.introScreen.classList.contains('gsap-first-experience');
+  
+  if (isGSAPFirst) {
+    // GSAP-First Experience - Animate logo with path drawing
+    if (elements.introLogo) {
+      IntroAnimations.animateLogo(gsap, elements.introLogo);
+    }
+    
+    // Initialize portal button with hover effects
+    if (elements.portalButton) {
+      IntroAnimations.initPortalButton(gsap, elements.portalButton);
+    }
+    
+    // Start historical quotes rotation
+    if (elements.introHistoryText) {
+      IntroAnimations.startQuotesRotation(gsap, elements.introHistoryText);
+    }
+    
+    // Animate scroll indicator
+    if (elements.introScrollIndicator) {
+      gsap.to(elements.introScrollIndicator, {
+        opacity: 1,
+        duration: 1,
+        delay: 4,
+        ease: 'power2.out'
+      });
+    }
+  }
+  
   // Play intro reveal sequence
   const introElements = {
     logo: elements.introLogo,
     title: elements.introTitle,
     tagline: elements.introTagline,
     subtitle: elements.introSubtitle,
-    cta: elements.enableCameraBtn,
+    cta: elements.enableCameraBtn || elements.portalButton,
     privacy: elements.introPrivacy,
     footer: elements.introFooter
   };
   
   IntroAnimations.pageReveal(gsap, introElements);
   
-  // Setup button hover animation
+  // Setup button hover animation (for legacy button)
+  if (elements.enableCameraBtn && !isGSAPFirst) {
   state.buttonHoverTl = IntroAnimations.createButtonHover(gsap, elements.enableCameraBtn);
+  }
   
   // Setup keyboard navigation
   setupKeyboardNavigation(() => {
     if (!elements.introScreen.classList.contains('hidden')) {
-      elements.enableCameraBtn.click();
+      const btn = elements.enableCameraBtn || elements.portalButton;
+      if (btn) btn.click();
     }
   });
   
@@ -340,14 +390,22 @@ function showAwakening() {
     elements.awakeningOverlay.style.visibility = 'visible';
     
     if (elements.awakeningPercent) elements.awakeningPercent.textContent = '0';
-    if (elements.awakeningStatus) elements.awakeningStatus.textContent = 'The canvas stirs';
+    if (elements.awakeningStatus) elements.awakeningStatus.textContent = 'Awakening the instruments...';
+    if (elements.loadingProgressFill) elements.loadingProgressFill.style.width = '0%';
     
-    // Animate in with GSAP if available
+    // Use GSAP-first awakening entry if available
     if (state.gsap) {
-      state.gsap.fromTo(elements.awakeningOverlay, 
-        { opacity: 0 },
-        { opacity: 1, duration: 0.4, ease: 'power2.out' }
-      );
+      const awakeningElements = {
+        overlay: elements.awakeningOverlay,
+        content: elements.awakeningOverlay.querySelector('.awakening-content'),
+        historyText: elements.loadingHistoryText,
+        instrumentIcons: elements.loadingInstrumentIcons,
+        progressBar: elements.loadingProgressBar,
+        progressTrack: elements.awakeningOverlay.querySelector('.awakening-progress-track'),
+        status: elements.awakeningStatus
+      };
+      
+      LoadingAnimations.awakeningEntry(state.gsap, awakeningElements);
     }
   }
 }
@@ -360,13 +418,35 @@ function updateAwakeningProgress(percent, status) {
     elements.awakeningPercent.textContent = roundedPercent;
   }
   
-  // Update progress bar fill
+  // Update progress bar fill (old style)
   if (elements.awakeningProgressFill) {
     elements.awakeningProgressFill.style.width = `${roundedPercent}%`;
     
     // At 100%, add extra glow
     if (roundedPercent >= 100) {
       elements.awakeningProgressFill.style.boxShadow = '0 0 30px var(--gold-glow)';
+    }
+  }
+  
+  // Update new GSAP-first progress bar
+  if (elements.loadingProgressFill) {
+    elements.loadingProgressFill.style.width = `${roundedPercent}%`;
+  }
+  
+  // Update instrument phases (GSAP-first)
+  if (state.gsap && elements.loadingInstrumentIcons) {
+    const phase = LoadingAnimations.updateInstrumentPhase(
+      state.gsap, 
+      elements.loadingInstrumentIcons, 
+      roundedPercent
+    );
+    
+    // Update status message based on phase
+    if (phase && LoadingAnimations.phaseMessages[phase]) {
+      const phaseMessage = LoadingAnimations.phaseMessages[phase];
+      if (elements.awakeningStatus && elements.awakeningStatus.textContent !== phaseMessage) {
+        elements.awakeningStatus.textContent = phaseMessage;
+      }
     }
   }
   

@@ -394,6 +394,18 @@ export const IntroAnimations = {
   particleSystem: null,
   cursorGradient: null,
   textSplits: [], // Store text splits for cleanup
+  historyQuotesTimeline: null,
+  
+  /**
+   * Historical quotes for rotation
+   */
+  historicalQuotes: [
+    { quote: "Music is the movement of sound to reach the soul.", author: "Plato", year: "400 BCE" },
+    { quote: "The body is the harp of the soul.", author: "Khalil Gibran", year: "1923" },
+    { quote: "Where words fail, music speaks.", author: "Hans Christian Andersen", year: "1835" },
+    { quote: "Without music, life would be a mistake.", author: "Friedrich Nietzsche", year: "1889" },
+    { quote: "Music expresses that which cannot be said.", author: "Victor Hugo", year: "1864" }
+  ],
   
   /**
    * Initialize ambient effects
@@ -418,6 +430,235 @@ export const IntroAnimations = {
         repeat: -1
       });
     }
+  },
+  
+  /**
+   * Initialize the new GSAP-first portal button
+   */
+  initPortalButton(gsap, button) {
+    const ringOuter = button.querySelector('#portal-ring-outer');
+    const ringInner = button.querySelector('#portal-ring-inner');
+    const vitruvian = button.querySelector('#portal-vitruvian');
+    const textInner = button.querySelector('#portal-text');
+    
+    if (!ringOuter) return;
+    
+    // Initial state
+    gsap.set([ringOuter, ringInner, vitruvian], { 
+      opacity: 0, 
+      scale: 0.8 
+    });
+    
+    // Animate rings in
+    const tl = gsap.timeline();
+    tl.to(ringOuter, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.8,
+      ease: EASINGS.springy
+    })
+    .to(ringInner, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.6,
+      ease: EASINGS.springy
+    }, "-=0.4")
+    .to(vitruvian, {
+      opacity: 0.4,
+      scale: 1,
+      duration: 0.5,
+      ease: EASINGS.soft
+    }, "-=0.3");
+    
+    // Hover animation
+    button.addEventListener('mouseenter', () => {
+      gsap.to(ringOuter, {
+        scale: 1.1,
+        boxShadow: '0 0 40px rgba(212, 175, 55, 0.5)',
+        duration: 0.4,
+        ease: EASINGS.springy
+      });
+      gsap.to(ringInner, {
+        scale: 1.15,
+        rotation: 180,
+        duration: 0.6,
+        ease: EASINGS.springy
+      });
+      gsap.to(vitruvian, {
+        opacity: 0.8,
+        scale: 1.1,
+        duration: 0.4,
+        ease: EASINGS.springy
+      });
+      gsap.to(textInner, {
+        scale: 1.1,
+        duration: 0.3,
+        ease: EASINGS.springy
+      });
+    });
+    
+    button.addEventListener('mouseleave', () => {
+      gsap.to(ringOuter, {
+        scale: 1,
+        boxShadow: '0 0 0px transparent',
+        duration: 0.3,
+        ease: EASINGS.soft
+      });
+      gsap.to(ringInner, {
+        scale: 1,
+        rotation: 0,
+        duration: 0.4,
+        ease: EASINGS.soft
+      });
+      gsap.to(vitruvian, {
+        opacity: 0.4,
+        scale: 1,
+        duration: 0.3,
+        ease: EASINGS.soft
+      });
+      gsap.to(textInner, {
+        scale: 1,
+        duration: 0.2,
+        ease: EASINGS.soft
+      });
+    });
+    
+    return tl;
+  },
+  
+  /**
+   * Start historical quotes rotation
+   */
+  startQuotesRotation(gsap, historyContainer) {
+    const quotes = historyContainer.querySelectorAll('.intro-history-quote');
+    const attribution = historyContainer.querySelector('.intro-history-attribution');
+    
+    if (quotes.length === 0) return;
+    
+    let currentIndex = 0;
+    
+    const showQuote = (index) => {
+      const quote = quotes[index];
+      const data = this.historicalQuotes[index % this.historicalQuotes.length];
+      
+      // Hide all quotes first
+      gsap.set(quotes, { opacity: 0, y: 20 });
+      
+      // Update attribution
+      if (attribution) {
+        attribution.textContent = `— ${data.author}, ${data.year}`;
+      }
+      
+      // Animate in current quote
+      gsap.timeline()
+        .to(quote, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: EASINGS.soft
+        })
+        .to(attribution, {
+          opacity: 1,
+          duration: 0.5,
+          ease: EASINGS.soft
+        }, "-=0.4")
+        .to({}, { duration: 4 }) // Hold for 4 seconds
+        .to(quote, {
+          opacity: 0,
+          y: -20,
+          duration: 0.6,
+          ease: EASINGS.soft
+        })
+        .to(attribution, {
+          opacity: 0,
+          duration: 0.4,
+          ease: EASINGS.soft
+        }, "-=0.4")
+        .call(() => {
+          currentIndex = (currentIndex + 1) % this.historicalQuotes.length;
+          showQuote(currentIndex);
+        });
+    };
+    
+    // Start rotation after a delay
+    gsap.delayedCall(0.5, () => showQuote(0));
+  },
+  
+  /**
+   * Animate the logo SVG with path drawing effect
+   */
+  animateLogo(gsap, logo) {
+    const frameOuter = logo.querySelector('.logo-frame-outer');
+    const frameInner = logo.querySelector('.logo-frame-inner');
+    const head = logo.querySelector('.logo-head');
+    const spine = logo.querySelector('.logo-spine');
+    const armLeft = logo.querySelector('.logo-arm-left');
+    const armRight = logo.querySelector('.logo-arm-right');
+    const legLeft = logo.querySelector('.logo-leg-left');
+    const legRight = logo.querySelector('.logo-leg-right');
+    const joints = logo.querySelectorAll('.logo-joint');
+    
+    const tl = gsap.timeline();
+    
+    // Set initial state for stroke animation (simulate DrawSVG)
+    const paths = [frameOuter, frameInner, head, spine, armLeft, armRight, legLeft, legRight];
+    paths.forEach(path => {
+      if (path) {
+        const length = path.getTotalLength ? path.getTotalLength() : 300;
+        gsap.set(path, {
+          strokeDasharray: length,
+          strokeDashoffset: length,
+          opacity: 1
+        });
+      }
+    });
+    
+    gsap.set(joints, { scale: 0, opacity: 0 });
+    
+    // Animate frame first
+    tl.to(frameOuter, {
+      strokeDashoffset: 0,
+      duration: 1.2,
+      ease: EASINGS.elegant
+    })
+    .to(frameInner, {
+      strokeDashoffset: 0,
+      duration: 0.8,
+      ease: EASINGS.elegant
+    }, "-=0.6")
+    // Then the figure
+    .to(head, {
+      strokeDashoffset: 0,
+      duration: 0.5,
+      ease: EASINGS.elegant
+    }, "-=0.3")
+    .to(spine, {
+      strokeDashoffset: 0,
+      duration: 0.4,
+      ease: EASINGS.elegant
+    }, "-=0.2")
+    .to([armLeft, armRight], {
+      strokeDashoffset: 0,
+      duration: 0.4,
+      stagger: 0.1,
+      ease: EASINGS.elegant
+    }, "-=0.2")
+    .to([legLeft, legRight], {
+      strokeDashoffset: 0,
+      duration: 0.4,
+      stagger: 0.1,
+      ease: EASINGS.elegant
+    }, "-=0.2")
+    // Pop in joints
+    .to(joints, {
+      scale: 1,
+      opacity: 1,
+      duration: 0.4,
+      stagger: 0.05,
+      ease: EASINGS.springy
+    }, "-=0.3");
+    
+    return tl;
   },
   
   /**
@@ -803,6 +1044,17 @@ export const IntroAnimations = {
 export const LoadingAnimations = {
   
   /**
+   * Loading phase messages matching instrument phases
+   */
+  phaseMessages: {
+    drums: "Awakening rhythm...",
+    strings: "Tuning the strings...",
+    wind: "Finding breath...",
+    synth: "Connecting to you...",
+    human: "Your body becomes the instrument."
+  },
+  
+  /**
    * Show generic loading overlay
    */
   show(gsap, overlay, text) {
@@ -829,14 +1081,28 @@ export const LoadingAnimations = {
   },
   
   /**
-   * Awakening Screen Entry
+   * GSAP-First Awakening Screen Entry with Instrument Phases
    */
   awakeningEntry(gsap, elements) {
     const tl = gsap.timeline();
     
     gsap.set(elements.overlay, { opacity: 0, display: 'flex' });
     gsap.set(elements.content, { scale: 0.9, opacity: 0 });
-    gsap.set(elements.progressTrack, { scaleX: 0, transformOrigin: 'left' });
+    
+    // New GSAP-first elements
+    if (elements.historyText) {
+      gsap.set(elements.historyText, { opacity: 0, y: 30 });
+    }
+    if (elements.instrumentIcons) {
+      const icons = elements.instrumentIcons.querySelectorAll('.instrument-icon');
+      gsap.set(icons, { opacity: 0, y: 20, scale: 0.8 });
+    }
+    if (elements.progressBar) {
+      gsap.set(elements.progressBar, { opacity: 0, scaleX: 0, transformOrigin: 'left' });
+    }
+    if (elements.progressTrack) {
+      gsap.set(elements.progressTrack, { scaleX: 0, transformOrigin: 'left' });
+    }
     gsap.set(elements.status, { opacity: 0, y: 20 });
     
     tl
@@ -850,20 +1116,96 @@ export const LoadingAnimations = {
         opacity: 1,
         duration: 0.6,
         ease: EASINGS.springy
-      }, "-=0.2")
-      .to(elements.progressTrack, {
+      }, "-=0.2");
+    
+    // Animate history text if present
+    if (elements.historyText) {
+      tl.to(elements.historyText, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: EASINGS.soft
+      }, "-=0.3");
+    }
+    
+    // Animate instrument icons if present
+    if (elements.instrumentIcons) {
+      const icons = elements.instrumentIcons.querySelectorAll('.instrument-icon');
+      tl.to(icons, {
+        opacity: 0.4,
+        y: 0,
+        scale: 1,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: EASINGS.springy
+      }, "-=0.4");
+    }
+    
+    // Animate progress bar
+    if (elements.progressBar) {
+      tl.to(elements.progressBar, {
+        opacity: 1,
         scaleX: 1,
         duration: 0.5,
         ease: EASINGS.elegant
-      }, "-=0.3")
-      .to(elements.status, {
-        opacity: 1,
-        y: 0,
-        duration: 0.4,
-        ease: EASINGS.soft
-      }, "-=0.2");
+      }, "-=0.3");
+    } else if (elements.progressTrack) {
+      tl.to(elements.progressTrack, {
+        scaleX: 1,
+        duration: 0.5,
+        ease: EASINGS.elegant
+      }, "-=0.3");
+    }
+    
+    tl.to(elements.status, {
+      opacity: 1,
+      y: 0,
+      duration: 0.4,
+      ease: EASINGS.soft
+    }, "-=0.2");
     
     return tl;
+  },
+
+  /**
+   * Update instrument phase based on progress
+   */
+  updateInstrumentPhase(gsap, instrumentIcons, progress) {
+    if (!instrumentIcons) return;
+    
+    const icons = instrumentIcons.querySelectorAll('.instrument-icon');
+    const phases = ['drums', 'strings', 'wind', 'synth', 'human'];
+    
+    // Determine current phase based on progress
+    let activePhase = 0;
+    if (progress >= 25) activePhase = 1;
+    if (progress >= 50) activePhase = 2;
+    if (progress >= 75) activePhase = 3;
+    if (progress >= 100) activePhase = 4;
+    
+    icons.forEach((icon, index) => {
+      if (index <= activePhase) {
+        gsap.to(icon, {
+          opacity: 1,
+          scale: index === activePhase ? 1.2 : 1,
+          filter: index === activePhase ? 'drop-shadow(0 0 15px rgba(212, 175, 55, 0.8))' : 'none',
+        duration: 0.4,
+        ease: EASINGS.springy
+      });
+        icon.classList.add('active');
+      } else {
+        gsap.to(icon, {
+          opacity: 0.3,
+          scale: 1,
+          filter: 'none',
+          duration: 0.3,
+          ease: EASINGS.soft
+        });
+        icon.classList.remove('active');
+      }
+    });
+    
+    return phases[activePhase];
   },
 
   /**

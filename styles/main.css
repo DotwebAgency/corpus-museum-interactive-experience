@@ -60,12 +60,18 @@
   --theme-transition: 0.5s ease;
 }
 
-/* ===================== TYPOGRAPHY - SWISS CLARITY ===================== */
+/* ===================== TYPOGRAPHY - LOUVRE ELEGANCE ===================== */
 :root {
-  /* Typography - DM Sans for maximum readability on large displays */
-  --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Typography - Playfair Display for headings, Cormorant Garamond for body */
+  --font-display: 'Playfair Display', 'EB Garamond', Georgia, serif;
+  --font-serif: 'Cormorant Garamond', 'EB Garamond', Georgia, serif;
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'DM Mono', 'SF Mono', 'Monaco', monospace;
+  
+  /* Intro Page Typography - Extra elegant */
+  --font-intro-title: 'Playfair Display', Georgia, serif;
+  --font-intro-tagline: 'Cormorant Garamond', Georgia, serif;
+  --font-intro-history: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
   
   /* Type Scale - Optimized for 100" display viewing */
   --text-xs: 14px;
@@ -474,6 +480,599 @@ button {
 
 [data-theme="light"] .footer-latin {
   color: #9080B8;
+}
+
+/* ===================== GSAP-FIRST INTRO PAGE - LOUVRE MASTERPIECE ===================== */
+
+/* Base intro screen with GSAP-first experience */
+.intro-screen.gsap-first-experience {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    145deg,
+    #1A1814 0%,
+    #2A2520 25%,
+    #1E1B18 50%,
+    #252220 75%,
+    #1A1814 100%
+  );
+  overflow: hidden;
+  z-index: 1000;
+}
+
+[data-theme="light"] .intro-screen.gsap-first-experience {
+  background: linear-gradient(
+    145deg,
+    #FDF9F3 0%,
+    #F8F4EC 25%,
+    #FDFBF7 50%,
+    #F5F1E9 75%,
+    #FDF9F3 100%
+  );
+}
+
+/* Animated background canvas for particles and effects */
+.intro-background-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Floating dust particles in background */
+.intro-dust {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.intro-dust::before,
+.intro-dust::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--gold-muted);
+  border-radius: 50%;
+  opacity: 0;
+  animation: floatDust 12s ease-in-out infinite;
+}
+
+.intro-dust::before {
+  top: 20%;
+  left: 30%;
+  animation-delay: 0s;
+}
+
+.intro-dust::after {
+  top: 60%;
+  right: 25%;
+  animation-delay: 4s;
+}
+
+@keyframes floatDust {
+  0%, 100% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.5);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-30px) scale(1);
+  }
+}
+
+/* Animated Vitruvian logo container */
+.intro-logo {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 48px;
+  will-change: transform, opacity;
+}
+
+.intro-logo .logo-vitruvian {
+  width: 140px;
+  height: 140px;
+  filter: drop-shadow(0 0 40px var(--gold-glow));
+}
+
+/* Title wrapper for CORPUS letter assembly */
+.intro-title-wrapper {
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.intro-title-wrapper .intro-title {
+  font-family: var(--font-intro-title);
+  font-size: clamp(48px, 10vw, 120px);
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--cream);
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.05em;
+}
+
+.intro-title-wrapper .intro-title .char {
+  display: inline-block;
+  will-change: transform, opacity;
+  position: relative;
+}
+
+/* Musical shape styling for individual letters - subtle variations */
+.intro-title-wrapper .intro-title .char[data-char="C"] {
+  /* C derived from musical clef - slightly wider */
+  letter-spacing: 0.02em;
+}
+
+.intro-title-wrapper .intro-title .char[data-char="O"] {
+  /* O as perfect circle / sound wave */
+  font-weight: 400;
+}
+
+.intro-title-wrapper .intro-title .char[data-char="R"] {
+  /* R from note rest symbol */
+  letter-spacing: -0.01em;
+}
+
+.intro-title-wrapper .intro-title .char[data-char="P"] {
+  /* P from treble clef */
+  font-weight: 500;
+}
+
+.intro-title-wrapper .intro-title .char[data-char="U"] {
+  /* U from resonating vessel */
+  letter-spacing: 0.01em;
+}
+
+.intro-title-wrapper .intro-title .char[data-char="S"] {
+  /* S from sine wave - smooth flow */
+  font-style: normal;
+}
+
+[data-theme="light"] .intro-title-wrapper .intro-title {
+  color: #2A2520;
+  text-shadow: 0 2px 20px rgba(212, 175, 55, 0.3);
+}
+
+/* Tagline wrapper for typewriter effect */
+.intro-tagline-wrapper {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 16px;
+  overflow: hidden;
+  min-height: 40px;
+}
+
+.intro-tagline-wrapper .intro-tagline {
+  font-family: var(--font-intro-tagline);
+  font-size: clamp(18px, 3vw, 28px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--gold-bright);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.intro-tagline-wrapper .intro-tagline .word {
+  display: inline-block;
+  will-change: transform, opacity;
+  margin-right: 0.3em;
+}
+
+.intro-tagline-wrapper .musical-note {
+  display: inline-block;
+  font-size: 0.8em;
+  opacity: 0.7;
+  margin: 0 0.2em;
+  animation: notePulse 3s ease-in-out infinite;
+}
+
+@keyframes notePulse {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(-3px); opacity: 0.9; }
+}
+
+[data-theme="light"] .intro-tagline-wrapper .intro-tagline {
+  color: #A08040;
+}
+
+/* Historical quotes rotation */
+.intro-history-text {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 48px;
+  text-align: center;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.intro-history-quote {
+  font-family: var(--font-intro-history);
+  font-size: clamp(14px, 2vw, 18px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--ivory-muted);
+  max-width: 600px;
+  line-height: 1.6;
+  opacity: 0;
+  position: absolute;
+  will-change: transform, opacity;
+}
+
+.intro-history-attribution {
+  font-family: var(--font-intro-tagline);
+  font-size: clamp(11px, 1.5vw, 13px);
+  font-weight: 400;
+  color: var(--gold-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 8px;
+  opacity: 0;
+  will-change: opacity;
+}
+
+[data-theme="light"] .intro-history-quote {
+  color: #5A5550;
+}
+
+[data-theme="light"] .intro-history-attribution {
+  color: #A08040;
+}
+
+/* Portal button - Vitruvian circle design */
+.intro-portal-button {
+  position: relative;
+  z-index: 10;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  will-change: transform;
+}
+
+.portal-circle {
+  width: 180px;
+  height: 180px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.portal-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--gold-muted);
+  border-radius: 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.portal-ring-inner {
+  position: absolute;
+  inset: 15px;
+  border: 1px solid var(--gold-muted);
+  border-radius: 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.portal-vitruvian {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  color: var(--gold-bright);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.portal-text {
+  font-family: var(--font-intro-title);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+  position: relative;
+  z-index: 5;
+}
+
+.portal-text-inner {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Portal hover state */
+.intro-portal-button:hover .portal-ring {
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 30px var(--gold-glow);
+}
+
+.intro-portal-button:hover .portal-text {
+  color: var(--cream);
+}
+
+[data-theme="light"] .portal-ring,
+[data-theme="light"] .portal-ring-inner {
+  border-color: #A08040;
+}
+
+[data-theme="light"] .portal-vitruvian {
+  color: #C9A040;
+}
+
+[data-theme="light"] .portal-text {
+  color: #A08040;
+}
+
+[data-theme="light"] .intro-portal-button:hover .portal-ring {
+  border-color: #C9A040;
+  box-shadow: 0 0 30px rgba(200, 160, 64, 0.4);
+}
+
+[data-theme="light"] .intro-portal-button:hover .portal-text {
+  color: #2A2520;
+}
+
+/* Scroll indicator at bottom */
+.intro-scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--gold-muted), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; height: 30px; }
+  50% { opacity: 0.8; height: 50px; }
+}
+
+.scroll-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-muted);
+}
+
+/* ===================== GSAP-FIRST LOADING SCREEN ===================== */
+
+.loading-overlay.gsap-first-experience {
+  background: linear-gradient(
+    145deg,
+    #1A1814 0%,
+    #1E1B18 50%,
+    #1A1814 100%
+  );
+}
+
+[data-theme="light"] .loading-overlay.gsap-first-experience {
+  background: linear-gradient(
+    145deg,
+    #FDF9F3 0%,
+    #FDFBF7 50%,
+    #FDF9F3 100%
+  );
+}
+
+/* History of music text in loading */
+.loading-history-text {
+  font-family: var(--font-intro-history);
+  font-size: clamp(12px, 1.5vw, 15px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--ivory-muted);
+  text-align: center;
+  max-width: 500px;
+  line-height: 1.7;
+  margin-bottom: 32px;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+[data-theme="light"] .loading-history-text {
+  color: #5A5550;
+}
+
+/* Instrument icons for loading phases */
+.loading-instrument-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 40px;
+  height: 80px;
+}
+
+.instrument-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--gold-muted);
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: color 0.3s ease;
+}
+
+.instrument-icon.active {
+  color: var(--gold-bright);
+  filter: drop-shadow(0 0 10px var(--gold-glow));
+}
+
+.instrument-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+[data-theme="light"] .instrument-icon {
+  color: #A08040;
+}
+
+[data-theme="light"] .instrument-icon.active {
+  color: #C9A040;
+  filter: drop-shadow(0 0 10px rgba(200, 160, 64, 0.5));
+}
+
+/* Progress bar with golden shimmer */
+.loading-progress-bar {
+  width: 300px;
+  height: 3px;
+  background: rgba(212, 175, 55, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.loading-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(
+    90deg,
+    var(--gold-muted) 0%,
+    var(--gold-bright) 50%,
+    var(--gold-muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerProgress 2s ease-in-out infinite;
+  transition: width 0.3s ease-out;
+}
+
+@keyframes shimmerProgress {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+[data-theme="light"] .loading-progress-bar {
+  background: rgba(160, 128, 64, 0.15);
+}
+
+[data-theme="light"] .loading-progress-fill {
+  background: linear-gradient(
+    90deg,
+    #A08040 0%,
+    #C9A040 50%,
+    #A08040 100%
+  );
+}
+
+/* Status message for loading phases */
+.loading-status-message {
+  font-family: var(--font-intro-tagline);
+  font-size: clamp(13px, 1.8vw, 16px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--ivory-muted);
+  letter-spacing: 0.08em;
+  text-align: center;
+  min-height: 24px;
+  will-change: opacity, transform;
+}
+
+[data-theme="light"] .loading-status-message {
+  color: #5A5550;
+}
+
+/* Mobile responsive for GSAP intro */
+@media (max-width: 768px) {
+  .intro-logo .logo-vitruvian {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .intro-title-wrapper .intro-title {
+    letter-spacing: 0.2em;
+  }
+  
+  .intro-history-text {
+    padding: 0 24px;
+  }
+  
+  .portal-circle {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .portal-text {
+    font-size: 11px;
+  }
+  
+  .loading-instrument-icons {
+    gap: 20px;
+  }
+  
+  .instrument-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .loading-progress-bar {
+    width: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .intro-logo .logo-vitruvian {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .intro-title-wrapper {
+    margin-bottom: 16px;
+  }
+  
+  .intro-tagline-wrapper {
+    margin-bottom: 12px;
+  }
+  
+  .intro-history-text {
+    margin-bottom: 32px;
+    height: 80px;
+  }
+  
+  .portal-circle {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .loading-instrument-icons {
+    gap: 16px;
+  }
+  
+  .instrument-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .loading-progress-bar {
+    width: 200px;
+  }
 }
 
 /* ===================== MAIN APP ===================== */
