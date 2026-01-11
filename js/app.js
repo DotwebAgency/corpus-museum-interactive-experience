@@ -115,6 +115,15 @@ function getElements() {
   elements.footerLandmarks = document.getElementById('footer-landmarks');
   elements.footerParticles = document.getElementById('footer-particles');
   
+  // NEW: Detection pills
+  elements.detectBody = document.getElementById('detect-body');
+  elements.detectHands = document.getElementById('detect-hands');
+  elements.detectFace = document.getElementById('detect-face');
+  
+  // NEW: Hand gesture indicators
+  elements.leftHandGesture = document.getElementById('left-hand-gesture');
+  elements.rightHandGesture = document.getElementById('right-hand-gesture');
+  
   // Intro elements for animation
   elements.introLogo = document.querySelector('.intro-logo');
   elements.introTitle = document.querySelector('.intro-title');
@@ -676,6 +685,35 @@ function updateUI(hasPose, handCount, hasFace) {
   }
   if (elements.footerParticles && avatarRenderer) {
     elements.footerParticles.textContent = avatarRenderer.getParticleCount();
+  }
+  
+  // ===== UPDATE DETECTION PILLS =====
+  if (elements.detectBody) {
+    elements.detectBody.classList.toggle('active', hasPose);
+  }
+  if (elements.detectHands) {
+    elements.detectHands.classList.toggle('active', handCount > 0);
+  }
+  if (elements.detectFace) {
+    elements.detectFace.classList.toggle('active', hasFace);
+  }
+  
+  // ===== UPDATE HAND GESTURE INDICATORS =====
+  if (elements.leftHandGesture) {
+    const leftGesture = state.currentGestures[0]?.name || null;
+    const isLeftActive = handCount > 0 && leftGesture !== null;
+    const isLeftFist = leftGesture === 'Closed_Fist';
+    
+    elements.leftHandGesture.classList.toggle('active', isLeftActive);
+    elements.leftHandGesture.classList.toggle('fist', isLeftFist);
+  }
+  if (elements.rightHandGesture) {
+    const rightGesture = state.currentGestures[1]?.name || null;
+    const isRightActive = handCount > 0 && rightGesture !== null;
+    const isRightFist = rightGesture === 'Closed_Fist';
+    
+    elements.rightHandGesture.classList.toggle('active', isRightActive);
+    elements.rightHandGesture.classList.toggle('fist', isRightFist);
   }
 }
 

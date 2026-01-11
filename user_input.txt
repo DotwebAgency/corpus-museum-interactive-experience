@@ -1,3 +1,7 @@
 Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-I get an error loading animations dot height is not a function and then as you see a white screen it's broken. You need to deep debug fix that we broke it. 
+The background is a little bit too dark, the grey background behind the character. The rest is fucking beautiful. Yep. We need to implement the fist detection in the bottom left, okay, where body, hands, face, make like two fist icons and whatnot, a really nice component, and then redesign the entire bottom bar and top bar, okay, both of them.
+
+We need to fully elevate them. to the awwward team in a markdown file they're gonna rip apart what we have at the moment and fully roast it okay because it's amateur hour and then we create the final production ready version also keep the mobile version in mind they also create the perfect full mobile version of our entire experience and then you go in and set up a long long to-do list and make all of it happen okay and the dark mode doesn't work well it's buggy Yeah, yeah, yeah, it's extremely buggy just the main area goes dark the rest of the UI stays light need to fix that too.
+
+Okay. 

@@ -7,20 +7,21 @@
 
 /* ===================== GRAND GALLERY PALETTE ===================== */
 :root {
-  /* Gallery Walls - Louvre Twilight (warm evening, NOT cold gray) */
-  --canvas-deep: #E8E4DC;      /* Warm parchment - gallery wall at dusk */
-  --canvas-warm: #F0ECE4;      /* Soft warm cream */
-  --canvas-mid: #DCD8D0;       /* Warm shadow tone */
+  /* Gallery Walls - Louvre Evening (warm dark museum at night) */
+  --canvas-deep: #2C2824;      /* Warm umber charcoal - NOT too dark */
+  --canvas-warm: #383330;      /* Warm dark taupe */
+  --canvas-mid: #4A4440;       /* Warm mid-tone */
+  --canvas-surface: #5A5450;   /* Surface elements */
   
   /* Classical Gold - museum frame accent */
   --gold-bright: #D4AF37;      /* True gold */
   --gold-muted: #C9A050;       /* Warmer antique gold */
   --gold-glow: rgba(212, 175, 55, 0.35);
   
-  /* Text on warm background - rich browns */
-  --ivory: #3A3530;            /* Rich warm charcoal for text */
-  --ivory-warm: #5A5550;       /* Warm dark gray */
-  --ivory-muted: #8A8580;      /* Muted text */
+  /* Text on dark background - warm ivory */
+  --ivory: #F0ECE4;            /* Warm ivory text on dark */
+  --ivory-warm: #E0DCD4;       /* Slightly muted ivory */
+  --ivory-muted: #A8A4A0;      /* Muted text */
   
   /* Accent Colors - Old Master palette */
   --vermillion: #CC5544;       /* Titian red */
@@ -95,10 +96,16 @@
 
 /* ===================== LIGHT MODE (Gallery Day) ===================== */
 [data-theme="light"] {
-  /* Warm gallery white - like Louvre walls */
+  /* Warm gallery white - like Louvre walls at noon */
   --canvas-deep: #FDFBF7;
   --canvas-warm: #FFFFFF;
   --canvas-mid: #F5F0EA;
+  --canvas-surface: #EDE8E0;
+  
+  /* Text on light background - rich browns */
+  --ivory: #3A3530;
+  --ivory-warm: #5A5550;
+  --ivory-muted: #8A8580;
   
   /* Gold remains prominent but softer */
   --gold-bright: #C9A227;
@@ -549,23 +556,21 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 0 48px;
-  background: linear-gradient(180deg, 
-    rgba(250, 248, 244, 0.95) 0%, 
-    rgba(245, 242, 236, 0.92) 100%);
+  background: var(--canvas-mid);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--gold-soft-glow);
-  box-shadow: 0 2px 20px rgba(212, 175, 55, 0.08);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
   margin: var(--frame-width);
   margin-bottom: 0;
   z-index: 100;
   position: relative;
+  transition: background var(--theme-transition), box-shadow var(--theme-transition);
 }
 
 [data-theme="light"] .app-header {
-  background: linear-gradient(180deg, 
-    rgba(255, 255, 255, 0.95) 0%, 
-    rgba(253, 251, 247, 0.92) 100%);
+  background: rgba(255, 255, 255, 0.95);
   border-bottom: 1px solid rgba(232, 160, 168, 0.3);
+  box-shadow: 0 2px 20px rgba(212, 175, 55, 0.08);
 }
 
 /* Subtle pastel accent line under header */
@@ -952,13 +957,13 @@ button {
   transform: translateY(-50%);
   width: 200px;
   
-  /* Refined Warm Glass - Louvre aesthetic */
+  /* Dark mode: warm glass with dark base */
   background: 
-    radial-gradient(ellipse at 20% 10%, rgba(212, 175, 55, 0.1) 0%, transparent 40%),
-    radial-gradient(ellipse at 80% 90%, rgba(200, 180, 160, 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 20% 10%, rgba(212, 175, 55, 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 90%, rgba(100, 80, 60, 0.1) 0%, transparent 40%),
     linear-gradient(170deg, 
-      rgba(255, 252, 248, 0.95) 0%, 
-      rgba(250, 246, 240, 0.92) 100%);
+      rgba(58, 54, 50, 0.95) 0%, 
+      rgba(45, 40, 38, 0.92) 100%);
   backdrop-filter: blur(40px) saturate(1.2);
   -webkit-backdrop-filter: blur(40px) saturate(1.2);
   
@@ -968,10 +973,11 @@ button {
   
   /* Sophisticated Shadows - warm */
   box-shadow: 
-    0 24px 64px rgba(180, 160, 140, 0.15),
+    0 24px 64px rgba(0, 0, 0, 0.3),
     0 0 1px rgba(212, 175, 55, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 40px rgba(212, 175, 55, 0.03);
+  transition: background var(--theme-transition), box-shadow var(--theme-transition);
   
   z-index: 50;
   overflow: hidden;
@@ -1447,20 +1453,18 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
-  background: linear-gradient(180deg, 
-    rgba(250, 248, 244, 0.92) 0%, 
-    rgba(245, 242, 236, 0.95) 100%);
+  background: var(--canvas-mid);
   backdrop-filter: blur(24px);
-  box-shadow: 0 -2px 20px rgba(212, 175, 55, 0.06);
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.15);
   margin: 0 var(--frame-width) var(--frame-width);
   z-index: 100;
   position: relative;
+  transition: background var(--theme-transition), box-shadow var(--theme-transition);
 }
 
 [data-theme="light"] .app-footer {
-  background: linear-gradient(180deg, 
-    rgba(253, 251, 247, 0.95) 0%, 
-    rgba(255, 255, 255, 0.98) 100%);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 -2px 20px rgba(212, 175, 55, 0.06);
 }
 
 /* Subtle accent line on footer */
@@ -1563,6 +1567,178 @@ button {
 
 [data-theme="light"] .fps-counter {
   color: #9080B8;
+}
+
+/* ===================== NEW FOOTER LAYOUT ===================== */
+
+/* Hand Gesture Indicators (Left) */
+.footer-hands {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hand-gesture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.hand-gesture-icon {
+  width: 36px;
+  height: 36px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hand-svg, .fist-svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--ivory-muted);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: all 0.3s ease;
+}
+
+.hand-svg.hidden, .fist-svg.hidden {
+  display: none;
+}
+
+.hand-gesture.active .hand-svg {
+  stroke: var(--gold-bright);
+  filter: drop-shadow(0 0 8px var(--gold-glow));
+}
+
+.hand-gesture.fist .hand-svg {
+  display: none;
+}
+
+.hand-gesture.fist .fist-svg {
+  display: block;
+  stroke: var(--gold-bright);
+  fill: var(--gold-muted);
+  fill-opacity: 0.2;
+  filter: drop-shadow(0 0 12px var(--gold-glow));
+}
+
+.fist-shape {
+  stroke: var(--gold-bright);
+  fill: var(--gold-muted);
+  fill-opacity: 0.3;
+}
+
+.hand-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--ivory-muted);
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.hand-gesture.active .hand-label,
+.hand-gesture.fist .hand-label {
+  color: var(--gold-bright);
+  opacity: 1;
+}
+
+[data-theme="light"] .hand-svg {
+  stroke: #A09A94;
+}
+
+[data-theme="light"] .hand-gesture.active .hand-svg {
+  stroke: var(--gold-bright);
+}
+
+[data-theme="light"] .hand-label {
+  color: #8A8480;
+}
+
+/* Detection Pills (Center) */
+.footer-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.footer-detection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.detect-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 100px;
+  transition: all 0.3s ease;
+}
+
+.detect-pill span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ivory-muted);
+  transition: color 0.3s ease;
+}
+
+.detect-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ivory-muted);
+  opacity: 0.3;
+  transition: all 0.3s ease;
+}
+
+.detect-pill.active {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.detect-pill.active .detect-dot {
+  background: var(--gold-bright);
+  opacity: 1;
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+
+.detect-pill.active span {
+  color: var(--gold-muted);
+}
+
+[data-theme="light"] .detect-pill {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .detect-pill span {
+  color: #8A8480;
+}
+
+[data-theme="light"] .detect-pill.active {
+  background: rgba(201, 162, 39, 0.1);
+  border-color: rgba(201, 162, 39, 0.3);
+}
+
+/* Footer Stats (Right) */
+.footer-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 /* Hide the old detection panel */
@@ -2148,9 +2324,9 @@ body.cinema-mode.letterbox .cinema-letterbox {
 /* ===================== MOBILE ===================== */
 @media (max-width: 768px) {
   :root {
-    --header-height: 48px;
-    --footer-height: 40px;
-    --frame-width: 8px;
+    --header-height: 56px;
+    --footer-height: 72px; /* Taller for hand icons */
+    --frame-width: 4px;
     
     /* Mobile typography scale */
     --text-4xl: 42px;
@@ -2164,6 +2340,7 @@ body.cinema-mode.letterbox .cinema-letterbox {
     --text-nav: 13px;
   }
   
+  /* INTRO SCREEN - Mobile */
   .intro-title {
     font-size: var(--text-4xl);
     letter-spacing: 0.1em;
@@ -2184,25 +2361,89 @@ body.cinema-mode.letterbox .cinema-letterbox {
     bottom: 24px;
   }
   
-  .brand-name { font-size: var(--text-nav); letter-spacing: 0.12em; }
-  .mode-latin { display: none; }
+  /* HEADER - Mobile */
+  .app-header { padding: 0 16px; }
   
-  .detection-panel {
-    width: 150px;
-    right: 16px;
-    top: auto;
-    bottom: 80px;
-    transform: none;
+  .brand-name { 
+    font-size: var(--text-nav); 
+    letter-spacing: 0.12em; 
   }
   
-  .gesture-container { width: 44px; height: 44px; }
-  .gesture-icon { width: 36px; height: 36px; }
-  .gesture-label { font-size: 8px; }
-  .status-label { font-size: 9px; }
-  .landmark-details { display: none; }
+  .brand-name::before,
+  .brand-name::after {
+    display: none;
+  }
   
-  .app-header, .app-footer { padding: 0 20px; }
-  .footer-instruction { display: none; }
+  .mode-latin { display: none; }
+  
+  .header-actions { gap: 8px; }
+  
+  .header-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .header-status {
+    display: none; /* Hide full status, show simplified in footer */
+  }
+  
+  /* MAIN CONTENT - Mobile */
+  .detection-panel { display: none; }
+  
+  /* FOOTER - Mobile Redesign */
+  .app-footer {
+    padding: 8px 16px;
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--footer-height);
+    gap: 8px;
+  }
+  
+  /* Hand gestures take full width on mobile */
+  .footer-hands {
+    order: 1;
+    gap: 24px;
+  }
+  
+  .hand-gesture-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  /* Center content stacks */
+  .footer-center {
+    order: 3;
+    width: 100%;
+    gap: 4px;
+  }
+  
+  .footer-detection {
+    gap: 8px;
+  }
+  
+  .detect-pill {
+    padding: 2px 8px;
+  }
+  
+  .detect-pill span {
+    font-size: 9px;
+  }
+  
+  .footer-instruction {
+    font-size: 11px;
+  }
+  
+  /* Stats on right */
+  .footer-stats {
+    order: 2;
+    gap: 8px;
+  }
+  
+  .metric-label { display: none; }
+  
+  .fps-counter {
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2211,14 +2452,82 @@ body.cinema-mode.letterbox .cinema-letterbox {
     --text-4xl: 32px;
     --text-3xl: 26px;
     --text-2xl: 22px;
+    --header-height: 48px;
+    --footer-height: 80px;
+    --frame-width: 0px;
   }
   
   .intro-title { font-size: var(--text-4xl); }
   .logo-vitruvian { width: 64px; height: 64px; }
   
   .detection-panel { display: none; }
-  
   .frame-border { display: none; }
+  
+  /* Header - Extra small */
+  .app-header {
+    margin: 0;
+    padding: 0 12px;
+  }
+  
+  .brand-name {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+  
+  .header-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .header-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* Footer - Extra small */
+  .app-footer {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 0;
+  }
+  
+  .footer-hands {
+    gap: 16px;
+  }
+  
+  .hand-gesture-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .hand-label {
+    font-size: 8px;
+  }
+  
+  .footer-detection {
+    gap: 4px;
+  }
+  
+  .detect-pill {
+    padding: 2px 6px;
+  }
+  
+  .detect-pill span {
+    font-size: 8px;
+  }
+  
+  .detect-dot {
+    width: 4px;
+    height: 4px;
+  }
+  
+  .footer-instruction {
+    font-size: 10px;
+  }
+  
+  .footer-stats {
+    gap: 4px;
+  }
 }
 
 /* ===================== REDUCED MOTION ===================== */
