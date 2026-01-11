@@ -284,6 +284,30 @@ button {
   overflow: visible; /* Allow button hover to expand beyond */
 }
 
+/* CSS Animation for browsers that don't support GSAP properly */
+.intro-content > * {
+  /* GSAP will override these with inline styles, this is the fallback */
+  animation: cssRevealFallback 0.8s ease-out both;
+}
+
+.intro-content > *:nth-child(1) { animation-delay: 0.2s; }
+.intro-content > *:nth-child(2) { animation-delay: 0.4s; }
+.intro-content > *:nth-child(3) { animation-delay: 0.6s; }
+.intro-content > *:nth-child(4) { animation-delay: 0.8s; }
+.intro-content > *:nth-child(5) { animation-delay: 1.0s; }
+.intro-content > *:nth-child(6) { animation-delay: 1.2s; }
+
+@keyframes cssRevealFallback {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .intro-logo {
   margin-bottom: 40px;
   /* GSAP handles opacity animation */

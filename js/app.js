@@ -220,24 +220,37 @@ async function initAnimations() {
         ease: 'power2.out'
       });
     }
-  }
-  
-  // Play intro reveal sequence
-  const introElements = {
-    logo: elements.introLogo,
-    title: elements.introTitle,
-    tagline: elements.introTagline,
-    subtitle: elements.introSubtitle,
-    cta: elements.enableCameraBtn || elements.portalButton,
-    privacy: elements.introPrivacy,
-    footer: elements.introFooter
-  };
-  
-  IntroAnimations.pageReveal(gsap, introElements);
-  
-  // Setup button hover animation (for legacy button)
-  if (elements.enableCameraBtn && !isGSAPFirst) {
-  state.buttonHoverTl = IntroAnimations.createButtonHover(gsap, elements.enableCameraBtn);
+    
+    // GSAP-First specific reveal - use wrappers and portal button
+    const gsapFirstElements = {
+      logo: elements.introLogo,
+      title: elements.introTitleWrapper || elements.introTitle,
+      tagline: elements.introTaglineWrapper || elements.introTagline,
+      subtitle: elements.introHistoryText, // History text replaces subtitle
+      cta: elements.portalButton,
+      privacy: elements.introPrivacy,
+      footer: elements.introFooter
+    };
+    
+    IntroAnimations.pageReveal(gsap, gsapFirstElements);
+  } else {
+    // Legacy intro reveal sequence
+    const introElements = {
+      logo: elements.introLogo,
+      title: elements.introTitle,
+      tagline: elements.introTagline,
+      subtitle: elements.introSubtitle,
+      cta: elements.enableCameraBtn,
+      privacy: elements.introPrivacy,
+      footer: elements.introFooter
+    };
+    
+    IntroAnimations.pageReveal(gsap, introElements);
+    
+    // Setup button hover animation (for legacy button)
+    if (elements.enableCameraBtn) {
+      state.buttonHoverTl = IntroAnimations.createButtonHover(gsap, elements.enableCameraBtn);
+    }
   }
   
   // Setup keyboard navigation
