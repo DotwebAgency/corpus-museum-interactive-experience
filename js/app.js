@@ -14,6 +14,8 @@ import {
   setupKeyboardNavigation 
 } from './animations.js';
 import { bodyInstrument } from './body-instrument.js';
+import { tutorialManager } from './tutorial.js';
+import { helpModal } from './help-modal.js';
 
 // ==============================================
 // STATE
@@ -140,6 +142,17 @@ function getElements() {
   elements.soundToggle = document.getElementById('sound-toggle');
   elements.scaleSelect = document.getElementById('scale-select');
   elements.footerInstruction = document.getElementById('footer-instruction');
+  
+  // Help button
+  elements.helpBtn = document.getElementById('help-btn');
+  
+  // Gesture palette
+  elements.gesturePalette = document.getElementById('gesture-palette');
+  elements.gestureFistItem = document.getElementById('gesture-fist');
+  elements.gesturePalmItem = document.getElementById('gesture-palm');
+  elements.gesturePointItem = document.getElementById('gesture-point');
+  elements.gestureVictoryItem = document.getElementById('gesture-victory');
+  elements.gestureThumbItem = document.getElementById('gesture-thumb');
 }
 
 // ==============================================
@@ -390,27 +403,27 @@ function updateAwakeningProgress(percent, status) {
 
 function hideAwakening() {
   return new Promise((resolve) => {
-    if (elements.awakeningOverlay) {
-      if (state.gsap) {
+  if (elements.awakeningOverlay) {
+    if (state.gsap) {
         state.gsap.to(elements.awakeningOverlay, {
-          opacity: 0,
-          scale: 1.05,
+        opacity: 0,
+        scale: 1.05,
           duration: 0.6, // Faster for better flow
-          ease: 'power2.inOut',
-          onComplete: () => {
-            elements.awakeningOverlay.classList.add('hidden');
-            elements.awakeningOverlay.style.opacity = '';
-            elements.awakeningOverlay.style.transform = '';
+        ease: 'power2.inOut',
+        onComplete: () => {
+          elements.awakeningOverlay.classList.add('hidden');
+          elements.awakeningOverlay.style.opacity = '';
+          elements.awakeningOverlay.style.transform = '';
             resolve();
-          }
-        });
-      } else {
-        elements.awakeningOverlay.classList.add('hidden');
+        }
+      });
+    } else {
+      elements.awakeningOverlay.classList.add('hidden');
         resolve();
-      }
+    }
     } else {
       resolve();
-    }
+  }
   });
 }
 
@@ -486,7 +499,7 @@ function transitionToMain() {
       
       // Small delay to ensure DOM update
       requestAnimationFrame(() => {
-        showMainApp(gsap);
+      showMainApp(gsap);
       });
     });
   } else {
@@ -523,24 +536,24 @@ function showMainApp(gsap) {
   requestAnimationFrame(() => {
     // Now reveal main app container
     elements.mainApp.style.opacity = '1';
-    
-    // Setup main app elements for GSAP animation
-    const mainElements = {
-      mainApp: elements.mainApp,
-      header: elements.appHeader,
-      footer: elements.appFooter,
-      statusPanel: elements.statusPanel,
-      frameBorders: elements.frameBorders
-    };
-    
-    // Entry sequence with bounce effects
-    const entryTl = MainAnimations.entrySequence(gsap, mainElements);
-    entryTl.eventCallback('onComplete', () => {
-      // Setup spark pulse animation (paused by default)
-      if (elements.sparkOrb && elements.sparkIcon) {
-        state.sparkPulseTl = MainAnimations.createSparkPulse(gsap, elements.sparkOrb, elements.sparkIcon);
-      }
-      startApp();
+  
+  // Setup main app elements for GSAP animation
+  const mainElements = {
+    mainApp: elements.mainApp,
+    header: elements.appHeader,
+    footer: elements.appFooter,
+    statusPanel: elements.statusPanel,
+    frameBorders: elements.frameBorders
+  };
+  
+  // Entry sequence with bounce effects
+  const entryTl = MainAnimations.entrySequence(gsap, mainElements);
+  entryTl.eventCallback('onComplete', () => {
+    // Setup spark pulse animation (paused by default)
+    if (elements.sparkOrb && elements.sparkIcon) {
+      state.sparkPulseTl = MainAnimations.createSparkPulse(gsap, elements.sparkOrb, elements.sparkIcon);
+    }
+    startApp();
     });
   });
 }
@@ -552,6 +565,9 @@ function startApp() {
   state.isRunning = true;
   state.lastFrameTime = performance.now();
   requestAnimationFrame(mainLoop);
+  
+  // Start tutorial after a delay to let user see themselves first
+  startTutorialAfterDelay();
 }
 
 // ==============================================
@@ -613,6 +629,15 @@ function handleTrackingResults(results) {
   const handCount = results.handLandmarks ? results.handLandmarks.length : 0;
   const hasFace = results.faceLandmarks && results.faceLandmarks.length > 0;
   updateUI(hasPose, handCount, hasFace);
+  
+  // Update gesture palette
+  updateGesturePalette(state.currentGestures);
+  
+  // Update tutorial if active
+  if (tutorialManager.isShowing()) {
+    const gestureData = checkGestureForTutorial();
+    tutorialManager.checkGesture(gestureData);
+  }
 }
 
 function updateUI(hasPose, handCount, hasFace) {
@@ -1039,9 +1064,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   elements.themeToggle?.addEventListener('click', toggleTheme);
   elements.soundToggle?.addEventListener('click', toggleSound);
   elements.scaleSelect?.addEventListener('change', handleScaleChange);
+  elements.helpBtn?.addEventListener('click', () => helpModal.toggle());
   
   // Setup sound visual feedback
   bodyInstrument.onSoundTrigger = handleSoundTrigger;
+  
+  // Initialize tutorial and help modal
+  tutorialManager.init(state.gsap, checkGestureForTutorial);
+  helpModal.init(state.gsap);
+  
+  // Tutorial restart event
+  window.addEventListener('restartTutorial', () => {
+    tutorialManager.restart();
+  });
 });
 
 // ==============================================
@@ -1232,6 +1267,106 @@ function pulseOnDrum(type) {
       });
     });
   }
+}
+
+// ==============================================
+// GESTURE PALETTE & TUTORIAL
+// ==============================================
+
+function updateGesturePalette(gestures) {
+  // Reset all items
+  const items = document.querySelectorAll('.gesture-item');
+  items.forEach(item => item.classList.remove('active'));
+  
+  if (!gestures || gestures.length === 0) return;
+  
+  // Map MediaPipe gestures to palette items
+  gestures.forEach(gesture => {
+    if (!gesture?.name) return;
+    
+    switch(gesture.name) {
+      case 'Closed_Fist':
+        elements.gestureFistItem?.classList.add('active');
+        break;
+      case 'Open_Palm':
+        elements.gesturePalmItem?.classList.add('active');
+        break;
+      case 'Pointing_Up':
+        elements.gesturePointItem?.classList.add('active');
+        break;
+      case 'Victory':
+        elements.gestureVictoryItem?.classList.add('active');
+        break;
+      case 'Thumb_Up':
+        elements.gestureThumbItem?.classList.add('active');
+        break;
+    }
+  });
+}
+
+// Data for tutorial gesture detection
+let lastArmPositions = { left: null, right: null };
+let armMovementAccum = { left: 0, right: 0 };
+
+function checkGestureForTutorial() {
+  // Build gesture data object for tutorial
+  const gestureData = {
+    gestures: state.currentGestures,
+    rightArmMoving: false,
+    leftArmMoving: false,
+    mouthOpen: 0
+  };
+  
+  // Check arm movement from avatar renderer
+  if (avatarRenderer?.pose) {
+    const pose = avatarRenderer.pose;
+    const rightWrist = pose[16];
+    const leftWrist = pose[15];
+    
+    // Track right arm movement
+    if (rightWrist && rightWrist.visibility > 0.5) {
+      if (lastArmPositions.right) {
+        const dy = Math.abs(rightWrist.y - lastArmPositions.right.y);
+        armMovementAccum.right += dy;
+        if (armMovementAccum.right > 0.15) {
+          gestureData.rightArmMoving = true;
+        }
+      }
+      lastArmPositions.right = { y: rightWrist.y };
+    }
+    
+    // Track left arm movement
+    if (leftWrist && leftWrist.visibility > 0.5) {
+      if (lastArmPositions.left) {
+        const dy = Math.abs(leftWrist.y - lastArmPositions.left.y);
+        armMovementAccum.left += dy;
+        if (armMovementAccum.left > 0.15) {
+          gestureData.leftArmMoving = true;
+        }
+      }
+      lastArmPositions.left = { y: leftWrist.y };
+    }
+  }
+  
+  // Check face expressions
+  if (avatarRenderer?.faceExpression) {
+    gestureData.mouthOpen = avatarRenderer.faceExpression.mouthOpen || 0;
+  }
+  
+  // Reset accumulators if gesture detected
+  if (gestureData.rightArmMoving) armMovementAccum.right = 0;
+  if (gestureData.leftArmMoving) armMovementAccum.left = 0;
+  
+  return gestureData;
+}
+
+function startTutorialAfterDelay() {
+  // Start tutorial after a short delay to let user see themselves
+  setTimeout(() => {
+    if (tutorialManager.shouldShowOnStart()) {
+      tutorialManager.start();
+    }
+  }, 2000);
 }
 
 window.addEventListener('load', resizeCanvas);

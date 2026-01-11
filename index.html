@@ -105,6 +105,7 @@
           <span class="status-dot" id="status-dot"></span>
           <span class="status-text" id="status-text">Seeking presence</span>
         </div>
+        <button id="help-btn" class="help-btn" aria-label="Help & Guide" title="Gesture Guide">?</button>
         <button id="sound-toggle" class="header-btn sound-toggle" aria-label="Toggle sound" title="Musical Body Instrument">
           <svg class="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
@@ -309,8 +310,38 @@
         </div>
       </div>
       
-      <!-- Center: Detection status + instruction -->
+      <!-- Center: Gesture Palette + Detection status -->
       <div class="footer-center">
+        <!-- Gesture Palette - Shows all available gestures -->
+        <div class="gesture-palette" id="gesture-palette">
+          <div class="gesture-item" id="gesture-fist" data-gesture="fist">
+            <span class="gesture-item-icon">✊</span>
+            <span class="gesture-item-label">Fist</span>
+            <span class="gesture-item-desc">Drums</span>
+          </div>
+          <div class="gesture-item" id="gesture-palm" data-gesture="palm">
+            <span class="gesture-item-icon">✋</span>
+            <span class="gesture-item-label">Palm</span>
+            <span class="gesture-item-desc">Chord</span>
+          </div>
+          <div class="gesture-item" id="gesture-point" data-gesture="point">
+            <span class="gesture-item-icon">☝️</span>
+            <span class="gesture-item-label">Point</span>
+            <span class="gesture-item-desc">Sustain</span>
+          </div>
+          <div class="gesture-item" id="gesture-victory" data-gesture="victory">
+            <span class="gesture-item-icon">✌️</span>
+            <span class="gesture-item-label">Victory</span>
+            <span class="gesture-item-desc">Scale</span>
+          </div>
+          <div class="gesture-item" id="gesture-thumb" data-gesture="thumb">
+            <span class="gesture-item-icon">👍</span>
+            <span class="gesture-item-label">Thumb</span>
+            <span class="gesture-item-desc">Mute</span>
+          </div>
+        </div>
+        
+        <!-- Detection Pills (smaller now) -->
         <div class="footer-detection">
           <span class="detect-pill" id="detect-body">
             <span class="detect-dot"></span>
@@ -325,15 +356,19 @@
             <span>Face</span>
           </span>
         </div>
-        <span class="footer-instruction" id="footer-instruction">Make a fist to summon the ethereal sparks</span>
-        <select id="scale-select" class="scale-select" title="Musical Scale">
-          <option value="pentatonic">♫ Pentatonic</option>
-          <option value="minor">♫ Minor</option>
-          <option value="major">♫ Major</option>
-          <option value="blues">♫ Blues</option>
-          <option value="japanese">♫ Japanese</option>
-          <option value="dorian">♫ Dorian</option>
-        </select>
+        
+        <!-- Instruction + Scale selector -->
+        <div class="footer-instruction-row">
+          <span class="footer-instruction" id="footer-instruction">Click 🔊 to enable sound · Make a fist for sparks</span>
+          <select id="scale-select" class="scale-select" title="Musical Scale">
+            <option value="pentatonic">♫ Pentatonic</option>
+            <option value="minor">♫ Minor</option>
+            <option value="major">♫ Major</option>
+            <option value="blues">♫ Blues</option>
+            <option value="japanese">♫ Japanese</option>
+            <option value="dorian">♫ Dorian</option>
+          </select>
+        </div>
       </div>
       
       <!-- Right: Particles & FPS -->
@@ -342,7 +377,7 @@
           <span class="metric-label">Particles</span>
           <span id="footer-particles" class="metric-value">0</span>
         </div>
-        <span id="fps-counter" class="fps-counter">LX</span>
+      <span id="fps-counter" class="fps-counter">LX</span>
       </div>
     </footer>
   </div>
@@ -400,8 +435,8 @@
           <div id="awakening-progress-fill" class="awakening-progress-fill"></div>
         </div>
         <div class="awakening-progress-info">
-          <span id="awakening-percent" class="awakening-percent">0</span>
-          <span class="awakening-percent-symbol">%</span>
+        <span id="awakening-percent" class="awakening-percent">0</span>
+        <span class="awakening-percent-symbol">%</span>
         </div>
       </div>
       
