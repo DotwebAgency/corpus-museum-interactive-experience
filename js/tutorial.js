@@ -1,99 +1,59 @@
 /**
- * CORPUS — Interactive Tutorial System
- * Guides users through discovering all gestures and sounds
+ * CORPUS — Tutorial Side Panel
+ * Slides in from the right, never blocks the character
  * 
- * "Every master was once a beginner. This is where the journey starts."
+ * "A gentle guide walking beside you, not a wall blocking your view."
  */
 
 // ==============================================
-// TUTORIAL STEP DEFINITIONS
+// TUTORIAL STEP DEFINITIONS (Goldilocks: 5 steps)
 // ==============================================
 
 const TUTORIAL_STEPS = [
   {
     id: 'welcome',
-    title: 'Welcome to CORPUS',
-    subtitle: 'Your body is now a musical instrument',
-    description: 'Let\'s learn the basics in 60 seconds. You\'ll discover how to create music and visual magic with just your movements.',
+    title: 'WELCOME',
+    description: 'You are about to become art. Your body controls the experience.',
     icon: '✨',
-    gesture: null, // No detection needed
-    actionText: 'Start Tutorial',
-    skipText: 'Skip — I\'ll explore'
+    gesture: null,
+    autoAdvance: 3000 // Auto-advance after 3s
   },
   {
-    id: 'melody',
-    title: 'Move Your Right Arm',
-    subtitle: 'Up and down controls the melody',
-    description: 'Raise your right arm high for high notes, lower it for low notes. The faster you move, the louder the sound.',
-    icon: '🎵',
-    gesture: 'rightArm',
-    actionText: 'Move your arm up and down...',
-    successText: 'Beautiful! You\'re making music!'
+    id: 'body',
+    title: 'BODY',
+    description: 'Step into the frame. The system will track 33 points on your body.',
+    icon: '👤',
+    gesture: 'body',
+    waitText: 'Detecting...'
   },
   {
-    id: 'bass',
-    title: 'Now Your Left Arm',
-    subtitle: 'Control the bass line',
-    description: 'Your left arm creates deep bass notes. Move it up and down to add rhythm to your melody.',
-    icon: '🎸',
-    gesture: 'leftArm',
-    actionText: 'Move your left arm...',
-    successText: 'Feel that bass!'
-  },
-  {
-    id: 'fist',
-    title: 'Make a Fist',
-    subtitle: 'Drums + Ethereal Sparks',
-    description: 'Close your hand into a fist. Left fist = kick drum, Right fist = snare. Plus, watch the magical sparks appear!',
+    id: 'gesture',
+    title: 'GESTURES',
+    description: 'Make a fist to summon ethereal sparks. Try it now!',
     icon: '✊',
     gesture: 'Closed_Fist',
-    actionText: 'Close your fist...',
-    successText: 'Boom! You summoned the sparks!'
+    waitText: 'Show me a fist...'
   },
   {
-    id: 'palm',
-    title: 'Open Your Palm',
-    subtitle: 'Strum a chord',
-    description: 'Spread your fingers wide open. This triggers a beautiful chord strum and pushes the particles away.',
-    icon: '✋',
-    gesture: 'Open_Palm',
-    actionText: 'Open your hand wide...',
-    successText: 'What a lovely chord!'
-  },
-  {
-    id: 'scale',
-    title: 'Change Scale',
-    subtitle: 'Rock sign or thumbs down',
-    description: 'Make the 🤟 rock sign (pinky + index + thumb up) or 👎 thumbs down to cycle through scales: Pentatonic, Minor, Major, Blues, Japanese, Dorian.',
-    icon: '🤟',
-    gesture: 'scale_change',
-    actionText: 'Show 🤟 rock sign or 👎 thumbs down...',
-    successText: 'Scale changed! Each sounds different!'
-  },
-  {
-    id: 'face',
-    title: 'Use Your Face',
-    subtitle: 'Expression = Effects',
-    description: 'Open your mouth wide for a "wah" filter effect. Raise your eyebrows to add reverb. Smile to add vibrato!',
-    icon: '😊',
-    gesture: 'face',
-    actionText: 'Try opening your mouth...',
-    successText: 'You\'re a natural!'
+    id: 'sound',
+    title: 'SOUND',
+    description: 'Click 🔊 Sound in the footer to enable music. Your arms become instruments!',
+    icon: '🎵',
+    gesture: 'sound',
+    waitText: 'Enable sound...'
   },
   {
     id: 'complete',
-    title: 'You\'re Ready!',
-    subtitle: 'Go make some magic',
-    description: 'You now know all the basics. Experiment, combine gestures, and create your own musical performance. Click the [?] button anytime to see the full guide.',
+    title: 'READY',
+    description: 'You\'re all set! Click ? anytime for the full gesture guide.',
     icon: '🎉',
     gesture: null,
-    actionText: 'Start Playing',
-    skipText: null
+    autoAdvance: 3000
   }
 ];
 
 // ==============================================
-// TUTORIAL MANAGER CLASS
+// TUTORIAL PANEL CLASS
 // ==============================================
 
 export class TutorialManager {
@@ -101,12 +61,11 @@ export class TutorialManager {
     this.currentStep = 0;
     this.isActive = false;
     this.isComplete = false;
-    this.overlay = null;
+    this.panel = null;
     this.gsap = null;
     this.onComplete = null;
     this.gestureCallback = null;
-    this.detectionTimeout = null;
-    this.hasDetectedGesture = false;
+    this.autoAdvanceTimer = null;
     
     // Check if tutorial was completed before
     this.wasCompletedBefore = localStorage.getItem('corpus-tutorial-complete') === 'true';
@@ -119,57 +78,74 @@ export class TutorialManager {
   init(gsap, gestureCallback) {
     this.gsap = gsap;
     this.gestureCallback = gestureCallback;
-    this.createOverlay();
-    console.log('[Tutorial] Initialized');
+    this.createPanel();
+    console.log('[Tutorial] Panel initialized');
   }
   
-  createOverlay() {
-    // Create overlay container
-    this.overlay = document.createElement('div');
-    this.overlay.id = 'tutorial-overlay';
-    this.overlay.className = 'tutorial-overlay hidden';
-    this.overlay.innerHTML = `
-      <div class="tutorial-backdrop"></div>
-      <div class="tutorial-card">
+  createPanel() {
+    // Create side panel container
+    this.panel = document.createElement('aside');
+    this.panel.id = 'tutorial-panel';
+    this.panel.className = 'tutorial-panel';
+    this.panel.setAttribute('aria-label', 'Tutorial');
+    this.panel.innerHTML = `
+      <div class="tutorial-panel-inner">
+        <!-- Header -->
+        <div class="tutorial-header">
+          <span class="tutorial-step-label">Step <span id="tutorial-current">1</span>/<span id="tutorial-total">${TUTORIAL_STEPS.length}</span></span>
+          <button class="tutorial-close" aria-label="Close tutorial">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Progress dots -->
         <div class="tutorial-progress">
-          <div class="tutorial-progress-bar"></div>
-          <span class="tutorial-progress-text">1 / ${TUTORIAL_STEPS.length}</span>
+          ${TUTORIAL_STEPS.map((_, i) => `<span class="progress-dot${i === 0 ? ' active' : ''}" data-step="${i}"></span>`).join('')}
         </div>
         
-        <div class="tutorial-icon-container">
+        <!-- Content -->
+        <div class="tutorial-content">
           <span class="tutorial-icon">✨</span>
+          <h3 class="tutorial-title">WELCOME</h3>
+          <p class="tutorial-description">Loading...</p>
+          <div class="tutorial-wait hidden">
+            <div class="tutorial-spinner"></div>
+            <span class="tutorial-wait-text">Detecting...</span>
+          </div>
         </div>
         
-        <h2 class="tutorial-title">Welcome</h2>
-        <p class="tutorial-subtitle">Your journey begins</p>
-        <p class="tutorial-description">Loading...</p>
-        
-        <div class="tutorial-detection">
-          <div class="tutorial-detection-ring"></div>
-          <span class="tutorial-detection-text">Detecting...</span>
-        </div>
-        
+        <!-- Actions -->
         <div class="tutorial-actions">
-          <button class="tutorial-btn tutorial-btn-primary">Continue</button>
-          <button class="tutorial-btn tutorial-btn-secondary">Skip Tutorial</button>
+          <button class="tutorial-btn tutorial-btn-primary">Begin</button>
+          <button class="tutorial-btn tutorial-btn-skip">Skip All</button>
         </div>
       </div>
     `;
     
-    document.body.appendChild(this.overlay);
+    // Insert into main app (after header, before footer)
+    const mainApp = document.querySelector('.main-app');
+    if (mainApp) {
+      mainApp.appendChild(this.panel);
+    } else {
+      document.body.appendChild(this.panel);
+    }
     
     // Bind event listeners
-    const primaryBtn = this.overlay.querySelector('.tutorial-btn-primary');
-    const secondaryBtn = this.overlay.querySelector('.tutorial-btn-secondary');
+    const closeBtn = this.panel.querySelector('.tutorial-close');
+    const primaryBtn = this.panel.querySelector('.tutorial-btn-primary');
+    const skipBtn = this.panel.querySelector('.tutorial-btn-skip');
     
+    closeBtn.addEventListener('click', () => this.hide());
     primaryBtn.addEventListener('click', () => this.handlePrimaryAction());
-    secondaryBtn.addEventListener('click', () => this.skip());
+    skipBtn.addEventListener('click', () => this.skip());
     
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
       if (!this.isActive) return;
       if (e.key === 'Enter') this.handlePrimaryAction();
-      if (e.key === 'Escape') this.skip();
+      if (e.key === 'Escape') this.hide();
     });
   }
   
@@ -185,108 +161,179 @@ export class TutorialManager {
     
     this.isActive = true;
     this.currentStep = 0;
-    this.overlay.classList.remove('hidden');
+    this.showStep(0);
+    this.show();
     
-    // Animate entrance
-    if (this.gsap) {
-      this.gsap.fromTo(this.overlay.querySelector('.tutorial-backdrop'),
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3 }
-      );
-      this.gsap.fromTo(this.overlay.querySelector('.tutorial-card'),
-        { opacity: 0, scale: 0.9, y: 20 },
-        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.7)' }
-      );
-    }
-    
-    this.renderStep();
-    console.log('[Tutorial] Started');
     return true;
   }
   
-  renderStep() {
-    const step = TUTORIAL_STEPS[this.currentStep];
+  show() {
+    this.panel.classList.add('visible');
+    
+    if (this.gsap) {
+      this.gsap.fromTo(this.panel,
+        { x: '100%' },
+        { x: '0%', duration: 0.3, ease: 'power2.out' }
+      );
+    }
+  }
+  
+  hide() {
+    if (this.autoAdvanceTimer) {
+      clearTimeout(this.autoAdvanceTimer);
+    }
+    
+    if (this.gsap) {
+      this.gsap.to(this.panel, {
+        x: '100%',
+        duration: 0.25,
+        ease: 'power2.in',
+        onComplete: () => {
+          this.panel.classList.remove('visible');
+          this.isActive = false;
+        }
+      });
+    } else {
+      this.panel.classList.remove('visible');
+      this.isActive = false;
+    }
+  }
+  
+  showStep(index) {
+    const step = TUTORIAL_STEPS[index];
     if (!step) return;
     
-    const card = this.overlay.querySelector('.tutorial-card');
-    const icon = card.querySelector('.tutorial-icon');
-    const title = card.querySelector('.tutorial-title');
-    const subtitle = card.querySelector('.tutorial-subtitle');
-    const description = card.querySelector('.tutorial-description');
-    const detection = card.querySelector('.tutorial-detection');
-    const detectionText = card.querySelector('.tutorial-detection-text');
-    const primaryBtn = card.querySelector('.tutorial-btn-primary');
-    const secondaryBtn = card.querySelector('.tutorial-btn-secondary');
-    const progressBar = card.querySelector('.tutorial-progress-bar');
-    const progressText = card.querySelector('.tutorial-progress-text');
+    // Update step counter
+    this.panel.querySelector('#tutorial-current').textContent = index + 1;
+    
+    // Update progress dots
+    this.panel.querySelectorAll('.progress-dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+      dot.classList.toggle('complete', i < index);
+    });
     
     // Update content
-    icon.textContent = step.icon;
-    title.textContent = step.title;
-    subtitle.textContent = step.subtitle;
-    description.textContent = step.description;
-    primaryBtn.textContent = step.actionText;
+    const icon = this.panel.querySelector('.tutorial-icon');
+    const title = this.panel.querySelector('.tutorial-title');
+    const desc = this.panel.querySelector('.tutorial-description');
+    const waitEl = this.panel.querySelector('.tutorial-wait');
+    const waitText = this.panel.querySelector('.tutorial-wait-text');
+    const primaryBtn = this.panel.querySelector('.tutorial-btn-primary');
+    const skipBtn = this.panel.querySelector('.tutorial-btn-skip');
     
-    // Progress
-    const progress = ((this.currentStep + 1) / TUTORIAL_STEPS.length) * 100;
-    progressBar.style.width = `${progress}%`;
-    progressText.textContent = `${this.currentStep + 1} / ${TUTORIAL_STEPS.length}`;
-    
-    // Show/hide detection area
-    if (step.gesture) {
-      detection.classList.remove('hidden');
-      detection.classList.remove('success');
-      detectionText.textContent = step.actionText;
-      this.hasDetectedGesture = false;
-      this.startDetectionTimeout();
+    // Animate out old content, then in new
+    if (this.gsap) {
+      const tl = this.gsap.timeline();
+      
+      tl.to([icon, title, desc], {
+        opacity: 0,
+        y: -10,
+        duration: 0.15,
+        stagger: 0.03
+      });
+      
+      tl.call(() => {
+        icon.textContent = step.icon;
+        title.textContent = step.title;
+        desc.textContent = step.description;
+        
+        // Show/hide wait indicator
+        if (step.gesture && step.gesture !== 'body' && step.gesture !== 'sound') {
+          waitEl.classList.remove('hidden');
+          waitText.textContent = step.waitText || 'Detecting...';
+          primaryBtn.style.display = 'none';
+        } else if (step.gesture === 'body' || step.gesture === 'sound') {
+          waitEl.classList.remove('hidden');
+          waitText.textContent = step.waitText || 'Waiting...';
+          primaryBtn.style.display = 'none';
+        } else {
+          waitEl.classList.add('hidden');
+          primaryBtn.style.display = 'block';
+          primaryBtn.textContent = index === 0 ? 'Begin' : 
+                                   index === TUTORIAL_STEPS.length - 1 ? 'Start Playing' : 'Continue';
+        }
+        
+        // Show/hide skip button
+        skipBtn.style.display = index === TUTORIAL_STEPS.length - 1 ? 'none' : 'block';
+      });
+      
+      tl.to([icon, title, desc], {
+        opacity: 1,
+        y: 0,
+        duration: 0.2,
+        stagger: 0.05
+      });
     } else {
-      detection.classList.add('hidden');
-      clearTimeout(this.detectionTimeout);
+      icon.textContent = step.icon;
+      title.textContent = step.title;
+      desc.textContent = step.description;
     }
     
-    // Show/hide skip button
-    if (step.skipText) {
-      secondaryBtn.classList.remove('hidden');
-      secondaryBtn.textContent = step.skipText;
-    } else if (this.currentStep === 0) {
-      secondaryBtn.classList.remove('hidden');
-      secondaryBtn.textContent = 'Skip — I\'ll explore';
-    } else {
-      secondaryBtn.classList.add('hidden');
-    }
-    
-    // Final step special handling
-    if (step.id === 'complete') {
-      primaryBtn.textContent = 'Start Playing';
-      secondaryBtn.classList.add('hidden');
-    }
-    
-    // Animate content change
-    if (this.gsap && this.currentStep > 0) {
-      this.gsap.fromTo(icon, { scale: 0 }, { scale: 1, duration: 0.3, ease: 'back.out(2)' });
-      this.gsap.fromTo(title, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.3 });
-      this.gsap.fromTo(description, { opacity: 0 }, { opacity: 1, duration: 0.3, delay: 0.1 });
+    // Auto-advance if specified
+    if (step.autoAdvance && index > 0) {
+      this.autoAdvanceTimer = setTimeout(() => {
+        if (index === TUTORIAL_STEPS.length - 1) {
+          this.complete();
+        } else {
+          this.nextStep();
+        }
+      }, step.autoAdvance);
     }
   }
   
-  startDetectionTimeout() {
-    clearTimeout(this.detectionTimeout);
-    this.detectionTimeout = setTimeout(() => {
-      if (!this.hasDetectedGesture && this.isActive) {
-        // Show "skip this step" hint
-        const detection = this.overlay.querySelector('.tutorial-detection');
-        const primaryBtn = this.overlay.querySelector('.tutorial-btn-primary');
-        primaryBtn.textContent = 'Skip This Step';
-      }
-    }, 8000); // 8 seconds to detect
+  handlePrimaryAction() {
+    const step = TUTORIAL_STEPS[this.currentStep];
+    
+    if (this.currentStep === TUTORIAL_STEPS.length - 1) {
+      // Last step - complete
+      this.complete();
+    } else if (!step.gesture) {
+      // No gesture needed - advance
+      this.nextStep();
+    }
+    // Otherwise, wait for gesture detection
+  }
+  
+  nextStep() {
+    if (this.autoAdvanceTimer) {
+      clearTimeout(this.autoAdvanceTimer);
+    }
+    
+    this.currentStep++;
+    if (this.currentStep >= TUTORIAL_STEPS.length) {
+      this.complete();
+    } else {
+      this.showStep(this.currentStep);
+    }
+  }
+  
+  skip() {
+    this.complete();
+  }
+  
+  complete() {
+    this.isComplete = true;
+    localStorage.setItem('corpus-tutorial-complete', 'true');
+    
+    if (this.autoAdvanceTimer) {
+      clearTimeout(this.autoAdvanceTimer);
+    }
+    
+    this.hide();
+    
+    if (this.onComplete) {
+      this.onComplete();
+    }
+    
+    console.log('[Tutorial] Complete!');
   }
   
   // ==============================================
-  // GESTURE DETECTION INTEGRATION
+  // GESTURE DETECTION CALLBACK
   // ==============================================
   
-  checkGesture(gestureData) {
-    if (!this.isActive || this.hasDetectedGesture) return;
+  checkGesture(gestureType, data = {}) {
+    if (!this.isActive) return;
     
     const step = TUTORIAL_STEPS[this.currentStep];
     if (!step || !step.gesture) return;
@@ -294,167 +341,51 @@ export class TutorialManager {
     let detected = false;
     
     switch (step.gesture) {
-      case 'rightArm':
-        // Check if right arm is moving significantly
-        detected = gestureData.rightArmMoving;
+      case 'body':
+        // Check if body is detected
+        detected = data.bodyDetected === true;
         break;
-      case 'leftArm':
-        detected = gestureData.leftArmMoving;
+        
+      case 'sound':
+        // Check if sound was enabled
+        detected = data.soundEnabled === true;
         break;
+        
       case 'Closed_Fist':
-        detected = gestureData.gestures?.some(g => g?.name === 'Closed_Fist');
+        detected = gestureType === 'Closed_Fist';
         break;
+        
       case 'Open_Palm':
-        detected = gestureData.gestures?.some(g => g?.name === 'Open_Palm');
+        detected = gestureType === 'Open_Palm';
         break;
+        
       case 'scale_change':
-        // Accept Victory, ILoveYou, or Thumb_Down for scale changing
-        detected = gestureData.gestures?.some(g => 
-          g?.name === 'Victory' || g?.name === 'ILoveYou' || g?.name === 'Thumb_Down'
-        );
+        detected = gestureType === 'ILoveYou' || gestureType === 'Thumb_Down' || gestureType === 'Victory';
         break;
+        
       case 'face':
-        detected = gestureData.mouthOpen > 0.15; // Lower threshold for easier detection
+        detected = data.mouthOpen === true;
         break;
     }
     
     if (detected) {
-      this.onGestureDetected();
+      this.onGestureSuccess();
     }
   }
   
-  onGestureDetected() {
-    if (this.hasDetectedGesture) return;
-    this.hasDetectedGesture = true;
+  onGestureSuccess() {
+    const waitEl = this.panel.querySelector('.tutorial-wait');
+    const waitText = this.panel.querySelector('.tutorial-wait-text');
     
-    const step = TUTORIAL_STEPS[this.currentStep];
-    const detection = this.overlay.querySelector('.tutorial-detection');
-    const detectionText = this.overlay.querySelector('.tutorial-detection-text');
-    const primaryBtn = this.overlay.querySelector('.tutorial-btn-primary');
+    // Show success
+    waitText.textContent = '✓ Perfect!';
+    waitEl.classList.add('success');
     
-    // Success animation
-    detection.classList.add('success');
-    detectionText.textContent = step.successText || 'Perfect!';
-    primaryBtn.textContent = 'Continue';
-    
-    clearTimeout(this.detectionTimeout);
-    
-    // Celebration animation
-    if (this.gsap) {
-      this.gsap.to(detection, {
-        scale: 1.1,
-        duration: 0.2,
-        yoyo: true,
-        repeat: 1
-      });
-    }
-    
-    // Auto-advance after delay
+    // Advance after brief delay
     setTimeout(() => {
-      if (this.isActive && this.hasDetectedGesture) {
-        this.nextStep();
-      }
-    }, 1500);
-  }
-  
-  // ==============================================
-  // NAVIGATION
-  // ==============================================
-  
-  handlePrimaryAction() {
-    const step = TUTORIAL_STEPS[this.currentStep];
-    
-    if (step.id === 'welcome') {
+      waitEl.classList.remove('success');
       this.nextStep();
-    } else if (step.id === 'complete') {
-      this.complete();
-    } else if (step.gesture && !this.hasDetectedGesture) {
-      // Skip this detection step
-      this.nextStep();
-    } else {
-      this.nextStep();
-    }
-  }
-  
-  nextStep() {
-    this.currentStep++;
-    
-    if (this.currentStep >= TUTORIAL_STEPS.length) {
-      this.complete();
-      return;
-    }
-    
-    // Animate out then in
-    if (this.gsap) {
-      const card = this.overlay.querySelector('.tutorial-card');
-      this.gsap.to(card, {
-        opacity: 0.5,
-        x: -20,
-        duration: 0.15,
-        onComplete: () => {
-          this.renderStep();
-          this.gsap.fromTo(card,
-            { opacity: 0.5, x: 20 },
-            { opacity: 1, x: 0, duration: 0.15 }
-          );
-        }
-      });
-    } else {
-      this.renderStep();
-    }
-  }
-  
-  skip() {
-    console.log('[Tutorial] Skipped');
-    this.hide();
-    // Don't mark as complete - they can redo it
-  }
-  
-  complete() {
-    console.log('[Tutorial] Completed!');
-    this.isComplete = true;
-    localStorage.setItem('corpus-tutorial-complete', 'true');
-    
-    // Celebration animation
-    if (this.gsap) {
-      const card = this.overlay.querySelector('.tutorial-card');
-      this.gsap.to(card, {
-        scale: 1.05,
-        duration: 0.2,
-        yoyo: true,
-        repeat: 1,
-        onComplete: () => this.hide()
-      });
-    } else {
-      this.hide();
-    }
-    
-    if (this.onComplete) {
-      this.onComplete();
-    }
-  }
-  
-  hide() {
-    this.isActive = false;
-    clearTimeout(this.detectionTimeout);
-    
-    if (this.gsap) {
-      this.gsap.to(this.overlay.querySelector('.tutorial-card'), {
-        opacity: 0,
-        scale: 0.9,
-        y: 20,
-        duration: 0.3
-      });
-      this.gsap.to(this.overlay.querySelector('.tutorial-backdrop'), {
-        opacity: 0,
-        duration: 0.3,
-        onComplete: () => {
-          this.overlay.classList.add('hidden');
-        }
-      });
-    } else {
-      this.overlay.classList.add('hidden');
-    }
+    }, 800);
   }
   
   // ==============================================
@@ -469,14 +400,10 @@ export class TutorialManager {
     this.start();
   }
   
-  isShowing() {
+  isRunning() {
     return this.isActive;
-  }
-  
-  shouldShowOnStart() {
-    return !this.wasCompletedBefore;
   }
 }
 
-// Export singleton
+// Export singleton instance
 export const tutorialManager = new TutorialManager();

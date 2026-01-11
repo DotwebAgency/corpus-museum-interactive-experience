@@ -78,6 +78,25 @@ export class BodyInstrument {
     this.kickSynth = null;
     this.snareSynth = null;
     
+    // === NEW: Continuous arm synths (MonoSynth for smooth glides) ===
+    this.rightArmSynth = null;  // Melody - right arm
+    this.leftArmSynth = null;   // Bass - left arm
+    
+    // Continuous control state
+    this.continuousMode = true; // Enable by default
+    this.rightArmActive = false;
+    this.leftArmActive = false;
+    this.lastRightFreq = 0;
+    this.lastLeftFreq = 0;
+    this.armSmoothFactor = 0.12; // Lower = more responsive
+    
+    // Pitch ranges (Hz)
+    this.melodyRange = { min: 130.81, max: 523.25, octaves: 2 }; // C3 to C5
+    this.bassRange = { min: 65.41, max: 196.00, octaves: 1.5 };  // C2 to G3
+    
+    // Arm visibility threshold
+    this.armVisibilityThreshold = 0.5;
+    
     // Effects chain
     this.reverb = null;
     this.delay = null;
@@ -256,6 +275,160 @@ export class BodyInstrument {
     });
     this.snareSynth.volume.value = -12;
     this.snareSynth.toDestination();
+    
+    // === NEW: Continuous arm synths (MonoSynth for smooth glides) ===
+    this.createContinuousArmSynths();
+  }
+  
+  createContinuousArmSynths() {
+    const Tone = this.Tone;
+    
+    // Right arm = Melody synth (theremin-like, smooth glides)
+    this.rightArmSynth = new Tone.MonoSynth({
+      oscillator: { type: 'sine' },
+      envelope: {
+        attack: 0.05,
+        decay: 0.2,
+        sustain: 0.8,
+        release: 0.5
+      },
+      filterEnvelope: {
+        attack: 0.06,
+        decay: 0.2,
+        sustain: 0.5,
+        release: 0.5,
+        baseFrequency: 200,
+        octaves: 4
+      },
+      portamento: 0.05  // Smooth glide between notes
+    });
+    this.rightArmSynth.volume.value = -8;
+    this.rightArmSynth.connect(this.delay);
+    
+    // Left arm = Bass synth (warmer, slower glides)
+    this.leftArmSynth = new Tone.MonoSynth({
+      oscillator: { type: 'triangle' },
+      envelope: {
+        attack: 0.1,
+        decay: 0.3,
+        sustain: 0.7,
+        release: 0.8
+      },
+      filterEnvelope: {
+        attack: 0.1,
+        decay: 0.4,
+        sustain: 0.4,
+        release: 0.8,
+        baseFrequency: 80,
+        octaves: 2.5
+      },
+      portamento: 0.08  // Slightly slower glide for bass
+    });
+    this.leftArmSynth.volume.value = -10;
+    this.leftArmSynth.connect(this.filter);
+    
+    console.log('[BodyInstrument] 🎸 Continuous arm synths created');
+  }
+  
+  // === CONTINUOUS ARM PITCH CONTROL ===
+  updateContinuousArms(pose) {
+    if (!this.continuousMode || !this.rightArmSynth || !this.leftArmSynth) return;
+    
+    const rightWrist = pose[16];  // Right wrist
+    const leftWrist = pose[15];   // Left wrist
+    
+    // === RIGHT ARM (MELODY) ===
+    if (rightWrist && rightWrist.visibility > this.armVisibilityThreshold) {
+      const targetFreq = this.yToMelodyFreq(rightWrist.y);
+      
+      // Smooth frequency changes
+      if (this.lastRightFreq === 0) this.lastRightFreq = targetFreq;
+      this.lastRightFreq = this.lerp(this.lastRightFreq, targetFreq, this.armSmoothFactor);
+      
+      if (!this.rightArmActive) {
+        // Start playing
+        this.rightArmSynth.triggerAttack(this.lastRightFreq);
+        this.rightArmActive = true;
+        console.log('[BodyInstrument] 🎹 Right arm ON:', Math.round(this.lastRightFreq), 'Hz');
+      } else {
+        // Update frequency (portamento handles smoothing)
+        this.rightArmSynth.setNote(this.lastRightFreq);
+      }
+      
+      // Visual feedback
+      if (this.onSoundTrigger) {
+        this.onSoundTrigger('continuous_melody', this.lastRightFreq, rightWrist.y);
+      }
+    } else if (this.rightArmActive) {
+      // Arm left frame - release note
+      this.rightArmSynth.triggerRelease();
+      this.rightArmActive = false;
+      console.log('[BodyInstrument] 🎹 Right arm OFF');
+    }
+    
+    // === LEFT ARM (BASS) ===
+    if (leftWrist && leftWrist.visibility > this.armVisibilityThreshold) {
+      const targetFreq = this.yToBassFreq(leftWrist.y);
+      
+      if (this.lastLeftFreq === 0) this.lastLeftFreq = targetFreq;
+      this.lastLeftFreq = this.lerp(this.lastLeftFreq, targetFreq, this.armSmoothFactor);
+      
+      if (!this.leftArmActive) {
+        this.leftArmSynth.triggerAttack(this.lastLeftFreq);
+        this.leftArmActive = true;
+        console.log('[BodyInstrument] 🎸 Left arm ON:', Math.round(this.lastLeftFreq), 'Hz');
+      } else {
+        this.leftArmSynth.setNote(this.lastLeftFreq);
+      }
+      
+      if (this.onSoundTrigger) {
+        this.onSoundTrigger('continuous_bass', this.lastLeftFreq, leftWrist.y);
+      }
+    } else if (this.leftArmActive) {
+      this.leftArmSynth.triggerRelease();
+      this.leftArmActive = false;
+      console.log('[BodyInstrument] 🎸 Left arm OFF');
+    }
+  }
+  
+  // Convert Y position to melody frequency (exponential mapping)
+  yToMelodyFreq(y) {
+    // Y: 0 = top of frame, 1 = bottom
+    // Invert so raising arm = higher pitch
+    const normalized = 1 - Math.max(0, Math.min(1, y));
+    
+    // Exponential mapping for musical intervals
+    return this.melodyRange.min * Math.pow(2, normalized * this.melodyRange.octaves);
+  }
+  
+  // Convert Y position to bass frequency
+  yToBassFreq(y) {
+    const normalized = 1 - Math.max(0, Math.min(1, y));
+    return this.bassRange.min * Math.pow(2, normalized * this.bassRange.octaves);
+  }
+  
+  // Linear interpolation helper
+  lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
+  
+  // Toggle continuous mode
+  setContinuousMode(enabled) {
+    this.continuousMode = enabled;
+    
+    // Stop any active continuous sounds when disabling
+    if (!enabled) {
+      if (this.rightArmActive && this.rightArmSynth) {
+        this.rightArmSynth.triggerRelease();
+        this.rightArmActive = false;
+      }
+      if (this.leftArmActive && this.leftArmSynth) {
+        this.leftArmSynth.triggerRelease();
+        this.leftArmActive = false;
+      }
+    }
+    
+    console.log('[BodyInstrument] Continuous mode:', enabled ? 'ON' : 'OFF');
   }
   
   // ==============================================
@@ -278,6 +451,11 @@ export class BodyInstrument {
     // Ensure audio context is running (can get suspended)
     if (this.Tone && this.Tone.context.state !== 'running') {
       this.Tone.context.resume().catch(e => console.warn('[BodyInstrument] Context resume failed:', e));
+    }
+    
+    // === NEW: Continuous arm pitch control (like a theremin) ===
+    if (this.continuousMode) {
+      this.updateContinuousArms(pose);
     }
     
     // Extract relevant landmarks
