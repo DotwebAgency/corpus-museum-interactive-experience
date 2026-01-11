@@ -41,17 +41,7 @@ const state = {
   soundEnabled: false  // Musical Body Instrument enabled state
 };
 
-// Roman numerals
-const toRoman = (num) => {
-  if (num <= 0 || num > 100) return num.toString();
-  const vals = [100, 90, 50, 40, 10, 9, 5, 4, 1];
-  const syms = ['C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
-  let result = '';
-  for (let i = 0; i < vals.length; i++) {
-    while (num >= vals[i]) { result += syms[i]; num -= vals[i]; }
-  }
-  return result;
-};
+// (Roman numerals removed - using plain numbers for clarity)
 
 // ==============================================
 // DOM ELEMENTS
@@ -932,7 +922,7 @@ function mainLoop(timestamp) {
     state.fps = state.frameCount;
     state.frameCount = 0;
     state.lastFpsTime = timestamp;
-    if (elements.fpsCounter) elements.fpsCounter.textContent = toRoman(state.fps);
+    if (elements.fpsCounter) elements.fpsCounter.textContent = `${state.fps} fps`;
   }
   
   const w = elements.mainCanvas.width;
@@ -1336,7 +1326,11 @@ function handleSoundTrigger(type, note, volume) {
   if (type === 'scale') {
     // Update the scale selector dropdown
     if (elements.scaleSelect) {
+      console.log('[CORPUS] 🎼 Updating dropdown from', elements.scaleSelect.value, 'to', note);
       elements.scaleSelect.value = note; // note contains the scale name
+      console.log('[CORPUS] 🎼 Dropdown now:', elements.scaleSelect.value);
+    } else {
+      console.warn('[CORPUS] ⚠️ scaleSelect element not found!');
     }
     // Show scale name briefly
     showScaleNotification(note);
