@@ -1,9 +1,5 @@
 Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-I'm stuck at the try opening your mouth step that one is not registering also my mouth doesn't work as an instrument and We should use some glass morphism on this onboarding tutorial and then the bottom bar is now way too high way too high We need to integrate all of this way better All of it like this makes no sense like this And all of this is not really in our brand identity.
+The bottom bar is still too high and depending on the status and layout shifts. No need to stack all of this for fuck's sake. Put it inline or something. I don't know. Like redesign all of this better.
 
-The bottom bar, this new help overlay, the help overlay should slide in, should be part of the actual experience. I should still see myself. Now about the audio. Audio doesn't work. Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
-
-Yeah, the audio does not work at all. Erase my arm, nothing is happening. The audio should just work perfect. When I raise my arm, the audio keeps playing.
-
-Know what I mean? We need to make music with this and stuff. Set this up perfect, please. all in our brandidentity and brand aligned
+Yeah, yeah, bottom, like fucking hell. Layout shifts every time it recognizes something. Then the corpus guide pop-up is not sliding in from the right. Like I said, it should slide in in the main area and not overlap the header or footer. know what I mean on the right side it slides in and then I can see it and I can just close it with a chevron and

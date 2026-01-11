@@ -269,116 +269,30 @@
       </aside>
     </main>
 
-    <!-- Footer - Now includes detection status -->
+    <!-- Footer - Minimal inline bar -->
     <footer class="app-footer">
-      <!-- Left: Hand gesture indicators -->
-      <div class="footer-hands">
-        <div class="hand-gesture" id="left-hand-gesture">
-          <div class="hand-gesture-icon">
-            <svg viewBox="0 0 32 32" class="hand-svg">
-              <!-- Open palm shape -->
-              <path class="hand-palm" d="M16 28c-6 0-10-4-10-10V10c0-2 1-3 2-3s2 1 2 3v6"/>
-              <path class="hand-finger finger-1" d="M10 16V6c0-1.5 1-2.5 2-2.5s2 1 2 2.5v10"/>
-              <path class="hand-finger finger-2" d="M14 16V4c0-1.5 1-2.5 2-2.5s2 1 2 2.5v12"/>
-              <path class="hand-finger finger-3" d="M18 16V5c0-1.5 1-2.5 2-2.5s2 1 2 2.5v11"/>
-              <path class="hand-finger finger-4" d="M22 16V8c0-1.5 1-2.5 2-2.5s2 1 2 2.5v10c0 6-4 10-10 10"/>
-            </svg>
-            <!-- Fist shape (hidden by default) -->
-            <svg viewBox="0 0 32 32" class="fist-svg hidden">
-              <ellipse cx="16" cy="16" rx="10" ry="8" class="fist-shape"/>
-              <path class="fist-thumb" d="M6 14c-1 0-2 1-2 2s1 2 2 2"/>
-            </svg>
-          </div>
-          <span class="hand-label">L</span>
-        </div>
-        
-        <div class="hand-gesture" id="right-hand-gesture">
-          <div class="hand-gesture-icon">
-            <svg viewBox="0 0 32 32" class="hand-svg">
-              <path class="hand-palm" d="M16 28c6 0 10-4 10-10V10c0-2-1-3-2-3s-2 1-2 3v6"/>
-              <path class="hand-finger finger-1" d="M22 16V6c0-1.5-1-2.5-2-2.5s-2 1-2 2.5v10"/>
-              <path class="hand-finger finger-2" d="M18 16V4c0-1.5-1-2.5-2-2.5s-2 1-2 2.5v12"/>
-              <path class="hand-finger finger-3" d="M14 16V5c0-1.5-1-2.5-2-2.5s-2 1-2 2.5v11"/>
-              <path class="hand-finger finger-4" d="M10 16V8c0-1.5-1-2.5-2-2.5s-2 1-2 2.5v10c0 6 4 10 10 10"/>
-            </svg>
-            <svg viewBox="0 0 32 32" class="fist-svg hidden">
-              <ellipse cx="16" cy="16" rx="10" ry="8" class="fist-shape"/>
-              <path class="fist-thumb" d="M26 14c1 0 2 1 2 2s-1 2-2 2"/>
-            </svg>
-          </div>
-          <span class="hand-label">R</span>
-        </div>
+      <!-- Detection dots -->
+      <div class="detect-dots">
+        <span class="detect-dot-mini" id="detect-body" title="Body"></span>
+        <span class="detect-dot-mini" id="detect-hands" title="Hands"></span>
+        <span class="detect-dot-mini" id="detect-face" title="Face"></span>
       </div>
       
-      <!-- Center: Gesture Palette + Detection status -->
-      <div class="footer-center">
-        <!-- Gesture Palette - Shows all available gestures -->
-        <div class="gesture-palette" id="gesture-palette">
-          <div class="gesture-item" id="gesture-fist" data-gesture="fist">
-            <span class="gesture-item-icon">✊</span>
-            <span class="gesture-item-label">Fist</span>
-            <span class="gesture-item-desc">Drums</span>
-          </div>
-          <div class="gesture-item" id="gesture-palm" data-gesture="palm">
-            <span class="gesture-item-icon">✋</span>
-            <span class="gesture-item-label">Palm</span>
-            <span class="gesture-item-desc">Chord</span>
-          </div>
-          <div class="gesture-item" id="gesture-point" data-gesture="point">
-            <span class="gesture-item-icon">☝️</span>
-            <span class="gesture-item-label">Point</span>
-            <span class="gesture-item-desc">Sustain</span>
-          </div>
-          <div class="gesture-item" id="gesture-victory" data-gesture="victory">
-            <span class="gesture-item-icon">✌️</span>
-            <span class="gesture-item-label">Victory</span>
-            <span class="gesture-item-desc">Scale</span>
-          </div>
-          <div class="gesture-item" id="gesture-thumb" data-gesture="thumb">
-            <span class="gesture-item-icon">👍</span>
-            <span class="gesture-item-label">Thumb</span>
-            <span class="gesture-item-desc">Mute</span>
-          </div>
-        </div>
-        
-        <!-- Detection Pills (smaller now) -->
-        <div class="footer-detection">
-          <span class="detect-pill" id="detect-body">
-            <span class="detect-dot"></span>
-            <span>Body</span>
-          </span>
-          <span class="detect-pill" id="detect-hands">
-            <span class="detect-dot"></span>
-            <span>Hands</span>
-          </span>
-          <span class="detect-pill" id="detect-face">
-            <span class="detect-dot"></span>
-            <span>Face</span>
-          </span>
-        </div>
-        
-        <!-- Instruction + Scale selector -->
-        <div class="footer-instruction-row">
-          <span class="footer-instruction" id="footer-instruction">Click the [?] for guide · 🔊 enables music · ✊ summons sparks</span>
-          <select id="scale-select" class="scale-select" title="Musical Scale">
-            <option value="pentatonic">♫ Pentatonic</option>
-            <option value="minor">♫ Minor</option>
-            <option value="major">♫ Major</option>
-            <option value="blues">♫ Blues</option>
-            <option value="japanese">♫ Japanese</option>
-            <option value="dorian">♫ Dorian</option>
-          </select>
-        </div>
-      </div>
+      <!-- Instruction -->
+      <span class="footer-instruction" id="footer-instruction">[?] guide · 🔊 music · ✊ sparks</span>
       
-      <!-- Right: Particles & FPS -->
-      <div class="footer-stats">
-        <div class="metric">
-          <span class="metric-label">Particles</span>
-          <span id="footer-particles" class="metric-value">0</span>
-        </div>
-      <span id="fps-counter" class="fps-counter">LX</span>
-      </div>
+      <!-- Scale (shown when sound enabled) -->
+      <select id="scale-select" class="scale-select-mini" title="Scale">
+        <option value="pentatonic">Pentatonic</option>
+        <option value="minor">Minor</option>
+        <option value="major">Major</option>
+        <option value="blues">Blues</option>
+        <option value="japanese">Japanese</option>
+        <option value="dorian">Dorian</option>
+      </select>
+      
+      <!-- FPS -->
+      <span class="fps-counter" id="fps-counter">-- fps</span>
     </footer>
   </div>
 

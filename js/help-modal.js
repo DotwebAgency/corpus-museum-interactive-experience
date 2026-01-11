@@ -37,12 +37,11 @@ export class HelpModal {
         <header class="help-modal-header">
           <h2 id="help-modal-title" class="help-modal-title">
             <span class="help-modal-icon">📖</span>
-            CORPUS Guide
+            Guide
           </h2>
           <button class="help-modal-close" aria-label="Close help">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
+              <polyline points="9 18 15 12 9 6"/>
             </svg>
           </button>
         </header>
@@ -239,23 +238,17 @@ export class HelpModal {
     
     this.isOpen = true;
     this.previousFocus = document.activeElement;
+    
+    // Slide in from right
     this.modal.classList.remove('hidden');
+    // Small delay to allow CSS transition
+    requestAnimationFrame(() => {
+      this.modal.classList.add('visible');
+    });
     
     // Focus trap
     const closeBtn = this.modal.querySelector('.help-modal-close');
     closeBtn.focus();
-    
-    // Animate
-    if (this.gsap) {
-      this.gsap.fromTo(this.modal.querySelector('.help-modal-backdrop'),
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3 }
-      );
-      this.gsap.fromTo(this.modal.querySelector('.help-modal-content'),
-        { opacity: 0, scale: 0.95, y: 20 },
-        { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: 'power2.out' }
-      );
-    }
     
     console.log('[HelpModal] Opened');
   }
@@ -265,23 +258,15 @@ export class HelpModal {
     
     this.isOpen = false;
     
-    if (this.gsap) {
-      this.gsap.to(this.modal.querySelector('.help-modal-content'), {
-        opacity: 0,
-        scale: 0.95,
-        y: 20,
-        duration: 0.2
-      });
-      this.gsap.to(this.modal.querySelector('.help-modal-backdrop'), {
-        opacity: 0,
-        duration: 0.2,
-        onComplete: () => {
-          this.modal.classList.add('hidden');
-        }
-      });
-    } else {
-      this.modal.classList.add('hidden');
-    }
+    // Slide out to right
+    this.modal.classList.remove('visible');
+    
+    // Wait for transition then hide
+    setTimeout(() => {
+      if (!this.isOpen) {
+        this.modal.classList.add('hidden');
+      }
+    }, 350); // Match CSS transition duration
     
     // Restore focus
     if (this.previousFocus) {

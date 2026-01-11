@@ -1559,11 +1559,11 @@ button {
 
 /* ===================== APP FOOTER - Integrated Status Bar ===================== */
 .app-footer {
-  min-height: auto; /* Remove forced height */
+  height: 48px; /* Fixed height - no layout shifts */
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 20px;
+  justify-content: center;
+  padding: 0 16px;
   background: linear-gradient(180deg, 
     rgba(42, 38, 36, 0.85) 0%, 
     rgba(30, 28, 26, 0.9) 100%);
@@ -1573,9 +1573,10 @@ button {
   z-index: 100;
   position: relative;
   transition: background var(--theme-transition), box-shadow var(--theme-transition);
-  gap: 12px;
+  gap: 16px;
   flex-wrap: nowrap;
   border-top: 1px solid rgba(212, 175, 55, 0.1);
+  overflow: hidden;
 }
 
 [data-theme="light"] .app-footer {
@@ -1655,11 +1656,11 @@ button {
 
 /* Footer Instruction (Center) */
 .footer-instruction {
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 300;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
   color: var(--ivory-muted);
-  font-style: italic;
+  letter-spacing: 0.02em;
   opacity: 0.6;
   text-align: center;
   white-space: nowrap;
@@ -1780,23 +1781,68 @@ button {
   color: #8A8480;
 }
 
-/* Detection Pills (Center) */
+/* Footer is now all inline - no center wrapper needed */
 .footer-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  flex: 1;
-  min-width: 0; /* Allow shrinking */
+  display: none; /* Removed - using direct children now */
 }
 
-.footer-detection {
+/* Minimal detection dots */
+.detect-dots {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
+  gap: 6px;
+}
+
+.detect-dot-mini {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.detect-dot-mini.active {
+  background: var(--mint-cream);
+  box-shadow: 0 0 8px var(--mint-glow);
+}
+
+[data-theme="light"] .detect-dot-mini {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .detect-dot-mini.active {
+  background: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+/* Mini scale selector */
+.scale-select-mini {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--ivory-soft);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: none; /* Hidden by default */
+}
+
+.scale-select-mini:hover {
+  border-color: var(--gold-muted);
+}
+
+[data-theme="light"] .scale-select-mini {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--text-muted);
+}
+
+/* Old footer-detection - keeping for backwards compat */
+.footer-detection {
+  display: none; /* Hide old stacked version */
 }
 
 .detect-pill {
@@ -2930,61 +2976,66 @@ body.cinema-mode.letterbox .cinema-letterbox {
   display: none;
 }
 
-/* ===================== HELP MODAL ===================== */
+/* ===================== HELP PANEL (Slide-in from right) ===================== */
 .help-modal {
   position: fixed;
-  inset: 0;
-  z-index: 10001;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  top: var(--header-height);
+  right: 0;
+  bottom: var(--footer-height);
+  width: 360px;
+  max-width: 90vw;
+  z-index: 500;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  margin: var(--frame-width);
+}
+
+.help-modal.visible {
+  transform: translateX(0);
+  pointer-events: auto;
 }
 
 .help-modal.hidden {
-  display: none;
+  transform: translateX(100%);
 }
 
 .help-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(3px);
+  display: none; /* No backdrop - can see main content */
 }
 
 .help-modal-content {
   position: relative;
   width: 100%;
-  max-width: 650px;
-  max-height: 80vh;
+  height: 100%;
   background: linear-gradient(145deg, 
-    rgba(42, 38, 36, 0.88) 0%, 
-    rgba(30, 28, 26, 0.92) 100%);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 20px;
+    rgba(42, 38, 36, 0.92) 0%, 
+    rgba(30, 28, 26, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.35),
-    0 0 60px rgba(212, 175, 55, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    -8px 0 30px rgba(0, 0, 0, 0.25),
+    0 0 40px rgba(212, 175, 55, 0.04);
 }
 
 [data-theme="light"] .help-modal-content {
   background: linear-gradient(145deg, 
-    rgba(255, 255, 255, 0.88) 0%, 
-    rgba(245, 240, 232, 0.92) 100%);
-  border-color: rgba(200, 144, 64, 0.2);
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(245, 240, 232, 0.98) 100%);
+  border-color: rgba(200, 144, 64, 0.15);
 }
 
 .help-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .help-modal-title {
@@ -3034,11 +3085,11 @@ body.cinema-mode.letterbox .cinema-letterbox {
 .help-modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: 16px 20px;
 }
 
 .help-section {
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
 .help-section:last-child {
@@ -3057,24 +3108,18 @@ body.cinema-mode.letterbox .cinema-letterbox {
 
 .help-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-@media (max-width: 600px) {
-  .help-grid {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: 1fr; /* Single column for side panel */
+  gap: 8px;
 }
 
 .help-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 [data-theme="light"] .help-item {
