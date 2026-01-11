@@ -884,9 +884,10 @@ export class HumanAvatarRenderer {
     ctx.translate(width, 0);
     ctx.scale(-1, 1);
     
-    // Use entrance animation progress for global alpha during build-up
-    // entranceProgress: 0 = invisible, 1 = fully visible
-    ctx.globalAlpha = this.entranceProgress;
+    // NOTE: Individual drawing functions (drawJoint, drawBone, drawFace) now handle
+    // their own visibility using getJointVisibility(), getBoneVisibility(), etc.
+    // Do NOT set globalAlpha here - it would override the per-element entrance visibility
+    // ctx.globalAlpha = this.entranceProgress; // REMOVED - handled per-element
     
     if (this.face && this.face.length >= 468) {
       this.drawFace(ctx, width, height, c);
@@ -1697,6 +1698,10 @@ export class HumanAvatarRenderer {
     const vis = (idx) => (p[idx]?.visibility || 0) > 0.3;
     const handColors = [c.powderBlue, c.lavender];
     
+    // Hands appear after body during entrance (start at 35% progress)
+    const handEntranceVis = this.getHandLandmarkVisibility(0); // Use wrist visibility
+    if (handEntranceVis <= 0) return; // Skip hands during early entrance
+    
     for (let hi = 0; hi < 2; hi++) {
       const hand = this.hands[hi];
       if (!hand || hand.length < 21) continue;
@@ -1706,7 +1711,8 @@ export class HumanAvatarRenderer {
       if (fadeAlpha <= 0) continue; // Fully faded out, skip rendering
       
       ctx.save();
-      ctx.globalAlpha *= fadeAlpha;
+      // Combine entrance visibility with fade alpha
+      ctx.globalAlpha *= fadeAlpha * handEntranceVis;
       
       const color = handColors[hi];
       const hw = hand[0]; // Original hand wrist
