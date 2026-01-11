@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CORPUS — Behold the Form</title>
+  <meta name="description" content="A living digital portrait. Real-time anatomical visualization inspired by the Old Masters.">
+  
+  <!-- Swiss Luxury Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://storage.googleapis.com">
+  
+  <link rel="stylesheet" href="styles/main.css">
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231A1410'/><circle cx='16' cy='10' r='3' fill='%23C9A227'/><line x1='16' y1='13' x2='16' y2='22' stroke='%23C9A227' stroke-width='2'/><line x1='10' y1='16' x2='22' y2='16' stroke='%23C9A227' stroke-width='2'/><line x1='12' y1='26' x2='16' y2='22' stroke='%23C9A227' stroke-width='2'/><line x1='20' y1='26' x2='16' y2='22' stroke='%23C9A227' stroke-width='2'/></svg>">
+  
+  <!-- GSAP Animation Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  
+  <!-- PWA -->
+  <meta name="theme-color" content="#1A1410">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+</head>
+<body>
+  <!-- ===================== INTRO SCREEN ===================== -->
+  <div id="intro-screen" class="intro-screen">
+    <div class="intro-vignette"></div>
+    <div class="intro-dust" id="intro-dust"></div>
+    
+    <div class="intro-content">
+      <div class="intro-logo">
+        <svg viewBox="0 0 100 100" class="logo-vitruvian">
+          <!-- Ornate frame -->
+          <rect x="5" y="5" width="90" height="90" rx="2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"/>
+          <rect x="10" y="10" width="80" height="80" rx="1" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+          <!-- Vitruvian figure -->
+          <circle cx="50" cy="28" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="50" y1="36" x2="50" y2="62" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="50" y1="42" x2="32" y2="52" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="50" y1="42" x2="68" y2="52" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="50" y1="62" x2="36" y2="85" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="50" y1="62" x2="64" y2="85" stroke="currentColor" stroke-width="1.5"/>
+          <!-- Golden joints -->
+          <circle cx="50" cy="28" r="2" fill="currentColor" opacity="0.8"/>
+          <circle cx="50" cy="42" r="2" fill="currentColor"/>
+          <circle cx="32" cy="52" r="1.5" fill="currentColor"/>
+          <circle cx="68" cy="52" r="1.5" fill="currentColor"/>
+          <circle cx="50" cy="62" r="2" fill="currentColor"/>
+        </svg>
+      </div>
+      
+      <h1 class="intro-title">CORPUS</h1>
+      
+      <p class="intro-tagline">Behold the form.</p>
+      
+      <p class="intro-subtitle">
+        A living digital portrait in the tradition of the Old Masters.<br>
+        See yourself rendered as timeless art.
+      </p>
+      
+      <button id="enable-camera-btn" class="intro-cta">
+        <span class="cta-text">Begin the Sitting</span>
+        <span class="cta-flourish">❧</span>
+      </button>
+      
+      <p class="intro-privacy">
+        Position yourself as you would for a portrait.<br>
+        <span class="privacy-note">All processing occurs locally. Nothing leaves your device.</span>
+      </p>
+    </div>
+    
+    <footer class="intro-footer">
+      <span class="footer-brand">CORPUS · MMXXVI</span>
+      <span class="footer-latin">Memento vivere</span>
+    </footer>
+  </div>
+
+  <!-- ===================== MAIN APPLICATION ===================== -->
+  <div id="main-app" class="main-app hidden">
+    
+    <!-- Ornate Frame Border -->
+    <div class="frame-border frame-top"></div>
+    <div class="frame-border frame-bottom"></div>
+    <div class="frame-border frame-left"></div>
+    <div class="frame-border frame-right"></div>
+    
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="brand-name">CORPUS</span>
+        <span class="brand-separator">·</span>
+        <span id="mode-latin" class="mode-latin">WAITING</span>
+      </div>
+      
+      <div class="header-actions">
+        <div class="header-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span class="status-text" id="status-text">Seeking presence</span>
+        </div>
+        <button id="fullscreen-toggle" class="header-btn fullscreen-toggle" aria-label="Toggle fullscreen">
+          <svg class="icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 3 21 3 21 9"/>
+            <polyline points="9 21 3 21 3 15"/>
+            <line x1="21" y1="3" x2="14" y2="10"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+          <svg class="icon-compress" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 14 10 14 10 20"/>
+            <polyline points="20 10 14 10 14 4"/>
+            <line x1="14" y1="10" x2="21" y2="3"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+        </button>
+        <button id="theme-toggle" class="header-btn theme-toggle" aria-label="Toggle theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Canvas Area -->
+    <main class="app-main">
+      <canvas id="main-canvas" class="main-canvas"></canvas>
+      <video id="camera-video" class="camera-video-hidden" autoplay playsinline muted></video>
+      
+      <!-- Detection Status Panel — Louvre-Quality Glassmorphism Design -->
+      <aside id="detection-panel" class="detection-panel">
+        <!-- Golden accent line -->
+        <div class="panel-accent"></div>
+        
+        <!-- Header with status -->
+        <header class="panel-header">
+          <span class="panel-ornament">◆</span>
+          <span class="panel-title">CORPUS</span>
+          <span class="panel-ornament">◆</span>
+          <span id="panel-status-dot" class="panel-status-dot"></span>
+        </header>
+        
+        <!-- LEFT/RIGHT Hand Gesture Visualization -->
+        <section class="gesture-display">
+          <div class="dual-gesture-container">
+            <!-- LEFT HAND -->
+            <div class="hand-indicator">
+              <span class="hand-label">L</span>
+              <div id="left-hand-icon" class="hand-icon">
+                <svg viewBox="0 0 32 32" class="fist-icon">
+                  <path d="M16 6 C11 6 8 11 8 17 V23 C8 26 11 29 16 29 C21 29 24 26 24 23 V17 C24 11 21 6 16 6 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <svg viewBox="0 0 32 32" class="palm-icon">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                    <path d="M16 28 V18"/>
+                    <path d="M11 28 L9 12 V7"/>
+                    <path d="M21 28 L23 12 V7"/>
+                    <path d="M6 26 L5 14 V10"/>
+                    <path d="M26 26 L27 14 V10"/>
+                  </g>
+                </svg>
+              </div>
+              <span id="left-gesture-state" class="gesture-state">—</span>
+            </div>
+            
+            <!-- RIGHT HAND -->
+            <div class="hand-indicator">
+              <span class="hand-label">R</span>
+              <div id="right-hand-icon" class="hand-icon">
+                <svg viewBox="0 0 32 32" class="fist-icon">
+                  <path d="M16 6 C11 6 8 11 8 17 V23 C8 26 11 29 16 29 C21 29 24 26 24 23 V17 C24 11 21 6 16 6 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <svg viewBox="0 0 32 32" class="palm-icon">
+                  <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                    <path d="M16 28 V18"/>
+                    <path d="M11 28 L9 12 V7"/>
+                    <path d="M21 28 L23 12 V7"/>
+                    <path d="M6 26 L5 14 V10"/>
+                    <path d="M26 26 L27 14 V10"/>
+                  </g>
+                </svg>
+              </div>
+              <span id="right-gesture-state" class="gesture-state">—</span>
+            </div>
+          </div>
+          <span id="gesture-label" class="gesture-label">AWAITING</span>
+        </section>
+        
+        <!-- Divider -->
+        <div class="panel-divider"></div>
+        
+        <!-- Detection Status -->
+        <section class="detection-status">
+          <div class="status-row">
+            <span class="status-label">Body</span>
+            <span class="status-track">
+              <span id="body-indicator" class="status-indicator"></span>
+            </span>
+            <span id="body-status" class="status-value">—</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Hands</span>
+            <span class="status-track">
+              <span id="hands-indicator" class="status-indicator"></span>
+            </span>
+            <span id="hands-status" class="status-value">—</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Face</span>
+            <span class="status-track">
+              <span id="face-indicator" class="status-indicator"></span>
+            </span>
+            <span id="face-status" class="status-value">—</span>
+          </div>
+        </section>
+        
+        <!-- Landmark Counter -->
+        <details class="landmark-details">
+          <summary class="details-toggle">
+            <span class="toggle-label">Landmarks</span>
+            <span id="landmark-count" class="toggle-count">0</span>
+          </summary>
+          <div class="landmark-breakdown">
+            <div class="breakdown-row">
+              <span>Body</span>
+              <span id="body-landmarks">0</span>
+            </div>
+            <div class="breakdown-row">
+              <span>Hands</span>
+              <span id="hand-landmarks">0</span>
+            </div>
+            <div class="breakdown-row">
+              <span>Face</span>
+              <span id="face-landmarks">0</span>
+            </div>
+          </div>
+        </details>
+        
+        <!-- Footer -->
+        <footer class="panel-footer">
+          <span class="particle-label">Particles</span>
+          <span id="particle-count" class="particle-count">0</span>
+        </footer>
+      </aside>
+    </main>
+
+    <!-- Footer - Now includes detection status -->
+    <footer class="app-footer">
+      <!-- Left: Detection metrics -->
+      <div class="footer-metrics">
+        <div class="metric">
+          <span class="metric-label">Body</span>
+          <span id="footer-body-status" class="metric-value">—</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Hands</span>
+          <span id="footer-hands-status" class="metric-value">—</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Face</span>
+          <span id="footer-face-status" class="metric-value">—</span>
+        </div>
+        <div class="metric-divider"></div>
+        <div class="metric">
+          <span class="metric-label">Landmarks</span>
+          <span id="footer-landmarks" class="metric-value">0</span>
+        </div>
+      </div>
+      
+      <!-- Center: Instruction -->
+      <span class="footer-instruction">Make a fist to summon the ethereal sparks</span>
+      
+      <!-- Right: Particles & FPS -->
+      <div class="footer-stats">
+        <div class="metric">
+          <span class="metric-label">Particles</span>
+          <span id="footer-particles" class="metric-value">0</span>
+        </div>
+        <span id="fps-counter" class="fps-counter">LX</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ===================== LOADING OVERLAY ===================== -->
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="loading-content">
+      <div class="loading-candle">
+        <div class="candle-flame"></div>
+        <div class="candle-body"></div>
+      </div>
+      <p id="loading-text" class="loading-text">Preparing the studio...</p>
+      <div class="loading-bar-container">
+        <div id="loading-bar" class="loading-bar"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ===================== AWAKENING LOADING SCREEN ===================== -->
+  <div id="awakening-overlay" class="awakening-overlay hidden">
+    <div class="awakening-content">
+      <div class="awakening-ring">
+        <svg viewBox="0 0 100 100" class="awakening-svg">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+          <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.3"/>
+          <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="1" class="awakening-pulse"/>
+          <circle cx="50" cy="50" r="8" fill="currentColor" class="awakening-center"/>
+        </svg>
+      </div>
+      <p class="awakening-text">
+        <span class="awakening-letter">A</span>
+        <span class="awakening-letter">W</span>
+        <span class="awakening-letter">A</span>
+        <span class="awakening-letter">K</span>
+        <span class="awakening-letter">E</span>
+        <span class="awakening-letter">N</span>
+        <span class="awakening-letter">I</span>
+        <span class="awakening-letter">N</span>
+        <span class="awakening-letter">G</span>
+        <span class="awakening-letter awakening-ellipsis">.</span>
+        <span class="awakening-letter awakening-ellipsis">.</span>
+        <span class="awakening-letter awakening-ellipsis">.</span>
+      </p>
+      <div class="awakening-progress">
+        <span id="awakening-percent" class="awakening-percent">0</span>
+        <span class="awakening-percent-symbol">%</span>
+      </div>
+      <p id="awakening-status" class="awakening-status">The canvas stirs</p>
+    </div>
+  </div>
+
+  <!-- ===================== CINEMA MODE OVERLAYS ===================== -->
+  <div class="cinema-vignette"></div>
+  <div class="cinema-grain"></div>
+  <div class="cinema-letterbox top"></div>
+  <div class="cinema-letterbox bottom"></div>
+  <button class="cinema-exit" id="cinema-exit" aria-label="Exit cinema mode">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

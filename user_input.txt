@@ -1,0 +1,3 @@
+Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
+
+we now need to really detect all edge cases like for example if the petals shoot out when I close my fist and then I start to turn my fist they stop suddenly because I turned my fist the detection stops working we need to really find every single edge case and UX gap like that and fix it okay and then also my neck is connected to the front of my chin it should be connected to my actual head so when I move it to the side it doesn't look so weird okay and And that's it. 
