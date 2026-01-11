@@ -77,6 +77,12 @@ export class BodyInstrument {
     this.padSynth = null;
     this.kickSynth = null;
     this.snareSynth = null;
+    this.bass808Synth = null;  // 808 bass triggered by mouth
+    
+    // Mouth bass state
+    this.mouthBassActive = false;
+    this.mouthBassLastTrigger = 0;
+    this.mouthBassDebounce = 250;  // ms between triggers
     
     // === NEW: Continuous arm synths (MonoSynth for smooth glides) ===
     this.rightArmSynth = null;  // Melody - right arm
@@ -273,6 +279,27 @@ export class BodyInstrument {
         sustain: 0
       }
     });
+    
+    // 808 Bass - triggered by mouth opening
+    this.bass808Synth = new Tone.MonoSynth({
+      oscillator: { type: 'sine' },  // Classic 808 uses sine
+      envelope: {
+        attack: 0.01,
+        decay: 0.3,
+        sustain: 0.4,
+        release: 0.8
+      },
+      filterEnvelope: {
+        attack: 0.01,
+        decay: 0.2,
+        sustain: 0.5,
+        release: 0.5,
+        baseFrequency: 100,
+        octaves: 1.5
+      }
+    });
+    this.bass808Synth.volume.value = -4;  // Punchy
+    this.bass808Synth.connect(this.reverb);
     this.snareSynth.volume.value = -12;
     this.snareSynth.toDestination();
     
@@ -843,8 +870,22 @@ export class BodyInstrument {
     const shapeMap = {};
     shapes.forEach(s => shapeMap[s.categoryName] = s.score);
     
-    // Mouth open = filter cutoff (wah effect)
+    // 🎵 MOUTH OPEN = 808 BASS HIT
     const mouthOpen = shapeMap['jawOpen'] || 0;
+    const now = performance.now();
+    
+    if (mouthOpen > 0.25 && !this.mouthBassActive && 
+        (now - this.mouthBassLastTrigger) > this.mouthBassDebounce) {
+      // Mouth just opened - trigger 808 bass!
+      this.trigger808Bass(mouthOpen);
+      this.mouthBassActive = true;
+      this.mouthBassLastTrigger = now;
+    } else if (mouthOpen < 0.15 && this.mouthBassActive) {
+      // Mouth closed - ready for next trigger
+      this.mouthBassActive = false;
+    }
+    
+    // Mouth position also affects filter (wah effect on sustained notes)
     if (this.filter) {
       const targetFreq = 400 + (mouthOpen * 4000); // 400-4400 Hz
       this.filter.frequency.rampTo(targetFreq, 0.1);
@@ -864,6 +905,31 @@ export class BodyInstrument {
       this.melodySynth.set({
         oscillator: { detune: smile * 10 }
       });
+    }
+  }
+  
+  trigger808Bass(intensity = 0.5) {
+    if (!this.bass808Synth || !this.isEnabled) return;
+    
+    try {
+      // Pick bass note based on current scale (808 style - low notes)
+      const bass808Notes = ['C1', 'D1', 'E1', 'F1', 'G1', 'A1'];
+      const noteIndex = Math.floor(Math.random() * bass808Notes.length);
+      const note = bass808Notes[noteIndex];
+      
+      // Intensity affects velocity and duration
+      const velocity = 0.6 + (intensity * 0.4);
+      const duration = 0.3 + (intensity * 0.3);
+      
+      this.bass808Synth.triggerAttackRelease(note, duration, undefined, velocity);
+      
+      console.log('[BodyInstrument] 🎤 808 Bass:', note, 'intensity:', intensity.toFixed(2));
+      
+      if (this.onSoundTrigger) {
+        this.onSoundTrigger('808bass', note, velocity);
+      }
+    } catch (e) {
+      console.warn('[BodyInstrument] 808 Bass error:', e);
     }
   }
   
@@ -1020,6 +1086,7 @@ export class BodyInstrument {
     this.padSynth?.dispose();
     this.kickSynth?.dispose();
     this.snareSynth?.dispose();
+    this.bass808Synth?.dispose();
     
     // Dispose effects
     this.reverb?.dispose();

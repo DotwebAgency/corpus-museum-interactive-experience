@@ -415,14 +415,8 @@ button {
   overflow: visible; /* Prevent clipping on animations */
   position: relative;
   z-index: 10;
-  /* GSAP will handle animations, no CSS transitions that clip */
+  /* Clean flat design - no shimmer animation */
   will-change: transform, box-shadow;
-  animation: goldShimmer 5s ease infinite;
-}
-
-@keyframes goldShimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
 }
 
 /* Hover handled by GSAP for smooth, non-clipping animation */
@@ -866,12 +860,7 @@ button {
 }
 
 .portal-vitruvian {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  color: var(--gold-bright);
-  opacity: 0;
-  will-change: transform, opacity;
+  display: none;  /* Hidden - clean minimal design */
 }
 
 .portal-text {
@@ -925,9 +914,7 @@ button {
   border-color: rgba(168, 136, 64, 0.15);
 }
 
-[data-theme="light"] .portal-vitruvian {
-  color: #9A8050;
-}
+/* portal-vitruvian is hidden */
 
 [data-theme="light"] .portal-text {
   color: #8A7040;
