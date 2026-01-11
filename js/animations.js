@@ -1210,6 +1210,40 @@ export const UtilityAnimations = {
 };
 
 // ==============================================
+// KEYBOARD NAVIGATION
+// ==============================================
+
+/**
+ * Setup keyboard navigation for accessibility
+ * @param {Function} onEnterPress - Callback when Enter/Space is pressed
+ */
+export function setupKeyboardNavigation(onEnterPress) {
+  let keyboardNavigationActive = false;
+  
+  document.addEventListener('keydown', (e) => {
+    // Only trigger on Enter or Space
+    if (e.key === 'Enter' || e.key === ' ') {
+      // Prevent default space scroll behavior
+      if (e.key === ' ') {
+        e.preventDefault();
+      }
+      
+      // Only fire once per key press
+      if (!keyboardNavigationActive && onEnterPress) {
+        keyboardNavigationActive = true;
+        onEnterPress();
+      }
+    }
+  });
+  
+  document.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      keyboardNavigationActive = false;
+    }
+  });
+}
+
+// ==============================================
 // EXPORT DEFAULT
 // ==============================================
 
@@ -1218,8 +1252,10 @@ export default {
   EASINGS,
   EtherealParticles,
   CursorGradient,
+  TextSplitter,
   IntroAnimations,
   LoadingAnimations,
   MainAnimations,
-  UtilityAnimations
+  UtilityAnimations,
+  setupKeyboardNavigation
 };
