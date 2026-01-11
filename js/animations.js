@@ -971,23 +971,36 @@ export const MainAnimations = {
   entrySequence(gsap, elements) {
     const tl = gsap.timeline();
     
-    // Setup initial states
+    // Setup initial states - elements already pre-hidden via CSS/JS
     gsap.set(elements.mainApp, { display: 'flex', opacity: 1 });
-    gsap.set(elements.frameBorders, { 
-      scaleX: 0, 
-      scaleY: 0, 
-      transformOrigin: 'center',
-      opacity: 0
-    });
-    gsap.set(elements.header, { y: -80, opacity: 0 });
-    gsap.set(elements.footer, { y: 80, opacity: 0 });
+    
+    // Only set frame borders if they exist
+    if (elements.frameBorders && elements.frameBorders.length > 0) {
+      gsap.set(elements.frameBorders, { 
+        scaleX: 0, 
+        scaleY: 0, 
+        transformOrigin: 'center',
+        opacity: 0
+      });
+    }
+    
+    // Ensure header/footer start from hidden state
+    if (elements.header) {
+      gsap.set(elements.header, { y: -80, opacity: 0, visibility: 'visible' });
+    }
+    if (elements.footer) {
+      gsap.set(elements.footer, { y: 80, opacity: 0, visibility: 'visible' });
+    }
     if (elements.statusPanel) {
       gsap.set(elements.statusPanel, { x: 120, opacity: 0, scale: 0.9 });
     }
     
-    tl
-      // Frames animate in with stagger
-      .to(elements.frameBorders, {
+    // Small initial delay for smoother transition
+    tl.to({}, { duration: 0.1 });
+    
+    // Frames animate in with stagger (if they exist)
+    if (elements.frameBorders && elements.frameBorders.length > 0) {
+      tl.to(elements.frameBorders, {
         scaleX: 1,
         scaleY: 1,
         opacity: 0.7,
@@ -997,21 +1010,30 @@ export const MainAnimations = {
           from: 'start'
         },
         ease: EASINGS.elegant
-      })
-      // Header slides down with bounce
-      .to(elements.header, {
+      });
+    }
+    
+    // Header slides down with bounce
+    if (elements.header) {
+      tl.to(elements.header, {
         y: 0,
         opacity: 1,
         duration: 0.6,
-        ease: EASINGS.springy
-      }, "-=0.5")
-      // Footer slides up
-      .to(elements.footer, {
+        ease: EASINGS.springy,
+        clearProps: 'transform' // Clean up inline styles after animation
+      }, elements.frameBorders?.length ? "-=0.5" : "+=0");
+    }
+    
+    // Footer slides up
+    if (elements.footer) {
+      tl.to(elements.footer, {
         y: 0,
         opacity: 1,
         duration: 0.6,
-        ease: EASINGS.springy
+        ease: EASINGS.springy,
+        clearProps: 'transform' // Clean up inline styles after animation
       }, "-=0.5");
+    }
     
     // Status panel if exists
     if (elements.statusPanel) {
@@ -1020,7 +1042,8 @@ export const MainAnimations = {
         opacity: 1,
         scale: 1,
         duration: 0.7,
-        ease: EASINGS.springy
+        ease: EASINGS.springy,
+        clearProps: 'transform,scale'
       }, "-=0.4");
     }
     

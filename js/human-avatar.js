@@ -163,6 +163,13 @@ export class HumanAvatarRenderer {
     this.maxConfidenceHistory = 5; // Frames to average confidence over
     this.lostFrames = 0;
     
+    // NEW: Hand fade-out when leaving frame
+    this.handFadeAlpha = [1.0, 1.0]; // Current opacity for each hand
+    this.handLostFrames = [0, 0]; // Frames since hand was last seen
+    this.handFadeOutDelay = 8; // Frames to wait before starting fade (prevents flicker)
+    this.handFadeOutDuration = 15; // Frames to fully fade out
+    this.handMaxLostFrames = 30; // Fully clear hand after this many frames
+    
     // PERFORMANCE: Faster response with less smoothing
     this.armSmoothFactor = 0.5; // Faster arm tracking
     this.handSmoothFactor = 0.45; // Faster hand tracking for quick fist response
@@ -436,19 +443,36 @@ export class HumanAvatarRenderer {
         const assignedHandIdx = assignments[slotIdx];
         
         if (assignedHandIdx === -1) {
-          // No hand assigned to this slot - gradually fade out
+          // No hand assigned to this slot - start fade out process
+          this.handLostFrames[slotIdx]++;
+          
           if (this.hands[slotIdx]) {
-            // Keep existing position for a few frames to prevent flicker
-            this.handIdentities[slotIdx] = null;
+            // Calculate fade alpha
+            if (this.handLostFrames[slotIdx] > this.handFadeOutDelay) {
+              const fadeProgress = (this.handLostFrames[slotIdx] - this.handFadeOutDelay) / this.handFadeOutDuration;
+              this.handFadeAlpha[slotIdx] = Math.max(0, 1 - fadeProgress);
+            }
+            
+            // Clear hand completely after max lost frames
+            if (this.handLostFrames[slotIdx] >= this.handMaxLostFrames) {
+              this.hands[slotIdx] = null;
+              this.handIdentities[slotIdx] = null;
+              this.handFadeAlpha[slotIdx] = 0;
+            }
           }
+          
           this.fistStates[slotIdx].detected = false;
           continue;
         }
         
+        // Hand found - reset fade state
+        this.handLostFrames[slotIdx] = 0;
+        this.handFadeAlpha[slotIdx] = 1.0;
+        
         const newHand = incomingHands[assignedHandIdx];
         
         // IMPROVED: Multi-point velocity check (not just wrist)
-        let isValidUpdate = true;
+          let isValidUpdate = true;
         let isFastMovement = false;
         
         if (this.hands[slotIdx] && this.lastHandPositions[slotIdx]) {
@@ -475,10 +499,10 @@ export class HumanAvatarRenderer {
           
           // Reject as glitch if ANY point jumps too far OR if multiple points jump significantly
           if (maxDist > this.handJumpThreshold || avgDist > this.handVelocityThreshold) {
-            isValidUpdate = false;
+              isValidUpdate = false;
+            }
           }
-        }
-        
+          
         if (!this.hands[slotIdx]) {
           // First detection - initialize directly
           this.hands[slotIdx] = newHand.map(p => ({ x: p.x, y: p.y }));
@@ -490,8 +514,8 @@ export class HumanAvatarRenderer {
             // During fast movement, increase smoothing to reduce jitter
             smoothFactor *= this.adaptiveSmoothMultiplier;
           }
-          
-          for (let i = 0; i < 21; i++) {
+            
+            for (let i = 0; i < 21; i++) {
             this.hands[slotIdx][i].x += (newHand[i].x - this.hands[slotIdx][i].x) * smoothFactor;
             this.hands[slotIdx][i].y += (newHand[i].y - this.hands[slotIdx][i].y) * smoothFactor;
           }
@@ -509,52 +533,52 @@ export class HumanAvatarRenderer {
         
         // Store current position for next frame
         this.lastHandPositions[slotIdx] = newHand.map(p => ({ x: p.x, y: p.y }));
-        
-        // Check fist for THIS hand - prefer native gesture if available
-        const nativeGesture = this.currentGestures && this.currentGestures[assignedHandIdx];
-        const isFist = nativeGesture 
-          ? nativeGesture.name === 'Closed_Fist' && nativeGesture.confidence > 0.5
-          : this.detectFist(this.hands[slotIdx]); // Fallback to custom detection
-        
-        // Store the gesture type for other effects
-        this.fistStates[slotIdx].gesture = nativeGesture?.name || (isFist ? 'Closed_Fist' : 'None');
-        
-        if (isFist) {
-          this.fistStates[slotIdx].detected = true;
-          this.isFistDetected = true;
           
+          // Check fist for THIS hand - prefer native gesture if available
+        const nativeGesture = this.currentGestures && this.currentGestures[assignedHandIdx];
+          const isFist = nativeGesture 
+            ? nativeGesture.name === 'Closed_Fist' && nativeGesture.confidence > 0.5
+          : this.detectFist(this.hands[slotIdx]); // Fallback to custom detection
+          
+          // Store the gesture type for other effects
+        this.fistStates[slotIdx].gesture = nativeGesture?.name || (isFist ? 'Closed_Fist' : 'None');
+          
+          if (isFist) {
+          this.fistStates[slotIdx].detected = true;
+            this.isFistDetected = true;
+            
           const wrist = this.hands[slotIdx][0];
           const mcp = this.hands[slotIdx][9];
-          // Mirror X coordinate since we flip the canvas for display
+            // Mirror X coordinate since we flip the canvas for display
           this.fistStates[slotIdx].position = {
-            x: 1 - (wrist.x + mcp.x) / 2,
-            y: (wrist.y + mcp.y) / 2
-          };
-        }
-        
+              x: 1 - (wrist.x + mcp.x) / 2,
+              y: (wrist.y + mcp.y) / 2
+            };
+          }
+          
         // Check for Open_Palm gesture (wind push effect)
-        if (nativeGesture && nativeGesture.name === 'Open_Palm' && nativeGesture.confidence > 0.5) {
+          if (nativeGesture && nativeGesture.name === 'Open_Palm' && nativeGesture.confidence > 0.5) {
           const wrist = this.hands[slotIdx][0];
           const mcp = this.hands[slotIdx][9];
-          const palmPosition = {
-            x: 1 - (wrist.x + mcp.x) / 2,
-            y: (wrist.y + mcp.y) / 2
-          };
-          // Trigger wind push effect
-          this.petalStream.triggerWindPush(palmPosition.x, palmPosition.y, 0.15);
-        }
-        
+            const palmPosition = {
+              x: 1 - (wrist.x + mcp.x) / 2,
+              y: (wrist.y + mcp.y) / 2
+            };
+            // Trigger wind push effect
+            this.petalStream.triggerWindPush(palmPosition.x, palmPosition.y, 0.15);
+          }
+          
         // Check for Pointing_Up gesture (magnet attraction effect)
-        if (nativeGesture && nativeGesture.name === 'Pointing_Up' && nativeGesture.confidence > 0.5) {
-          // Use index fingertip (landmark 8) for the magnet point
+          if (nativeGesture && nativeGesture.name === 'Pointing_Up' && nativeGesture.confidence > 0.5) {
+            // Use index fingertip (landmark 8) for the magnet point
           const indexTip = this.hands[slotIdx][8];
-          const fingertipPosition = {
-            x: 1 - indexTip.x,
-            y: indexTip.y
-          };
-          // Trigger magnet attraction effect
-          this.petalStream.triggerMagnetAttraction(fingertipPosition.x, fingertipPosition.y, 0.12);
-        }
+            const fingertipPosition = {
+              x: 1 - indexTip.x,
+              y: indexTip.y
+            };
+            // Trigger magnet attraction effect
+            this.petalStream.triggerMagnetAttraction(fingertipPosition.x, fingertipPosition.y, 0.12);
+          }
       }
     } else {
       // No hands detected - clear slots
@@ -1622,6 +1646,13 @@ export class HumanAvatarRenderer {
       const hand = this.hands[hi];
       if (!hand || hand.length < 21) continue;
       
+      // Apply fade-out alpha for hands leaving frame
+      const fadeAlpha = this.handFadeAlpha[hi];
+      if (fadeAlpha <= 0) continue; // Fully faded out, skip rendering
+      
+      ctx.save();
+      ctx.globalAlpha *= fadeAlpha;
+      
       const color = handColors[hi];
       const hw = hand[0]; // Original hand wrist
       const dL = vis(15) ? Math.hypot(hw.x - p[15].x, hw.y - p[15].y) : 999;
@@ -1692,6 +1723,8 @@ export class HumanAvatarRenderer {
         const sz = isWrist ? 5 : (isTip ? 4 : 2.5);
         this.drawJoint(ctx, pt.x * w, pt.y * h, sz, c);
       });
+      
+      ctx.restore(); // Restore after applying fade alpha
     }
   }
   

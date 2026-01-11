@@ -495,29 +495,46 @@ function transitionToMain() {
 function showMainApp(gsap) {
   hideLoading();
   
-  // Ensure main app is visible before animating
+  // Make container available but hidden initially - let GSAP animate everything
   elements.mainApp.classList.remove('hidden');
   elements.mainApp.style.display = 'flex';
-  elements.mainApp.style.opacity = '1';
   elements.mainApp.style.visibility = 'visible';
+  // Keep opacity at 0 initially - GSAP entrySequence will animate it
+  elements.mainApp.style.opacity = '0';
   
-  // Setup main app elements for GSAP animation
-  const mainElements = {
-    mainApp: elements.mainApp,
-    header: elements.appHeader,
-    footer: elements.appFooter,
-    statusPanel: elements.statusPanel,
-    frameBorders: elements.frameBorders
-  };
+  // Pre-hide header and footer for clean animation entry
+  if (elements.appHeader) {
+    elements.appHeader.style.opacity = '0';
+    elements.appHeader.style.transform = 'translateY(-80px)';
+  }
+  if (elements.appFooter) {
+    elements.appFooter.style.opacity = '0';
+    elements.appFooter.style.transform = 'translateY(80px)';
+  }
   
-  // Entry sequence with bounce effects
-  const entryTl = MainAnimations.entrySequence(gsap, mainElements);
-  entryTl.eventCallback('onComplete', () => {
-    // Setup spark pulse animation (paused by default)
-    if (elements.sparkOrb && elements.sparkIcon) {
-      state.sparkPulseTl = MainAnimations.createSparkPulse(gsap, elements.sparkOrb, elements.sparkIcon);
-    }
-    startApp();
+  // Small delay to ensure DOM is ready before animation
+  requestAnimationFrame(() => {
+    // Now reveal main app container
+    elements.mainApp.style.opacity = '1';
+    
+    // Setup main app elements for GSAP animation
+    const mainElements = {
+      mainApp: elements.mainApp,
+      header: elements.appHeader,
+      footer: elements.appFooter,
+      statusPanel: elements.statusPanel,
+      frameBorders: elements.frameBorders
+    };
+    
+    // Entry sequence with bounce effects
+    const entryTl = MainAnimations.entrySequence(gsap, mainElements);
+    entryTl.eventCallback('onComplete', () => {
+      // Setup spark pulse animation (paused by default)
+      if (elements.sparkOrb && elements.sparkIcon) {
+        state.sparkPulseTl = MainAnimations.createSparkPulse(gsap, elements.sparkOrb, elements.sparkIcon);
+      }
+      startApp();
+    });
   });
 }
 
