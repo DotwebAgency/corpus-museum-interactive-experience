@@ -4,4 +4,6 @@ Redesign the enter button on the landing page. I don't like when I have over it,
 
 And don't have a repetition of the stickman we already use in the square above. Thank you. Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-This portly effect doesn't work well, it's just a golden card and it suddenly goes brown to the other actual loading screen. And also when I hold the peace sign it doesn't change the tone anymore, something is broken there now. 
+This portly effect doesn't work well, it's just a golden card and it suddenly goes brown to the other actual loading screen. And also when I hold the peace sign it doesn't change the tone anymore, something is broken there now.Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
+
+Yeah, the golden gradient overlay, I don't know, like, doesn't work.  

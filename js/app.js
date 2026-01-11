@@ -16,6 +16,7 @@ import {
 import { bodyInstrument } from './body-instrument.js';
 import { tutorialManager } from './tutorial.js';
 import { helpModal } from './help-modal.js';
+import { introSounds } from './intro-sounds.js';
 
 // ==============================================
 // STATE
@@ -201,9 +202,17 @@ async function initAnimations() {
       IntroAnimations.animateLogo(gsap, elements.introLogo);
     }
     
-    // Initialize portal button with hover effects
+    // Initialize portal button with hover effects and sounds
     if (elements.portalButton) {
       IntroAnimations.initPortalButton(gsap, elements.portalButton);
+      
+      // Initialize intro sounds for portal interaction
+      introSounds.initialize();
+      
+      // Add portal hover sound
+      elements.portalButton.addEventListener('mouseenter', () => {
+        introSounds.playPortalHover();
+      });
     }
     
     // Start historical quotes rotation
@@ -348,6 +357,9 @@ async function handleEnableCamera() {
   
   // Portal transition for GSAP-first, simple fade for legacy
   if (gsap && isGSAPFirst && clickedButton) {
+    // Play portal activation sound
+    introSounds.playPortalActivate();
+    
     // Use portal expansion transition
     IntroAnimations.portalTransition(gsap, clickedButton, () => {
       // Portal animation complete, hide intro
@@ -414,6 +426,11 @@ function showAwakening() {
     if (elements.awakeningStatus) elements.awakeningStatus.textContent = 'Awakening the instruments...';
     if (elements.loadingProgressFill) elements.loadingProgressFill.style.width = '0%';
     
+    // Initialize intro sounds
+    introSounds.initialize().then(() => {
+      introSounds.startDrone();
+    });
+    
     // Use GSAP-first awakening entry if available
     if (state.gsap) {
       const awakeningElements = {
@@ -461,6 +478,11 @@ function updateAwakeningProgress(percent, status) {
       elements.loadingInstrumentIcons, 
       roundedPercent
     );
+    
+    // Play phase sound when phase changes
+    if (phase) {
+      introSounds.playPhaseSound(phase);
+    }
     
     // Update status message based on phase
     if (phase && LoadingAnimations.phaseMessages[phase]) {
