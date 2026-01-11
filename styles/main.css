@@ -761,10 +761,26 @@ button {
   position: relative;
   z-index: 10;
   cursor: pointer;
-  background: none;
+  background: transparent;
   border: none;
   padding: 0;
   will-change: transform;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove browser default focus styles */
+.intro-portal-button:focus,
+.intro-portal-button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Custom focus indicator using portal ring */
+.intro-portal-button:focus-visible .portal-ring {
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 30px var(--gold-glow);
+  opacity: 1;
 }
 
 .portal-circle {
@@ -819,14 +835,24 @@ button {
   will-change: transform;
 }
 
-/* Portal hover state */
-.intro-portal-button:hover .portal-ring {
+/* Portal hover state - smooth transition */
+.intro-portal-button:hover .portal-ring,
+.intro-portal-button:active .portal-ring {
   border-color: var(--gold-bright);
   box-shadow: 0 0 30px var(--gold-glow);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.intro-portal-button:hover .portal-text {
+.intro-portal-button:hover .portal-text,
+.intro-portal-button:active .portal-text {
   color: var(--cream);
+  transition: color 0.3s ease;
+}
+
+/* Ensure no square background appears on hover/active */
+.intro-portal-button:hover,
+.intro-portal-button:active {
+  background: transparent;
 }
 
 [data-theme="light"] .portal-ring,
@@ -1248,30 +1274,23 @@ button {
 }
 
 .brand-separator {
-  display: none;
+  color: #4A4640;
+  font-size: 10px;
 }
 
-/* Mode indicator with pastel styling */
+/* Mode indicator - minimal flat text */
 .mode-latin {
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  padding: 6px 16px;
-  background: linear-gradient(135deg, var(--rose-blush), var(--lavender));
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  border: 1px solid var(--rose-glow);
-  border-radius: 4px;
+  font-size: var(--text-xs);
+  color: #6A6560;
   font-weight: 400;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  /* No border, no background, no gradient - just text */
 }
 
 [data-theme="light"] .mode-latin {
-  background: linear-gradient(135deg, #C87080, #9888B0);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  border-color: rgba(200, 112, 128, 0.3);
+  color: #8A8680;
 }
 
 .header-actions {
@@ -1520,36 +1539,29 @@ button {
   text-shadow: 0 0 20px var(--gold-glow), 0 0 40px var(--gold-glow);
 }
 
-/* Status Dot - Pastel Glow */
+/* Status Dot - Minimal */
 .status-dot {
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--dusty-rose);
-  transition: all var(--transition-normal);
-  box-shadow: 0 0 8px var(--rose-glow);
+  background: #5A5550;
+  transition: background 150ms ease;
 }
 
 .status-dot.active {
-  background: var(--mint-cream);
-  box-shadow: 0 0 16px var(--mint-glow), 0 0 24px var(--mint-glow);
+  background: #7CC57E;
 }
 
 .status-text {
   font-family: var(--font-body);
   font-size: var(--text-sm);
   font-weight: 400;
-  color: var(--ivory-warm);
-  padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 0; /* Sharp corners for uniform design */
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #8A8680;
+  /* Clean, minimal - no background, no border */
 }
 
 [data-theme="light"] .status-text {
-  color: #5A5550;
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: #6A6660;
 }
 
 /* ===================== APP MAIN ===================== */
@@ -4796,45 +4808,38 @@ body.cinema-mode.letterbox .cinema-letterbox {
 }
 
 /* ===================== HELP BUTTON ===================== */
+/* Match header button style - flat, minimal */
 .help-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: rgba(212, 175, 55, 0.1);
-  border: 1px solid rgba(212, 175, 55, 0.25);
-  border-radius: 50%;
-  color: var(--gold-bright);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  color: #8A8680;
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  animation: help-pulse 3s ease-in-out infinite;
-}
-
-@keyframes help-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.3); }
-  50% { box-shadow: 0 0 0 6px rgba(212, 175, 55, 0); }
+  transition: all 150ms ease;
 }
 
 .help-btn:hover {
-  background: rgba(212, 175, 55, 0.2);
-  border-color: var(--gold-bright);
-  transform: scale(1.05);
-  animation: none;
+  background: #242220;
+  border-color: #3A3634;
+  color: #E8E4DE;
 }
 
 [data-theme="light"] .help-btn {
-  background: rgba(200, 144, 64, 0.1);
-  border-color: rgba(200, 144, 64, 0.25);
-  color: #B8860B;
+  color: #6A6660;
 }
 
 [data-theme="light"] .help-btn:hover {
-  background: rgba(200, 144, 64, 0.2);
-  border-color: #B8860B;
+  background: #F0EDE8;
+  border-color: #E5E2DD;
+  color: #2A2826;
 }
 
 /* Sound toggle attention pulse (when not enabled) */

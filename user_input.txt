@@ -1,11 +1,5 @@
+Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-On the enter page, the enter button has this thick figure, you can remove it and also when I hover, there is like this square around it now, it's the hover effect, the background somehow, there's something wrong about it, this is not behaving right, we need to redesign this button from the ground and make it better, okay? 
+So look, when I play the game, like I make music, everything works perfect the first time, but I have to make sure both hands are in the screen when I turn on the mode, when I click on the speaker icon, right? But then once I move my hands down and the music stops, I cannot bring them back up and continue.
 
-
-
-
-----------
-
-once the loading screen is done i see the corpus logo from the enter page again there's some bug there again now for fuck's sake and then in the top bar we need to optimize it there's so many like circles boxes everything and then upper body bigger than corpus logo this is nonsense fully redesigned to make it better don't change the existing height but just make it better don't have all these background elements integrated nice header okay with you know the navigation on the right.
-
-And... The tutorial just detects my body and then it goes away and says I'm complete. What the heck went on there? 
+I have to like reload the entire page and start this whole process again. We need to make this proper, proper reliable and fix all this mess, okay? 

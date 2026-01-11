@@ -351,37 +351,28 @@ async function handleEnableCamera() {
   // Determine which button was clicked
   const clickedButton = elements.portalButton || elements.enableCameraBtn;
   
-  // Portal transition for GSAP-first, simple fade for legacy
+  // IMMEDIATELY hide intro screen to prevent it from reappearing
+  // This is crucial - the awakening overlay sits on top, but when it fades,
+  // we don't want the intro screen to be visible underneath
+  elements.introScreen.style.opacity = '0';
+  elements.introScreen.style.visibility = 'hidden';
+  elements.introScreen.classList.add('hidden');
+  
+  // Portal transition for GSAP-first (purely visual, intro already hidden)
   if (gsap && isGSAPFirst && clickedButton) {
     // Play portal activation sound
     introSounds.playPortalActivate();
     
-    // Use portal expansion transition
+    // Use portal expansion transition (cosmetic only, doesn't control intro visibility)
     IntroAnimations.portalTransition(gsap, clickedButton, () => {
-      // Portal animation complete, hide intro
-      elements.introScreen.style.visibility = 'hidden';
-      elements.introScreen.classList.add('hidden');
+      // Portal animation complete - intro already hidden
     });
   } else if (gsap) {
-    // Legacy button press animation
+    // Legacy button press animation (cosmetic only)
     IntroAnimations.buttonPress(gsap, elements.enableCameraBtn);
-    
-    gsap.to(elements.introScreen, {
-      opacity: 0,
-      duration: 0.5,
-      ease: 'power2.inOut',
-      onComplete: () => {
-        elements.introScreen.style.visibility = 'hidden';
-        elements.introScreen.classList.add('hidden');
-      }
-    });
-  } else {
-    elements.introScreen.style.opacity = '0';
-    elements.introScreen.style.visibility = 'hidden';
-    elements.introScreen.classList.add('hidden');
   }
   
-  // Show awakening overlay (which is now on top of the fading intro)
+  // Show awakening overlay (which is now on top, intro already hidden)
   showAwakening();
   
   try {

@@ -192,6 +192,7 @@ export class TutorialManager {
     console.log('[Tutorial] Starting...');
     this.isActive = true;
     this.currentStep = 0;
+    this.stepChangeTime = Date.now(); // Initialize debounce timer to prevent instant completion
     this.showStep(0);
     this.show();
     
@@ -304,6 +305,8 @@ export class TutorialManager {
     }
     
     this.currentStep++;
+    this.stepChangeTime = Date.now(); // Track when step changed for debounce
+    
     if (this.currentStep >= TUTORIAL_STEPS.length) {
       this.complete();
     } else {
@@ -338,6 +341,11 @@ export class TutorialManager {
   
   checkGesture(gestureData) {
     if (!this.isActive) return;
+    
+    // Prevent rapid-fire step completion - debounce after step changes
+    if (this.stepChangeTime && Date.now() - this.stepChangeTime < 1500) {
+      return;
+    }
     
     const step = TUTORIAL_STEPS[this.currentStep];
     if (!step || !step.gesture) return;
