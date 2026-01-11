@@ -1503,6 +1503,8 @@ function checkGestureForTutorial() {
   // Build gesture data object for tutorial
   const gestureData = {
     gestures: state.currentGestures,
+    bodyDetected: avatarRenderer?.isDetected === true,  // Body in frame
+    soundEnabled: state.soundEnabled === true,           // Sound toggle state
     rightArmMoving: false,
     leftArmMoving: false,
     mouthOpen: 0
