@@ -799,6 +799,32 @@ export const IntroAnimations = {
 export const LoadingAnimations = {
   
   /**
+   * Show generic loading overlay
+   */
+  show(gsap, overlay, text) {
+    gsap.set(overlay, { display: 'flex', opacity: 0 });
+    return gsap.to(overlay, {
+      opacity: 1,
+      duration: 0.3,
+      ease: EASINGS.fadeIn
+    });
+  },
+  
+  /**
+   * Hide generic loading overlay
+   */
+  hide(gsap, overlay) {
+    return gsap.to(overlay, {
+      opacity: 0,
+      duration: 0.3,
+      ease: EASINGS.fadeOut,
+      onComplete: () => {
+        overlay.style.display = 'none';
+      }
+    });
+  },
+  
+  /**
    * Awakening Screen Entry
    */
   awakeningEntry(gsap, elements) {

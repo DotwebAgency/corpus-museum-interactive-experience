@@ -1,13 +1,3 @@
 Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-There is a bug if one of my hands is out of the frame and I lift my arm, often there is like two hands, like a second hand spawn somehow. Deep debug, find out why, okay. And then what about the spawn effect as well as that it moves out of the way and all of it, can we optimize anything there?
-
-Have a look at the code, if necessary use the context 7 MCP and let's figure it out, right? and I don't like that the inside of my mouth is so brown and the lips are not really red or anything we need to really create a high-end mouth fully high-end mouth okay redesign and that's about it though Can we implement the easter egg?
-
-Let me know in the chat, can we detect if I show you the middle finger and that triggers an action? Tell me if we can reliably do that. If yes, then we do the following. If not, then we don't do it, because else we break the code, okay?
-
-If we can do it, then do the following. The easter egg is you show the middle finger. And that does something really funny. I don't know, like something super hilarious.
-
-Not hilarious, just like you really would be like, oh, a chuckle like that makes sense. Know what I mean? It fits the brand. It's brand aligned. Figure that out in a markdown file in the project route.
-
-Simulate the AWWARD jury, okay? And they're going to figure out what is perfect there. 
+I get an error loading animations dot height is not a function and then as you see a white screen it's broken. You need to deep debug fix that we broke it. 
