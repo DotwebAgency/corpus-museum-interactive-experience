@@ -1,9 +1,13 @@
 Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-So first of this gray background is not bad but it's too dark. This is not Louvre pastel colors, know what I mean? Next. Next, let's redesign the enter page and the loading page. Keep in mind this has to be the most high and look the current implementation is amateur the enter page and the loading page.
+There is a bug if one of my hands is out of the frame and I lift my arm, often there is like two hands, like a second hand spawn somehow. Deep debug, find out why, okay. And then what about the spawn effect as well as that it moves out of the way and all of it, can we optimize anything there?
 
-This needs to be the most high-end, Louvre, million dollar project budget, GSAP, expert, senior, GSAP knowledge using project. It a huge project okay Because it the first impression we need to make it count and it needs to utilize gsap in bleeding edge ways for 2026 you need to utilize context 7 mcp learn everything about gsap okay then afterwards create a markdown file where the awward jury specs out the actual project okay that will guarantee be a winner three years in a row for for the AWWWARD because it's so perfect.
+Have a look at the code, if necessary use the context 7 MCP and let's figure it out, right? and I don't like that the inside of my mouth is so brown and the lips are not really red or anything we need to really create a high-end mouth fully high-end mouth okay redesign and that's about it though Can we implement the easter egg?
 
-You simulate the top three jury members and they spec out the project fully start to finish. Afterwards you go in and set up a multi P-H-A-S-E-S to-do list in your internal to-do list system and then you work it all off, okay?
+Let me know in the chat, can we detect if I show you the middle finger and that triggers an action? Tell me if we can reliably do that. If yes, then we do the following. If not, then we don't do it, because else we break the code, okay?
 
-It's gonna be the biggest, biggest, biggest, biggest, biggest, longest, longest, longest, longest, longest, biggest ever, okay? Thank you. 
+If we can do it, then do the following. The easter egg is you show the middle finger. And that does something really funny. I don't know, like something super hilarious.
+
+Not hilarious, just like you really would be like, oh, a chuckle like that makes sense. Know what I mean? It fits the brand. It's brand aligned. Figure that out in a markdown file in the project route.
+
+Simulate the AWWARD jury, okay? And they're going to figure out what is perfect there. 

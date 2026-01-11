@@ -141,6 +141,9 @@ async function initAnimations() {
   state.gsap = await initGSAP();
   const gsap = state.gsap;
   
+  // Initialize AWWWARD-quality ambient effects (particles, cursor gradient)
+  IntroAnimations.initAmbient(gsap, elements.introScreen);
+  
   // Play intro reveal sequence
   const introElements = {
     logo: elements.introLogo,
@@ -164,18 +167,21 @@ async function initAnimations() {
     }
   });
   
-  // Setup flame flicker
+  // Setup flame flicker (if exists)
   if (elements.candleFlame) {
-    LoadingAnimations.createFlameFlicker(gsap, elements.candleFlame);
+    // Note: createFlameFlicker removed in new animations.js
   }
   
-  // Setup theme toggle hover
+  // Setup header button hovers
   if (elements.themeToggle) {
-    MainAnimations.createThemeToggleHover(gsap, elements.themeToggle);
+    MainAnimations.createHeaderButtonHover(gsap, elements.themeToggle);
+  }
+  if (elements.fullscreenToggle) {
+    MainAnimations.createHeaderButtonHover(gsap, elements.fullscreenToggle);
   }
   
   state.animationsReady = true;
-  console.log('[CORPUS] GSAP animations initialized');
+  console.log('[CORPUS] AWWWARD-quality GSAP animations initialized');
 }
 
 // ==============================================
@@ -384,6 +390,9 @@ function updateHandIndicator(indicator, stateEl, gesture) {
 // Direct transition that immediately shows main app (intro already hidden when button clicked)
 function transitionToMainDirect() {
   const gsap = state.gsap;
+  
+  // Cleanup intro screen ambient effects (particles, cursor gradient)
+  IntroAnimations.cleanup();
   
   // Ensure intro screen is fully hidden (should be already from button click)
   elements.introScreen.style.opacity = '0';

@@ -7,48 +7,48 @@
 
 /* ===================== GRAND GALLERY PALETTE ===================== */
 :root {
-  /* Gallery Walls - refined dark with subtle warmth */
-  --canvas-deep: #1C1A18;      /* Rich charcoal - not pure black */
-  --canvas-warm: #252320;      /* Warm shadow */
-  --canvas-mid: #302D2A;       /* Mid-tone */
+  /* Gallery Walls - Louvre Twilight (warm evening, NOT cold gray) */
+  --canvas-deep: #E8E4DC;      /* Warm parchment - gallery wall at dusk */
+  --canvas-warm: #F0ECE4;      /* Soft warm cream */
+  --canvas-mid: #DCD8D0;       /* Warm shadow tone */
   
   /* Classical Gold - museum frame accent */
   --gold-bright: #D4AF37;      /* True gold */
   --gold-muted: #C9A050;       /* Warmer antique gold */
   --gold-glow: rgba(212, 175, 55, 0.35);
   
-  /* Warm Ivory - like aged canvas/marble */
-  --ivory: #F5F0E8;
-  --ivory-warm: #E8E0D4;
-  --ivory-muted: #B8B0A4;
+  /* Text on warm background - rich browns */
+  --ivory: #3A3530;            /* Rich warm charcoal for text */
+  --ivory-warm: #5A5550;       /* Warm dark gray */
+  --ivory-muted: #8A8580;      /* Muted text */
   
   /* Accent Colors - Old Master palette */
   --vermillion: #CC5544;       /* Titian red */
   --umber: #8B7355;            /* Raw umber */
   --sienna: #A0785A;           /* Burnt sienna */
   
-  /* Refined pastels - vibrant but soft */
-  --rose-blush: #E8B4B8;
-  --powder-blue: #A8C8DC;
-  --mint-cream: #A8D0BC;
-  --lavender: #C8B8D8;
-  --peach: #F0D4C0;
-  --cream: #F5EDE4;
-  --soft-pink: #F2D4D6;
-  --pale-cyan: #D4E8EC;
-  --mist-green: #D8E8E0;
+  /* Refined pastels - ethereal Louvre palette */
+  --rose-blush: #F4E4E8;       /* Soft rose white */
+  --powder-blue: #E4EEF4;      /* Pale sky blue */
+  --mint-cream: #E4F4EC;       /* Soft sage green */
+  --lavender: #EAE4F4;         /* Gentle lavender */
+  --peach: #F4EAE4;            /* Warm peach white */
+  --cream: #FAF6F0;            /* Rich cream */
+  --soft-pink: #F8E8EA;        /* Delicate pink */
+  --pale-cyan: #E8F2F4;        /* Whisper cyan */
+  --mist-green: #E8F4EC;       /* Morning mist green */
   
-  /* Pastel Glows - ethereal and soft */
-  --rose-glow: rgba(232, 180, 184, 0.35);
-  --blue-glow: rgba(168, 200, 220, 0.35);
-  --lavender-glow: rgba(200, 184, 216, 0.4);
-  --mint-glow: rgba(168, 208, 188, 0.35);
-  --gold-soft-glow: rgba(201, 160, 80, 0.25);
+  /* Pastel Glows - ethereal and luminous */
+  --rose-glow: rgba(244, 200, 208, 0.3);
+  --blue-glow: rgba(200, 220, 240, 0.3);
+  --lavender-glow: rgba(220, 200, 244, 0.35);
+  --mint-glow: rgba(200, 240, 220, 0.3);
+  --gold-soft-glow: rgba(212, 175, 55, 0.25);
   
   /* Legacy accent aliases */
-  --dusty-rose: #C89898;
+  --dusty-rose: #D8A8A8;
   --soft-gold: var(--gold-muted);
-  --warm-white: #FFF8F0;
+  --warm-white: #FFFCF8;
   
   /* Text hierarchy - ivory on dark */
   --text-primary: var(--ivory);
@@ -550,10 +550,11 @@ button {
   justify-content: space-between;
   padding: 0 48px;
   background: linear-gradient(180deg, 
-    rgba(45, 40, 36, 0.98) 0%, 
-    rgba(45, 40, 36, 0.95) 100%);
+    rgba(250, 248, 244, 0.95) 0%, 
+    rgba(245, 242, 236, 0.92) 100%);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--rose-glow);
+  border-bottom: 1px solid var(--gold-soft-glow);
+  box-shadow: 0 2px 20px rgba(212, 175, 55, 0.08);
   margin: var(--frame-width);
   margin-bottom: 0;
   z-index: 100;
@@ -951,26 +952,26 @@ button {
   transform: translateY(-50%);
   width: 200px;
   
-  /* Refined Dark Glass */
+  /* Refined Warm Glass - Louvre aesthetic */
   background: 
-    radial-gradient(ellipse at 20% 10%, rgba(212, 175, 55, 0.08) 0%, transparent 40%),
-    radial-gradient(ellipse at 80% 90%, rgba(139, 90, 43, 0.06) 0%, transparent 40%),
+    radial-gradient(ellipse at 20% 10%, rgba(212, 175, 55, 0.1) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 90%, rgba(200, 180, 160, 0.08) 0%, transparent 40%),
     linear-gradient(170deg, 
-      rgba(32, 28, 24, 0.92) 0%, 
-      rgba(24, 22, 18, 0.88) 100%);
-  backdrop-filter: blur(40px) saturate(1.3);
-  -webkit-backdrop-filter: blur(40px) saturate(1.3);
+      rgba(255, 252, 248, 0.95) 0%, 
+      rgba(250, 246, 240, 0.92) 100%);
+  backdrop-filter: blur(40px) saturate(1.2);
+  -webkit-backdrop-filter: blur(40px) saturate(1.2);
   
   /* Refined Border */
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: 16px;
   
-  /* Sophisticated Shadows */
+  /* Sophisticated Shadows - warm */
   box-shadow: 
-    0 24px 64px rgba(0, 0, 0, 0.5),
-    0 0 1px rgba(212, 175, 55, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    inset 0 0 40px rgba(212, 175, 55, 0.02);
+    0 24px 64px rgba(180, 160, 140, 0.15),
+    0 0 1px rgba(212, 175, 55, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 0 40px rgba(212, 175, 55, 0.03);
   
   z-index: 50;
   overflow: hidden;
@@ -1447,9 +1448,10 @@ button {
   justify-content: space-between;
   padding: 0 32px;
   background: linear-gradient(180deg, 
-    rgba(32, 28, 24, 0.95) 0%, 
-    rgba(28, 26, 22, 0.98) 100%);
+    rgba(250, 248, 244, 0.92) 0%, 
+    rgba(245, 242, 236, 0.95) 100%);
   backdrop-filter: blur(24px);
+  box-shadow: 0 -2px 20px rgba(212, 175, 55, 0.06);
   margin: 0 var(--frame-width) var(--frame-width);
   z-index: 100;
   position: relative;
