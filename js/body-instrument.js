@@ -9,16 +9,45 @@
 // SCALE & NOTE DEFINITIONS
 // ==============================================
 
+// Extended scales with wider ranges for more dramatic effect
 const SCALES = {
-  pentatonic: ['C4', 'D4', 'E4', 'G4', 'A4', 'C5', 'D5', 'E5'],
-  minor: ['A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4'],
-  major: ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
-  blues: ['C4', 'Eb4', 'F4', 'Gb4', 'G4', 'Bb4', 'C5', 'Eb5'],
-  japanese: ['C4', 'Db4', 'F4', 'G4', 'Ab4', 'C5', 'Db5', 'F5'],
-  dorian: ['D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5']
+  pentatonic: ['C3', 'D3', 'E3', 'G3', 'A3', 'C4', 'D4', 'E4', 'G4', 'A4', 'C5', 'D5'],
+  minor: ['A2', 'B2', 'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4'],
+  major: ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4'],
+  blues: ['C3', 'Eb3', 'F3', 'Gb3', 'G3', 'Bb3', 'C4', 'Eb4', 'F4', 'Gb4', 'G4', 'Bb4'],
+  japanese: ['C3', 'Db3', 'F3', 'G3', 'Ab3', 'C4', 'Db4', 'F4', 'G4', 'Ab4', 'C5', 'Db5'],
+  dorian: ['D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4']
 };
 
-const BASS_NOTES = ['C2', 'E2', 'G2', 'A2', 'C3', 'E3', 'G3', 'A3'];
+// Bass notes also scale-aware for richer sound
+const BASS_SCALES = {
+  pentatonic: ['C2', 'D2', 'E2', 'G2', 'A2', 'C3'],
+  minor: ['A1', 'C2', 'D2', 'E2', 'G2', 'A2'],
+  major: ['C2', 'E2', 'G2', 'C3', 'E3', 'G3'],
+  blues: ['C2', 'Eb2', 'F2', 'G2', 'Bb2', 'C3'],
+  japanese: ['C2', 'F2', 'G2', 'C3', 'F3', 'G3'],
+  dorian: ['D2', 'F2', 'G2', 'A2', 'C3', 'D3']
+};
+
+// Scale-specific chords
+const SCALE_CHORDS = {
+  pentatonic: ['C4', 'E4', 'G4', 'A4'],
+  minor: ['A3', 'C4', 'E4'],
+  major: ['C4', 'E4', 'G4'],
+  blues: ['C4', 'Eb4', 'G4', 'Bb4'],
+  japanese: ['C4', 'F4', 'G4'],
+  dorian: ['D4', 'F4', 'A4']
+};
+
+// Scale-specific synth settings for tonal variety
+const SCALE_SYNTH_SETTINGS = {
+  pentatonic: { type: 'sine', attack: 0.08, decay: 0.3, sustain: 0.6, release: 0.8 },
+  minor: { type: 'triangle', attack: 0.15, decay: 0.4, sustain: 0.4, release: 1.2 },
+  major: { type: 'sine', attack: 0.05, decay: 0.2, sustain: 0.7, release: 0.5 },
+  blues: { type: 'sawtooth', attack: 0.02, decay: 0.3, sustain: 0.5, release: 0.6 },
+  japanese: { type: 'sine', attack: 0.2, decay: 0.5, sustain: 0.3, release: 1.5 },
+  dorian: { type: 'triangle', attack: 0.1, decay: 0.35, sustain: 0.5, release: 0.9 }
+};
 
 const CHORDS = {
   major: ['C4', 'E4', 'G4'],
@@ -409,20 +438,22 @@ export class BodyInstrument {
     }
   }
   
-  playPadChord(chordName = 'major') {
+  playPadChord() {
     if (!this.padSynth) return;
     
     const now = Date.now();
     if (now - this.lastChordTime < this.chordDebounce) return;
     this.lastChordTime = now;
     
-    const notes = CHORDS[chordName] || CHORDS.major;
+    // Use scale-specific chord
+    const notes = SCALE_CHORDS[this.currentScale] || SCALE_CHORDS.pentatonic;
     
     try {
       this.padSynth.triggerAttackRelease(notes, '2n', undefined, 0.4);
+      console.log('[BodyInstrument] 🎶 Playing chord:', notes.join('-'), 'for scale:', this.currentScale);
       
       if (this.onSoundTrigger) {
-        this.onSoundTrigger('chord', chordName, 0);
+        this.onSoundTrigger('chord', this.currentScale, 0);
       }
     } catch (e) {
       console.warn('[BodyInstrument] Pad error:', e);
@@ -562,9 +593,10 @@ export class BodyInstrument {
   }
   
   positionToBassNote(y) {
+    const bassScale = BASS_SCALES[this.currentScale] || BASS_SCALES.pentatonic;
     const normalizedY = 1 - Math.max(0, Math.min(1, y));
-    const index = Math.floor(normalizedY * BASS_NOTES.length);
-    return BASS_NOTES[Math.min(index, BASS_NOTES.length - 1)];
+    const index = Math.floor(normalizedY * bassScale.length);
+    return bassScale[Math.min(index, bassScale.length - 1)];
   }
   
   velocityToVolume(velocity) {
@@ -577,15 +609,68 @@ export class BodyInstrument {
     const scaleNames = Object.keys(SCALES);
     const currentIdx = scaleNames.indexOf(this.currentScale);
     const nextIdx = (currentIdx + 1) % scaleNames.length;
-    this.currentScale = scaleNames[nextIdx];
+    this.setScale(scaleNames[nextIdx]);
+    return this.currentScale;
+  }
+  
+  setScale(scaleName) {
+    if (!SCALES[scaleName]) {
+      console.warn('[BodyInstrument] Unknown scale:', scaleName);
+      return;
+    }
     
+    this.currentScale = scaleName;
     console.log('[BodyInstrument] 🎼 Scale changed to:', this.currentScale);
+    
+    // Update synth sound based on scale
+    this.updateSynthForScale(scaleName);
     
     if (this.onSoundTrigger) {
       this.onSoundTrigger('scale', this.currentScale, 0);
     }
+  }
+  
+  updateSynthForScale(scaleName) {
+    if (!this.melodySynth) return;
     
-    return this.currentScale;
+    const settings = SCALE_SYNTH_SETTINGS[scaleName] || SCALE_SYNTH_SETTINGS.pentatonic;
+    
+    try {
+      // Update oscillator type for tonal variety
+      this.melodySynth.set({
+        oscillator: { type: settings.type },
+        envelope: {
+          attack: settings.attack,
+          decay: settings.decay,
+          sustain: settings.sustain,
+          release: settings.release
+        }
+      });
+      
+      // Update bass synth too
+      if (this.bassSynth) {
+        const bassType = settings.type === 'sawtooth' ? 'triangle' : settings.type;
+        this.bassSynth.set({
+          oscillator: { type: bassType },
+          envelope: {
+            attack: settings.attack * 1.5,
+            decay: settings.decay * 1.2,
+            sustain: settings.sustain * 0.8,
+            release: settings.release * 1.5
+          }
+        });
+      }
+      
+      // Adjust reverb based on scale mood
+      if (this.reverb) {
+        const isAmbient = ['japanese', 'minor', 'dorian'].includes(scaleName);
+        this.reverb.set({ wet: isAmbient ? 0.45 : 0.3 });
+      }
+      
+      console.log('[BodyInstrument] 🎹 Synth updated for', scaleName, '- type:', settings.type);
+    } catch (e) {
+      console.warn('[BodyInstrument] Failed to update synth:', e);
+    }
   }
   
   // ==============================================
