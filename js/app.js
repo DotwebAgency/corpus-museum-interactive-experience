@@ -616,16 +616,18 @@ function updateUI(hasPose, handCount, hasFace) {
   }
   
   // NEW: Left/Right Hand Gesture Display
+  // NOTE: Webcam is mirrored, so visual left = user's right hand
+  // We swap the indicators so "L" appears on the left side but tracks user's right hand
   if (elements.leftHandIndicator && elements.rightHandIndicator) {
     // Get gesture states from currentGestures (index 0 = left, index 1 = right)
     const leftGesture = state.currentGestures[0]?.name || null;
     const rightGesture = state.currentGestures[1]?.name || null;
     
-    // Update left hand indicator
-    updateHandIndicator(elements.leftHandIndicator, elements.leftGestureState, leftGesture);
+    // INVERTED: Left indicator shows RIGHT hand gesture (mirrored webcam)
+    updateHandIndicator(elements.leftHandIndicator, elements.leftGestureState, rightGesture);
     
-    // Update right hand indicator
-    updateHandIndicator(elements.rightHandIndicator, elements.rightGestureState, rightGesture);
+    // INVERTED: Right indicator shows LEFT hand gesture (mirrored webcam)
+    updateHandIndicator(elements.rightHandIndicator, elements.rightGestureState, leftGesture);
     
     // Update main gesture label
     if (elements.gestureLabel) {

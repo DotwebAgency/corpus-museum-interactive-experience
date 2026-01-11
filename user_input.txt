@@ -1,3 +1,5 @@
- Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
+Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-No, we need to optimize the whole GSAP experience for the main area, so the main window, the main screen. And also the character just clips in, he doesn't have an entrance animation, he doesn't build up in any way. He should like initialize, know what I mean? He should build up. 
+The left and right in the bottom left are inverted. They're the wrong way around. They should track in the real world, right? So invert them. And next, the buildup doesn't work.
+
+It doesn't initialize. The character just pops in for fuck's sake. Deep debug and figure out why. 

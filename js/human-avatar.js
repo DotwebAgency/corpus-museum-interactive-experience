@@ -351,9 +351,6 @@ export class HumanAvatarRenderer {
     // Update dust
     this.dustMotes.update(dt);
     
-    // ===== ENTRANCE ANIMATION LOGIC =====
-    this.updateEntranceAnimation(timestamp);
-    
     // Store raw landmarks for velocity tracking (before smoothing)
     this.rawPose = poseLandmarks && poseLandmarks.length > 0 ? poseLandmarks[0] : null;
     this.rawHands = [
@@ -412,6 +409,9 @@ export class HumanAvatarRenderer {
     if (this.isDetected && this.firstDetectionTime > 0) {
       this.emergeProgress = Math.min(1, (timestamp - this.firstDetectionTime) / 1500);
     }
+    
+    // ===== ENTRANCE ANIMATION LOGIC (must be AFTER pose processing) =====
+    this.updateEntranceAnimation(timestamp);
     
     this.updateDetectionMode();
     
