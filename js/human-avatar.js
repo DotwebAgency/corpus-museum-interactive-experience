@@ -183,6 +183,48 @@ export class HumanAvatarRenderer {
     ];
     this.isFistDetected = false; // Any fist detected
     
+    // ===== ENTRANCE ANIMATION STATE =====
+    this.entrancePhase = 'waiting'; // waiting, assembling, complete
+    this.entranceProgress = 0; // 0-1 animation progress
+    this.entranceStartTime = 0;
+    this.entranceDuration = 2.0; // 2 seconds for full assembly
+    this.wasDetected = false; // Track previous detection state
+    
+    // Joint reveal order with timing offsets (0-1 range)
+    // Anatomically-inspired: spine first, then outward
+    this.jointRevealTiming = {
+      // Spine/core (first)
+      11: 0.0, 12: 0.0,   // Shoulders
+      23: 0.05, 24: 0.05, // Hips
+      // Arms (second wave)
+      13: 0.15, 14: 0.15, // Elbows
+      15: 0.25, 16: 0.25, // Wrists
+      17: 0.35, 18: 0.35, 19: 0.35, 20: 0.35, // Hand points (unused for pose)
+      21: 0.35, 22: 0.35, // Additional hand
+      // Legs (parallel with arms)
+      25: 0.2, 26: 0.2,   // Knees
+      27: 0.3, 28: 0.3,   // Ankles
+      29: 0.4, 30: 0.4, 31: 0.4, 32: 0.4, // Feet
+      // Face last
+      0: 0.45, 1: 0.5, 2: 0.5, 3: 0.5, 4: 0.5, // Face landmarks
+      5: 0.55, 6: 0.55, 7: 0.6, 8: 0.6, 9: 0.65, 10: 0.65
+    };
+    
+    // Hand entrance timing (landmark index -> reveal time)
+    this.handRevealTiming = {};
+    for (let i = 0; i < 21; i++) {
+      // Wrist first, then palm, then fingers (pinky to thumb)
+      if (i === 0) this.handRevealTiming[i] = 0;           // Wrist
+      else if (i <= 4) this.handRevealTiming[i] = 0.1 + (i * 0.05); // Thumb
+      else if (i <= 8) this.handRevealTiming[i] = 0.15 + ((i - 5) * 0.04); // Index
+      else if (i <= 12) this.handRevealTiming[i] = 0.2 + ((i - 9) * 0.04); // Middle
+      else if (i <= 16) this.handRevealTiming[i] = 0.25 + ((i - 13) * 0.04); // Ring
+      else this.handRevealTiming[i] = 0.3 + ((i - 17) * 0.04); // Pinky
+    }
+    
+    // Face landmark reveal timing (draw face oval first, then features)
+    this.faceRevealBase = 0.5; // Face starts at 50% of entrance
+    
     // NEW: Face expression state (from blendshapes)
     this.faceExpression = {
       smile: 0,        // mouthSmileLeft + mouthSmileRight average
@@ -301,6 +343,9 @@ export class HumanAvatarRenderer {
     
     // Update dust
     this.dustMotes.update(dt);
+    
+    // ===== ENTRANCE ANIMATION LOGIC =====
+    this.updateEntranceAnimation(timestamp);
     
     // Store raw landmarks for velocity tracking (before smoothing)
     this.rawPose = poseLandmarks && poseLandmarks.length > 0 ? poseLandmarks[0] : null;
@@ -575,6 +620,130 @@ export class HumanAvatarRenderer {
     return curled >= 3;
   }
   
+  // ===== ENTRANCE ANIMATION METHODS =====
+  
+  /**
+   * Update the entrance animation state
+   */
+  updateEntranceAnimation(timestamp) {
+    const currentlyDetected = this.pose && this.isDetected;
+    
+    // Detect state transition: not detected -> detected
+    if (currentlyDetected && !this.wasDetected) {
+      // Start entrance animation!
+      this.entrancePhase = 'assembling';
+      this.entranceStartTime = timestamp;
+      this.entranceProgress = 0;
+    }
+    
+    // Detect state transition: detected -> not detected
+    if (!currentlyDetected && this.wasDetected && this.entrancePhase === 'complete') {
+      // Start exit sequence
+      this.entrancePhase = 'exiting';
+      this.entranceStartTime = timestamp;
+    }
+    
+    // Update animation progress
+    if (this.entrancePhase === 'assembling') {
+      const elapsed = (timestamp - this.entranceStartTime) / 1000;
+      this.entranceProgress = Math.min(1, elapsed / this.entranceDuration);
+      
+      if (this.entranceProgress >= 1) {
+        this.entrancePhase = 'complete';
+        this.onEntranceComplete();
+      }
+    }
+    
+    // Exit animation (reverse)
+    if (this.entrancePhase === 'exiting') {
+      const elapsed = (timestamp - this.entranceStartTime) / 1000;
+      this.entranceProgress = Math.max(0, 1 - (elapsed / (this.entranceDuration * 0.5)));
+      
+      if (this.entranceProgress <= 0) {
+        this.entrancePhase = 'waiting';
+      }
+    }
+    
+    this.wasDetected = currentlyDetected;
+  }
+  
+  /**
+   * Called when entrance animation completes
+   */
+  onEntranceComplete() {
+    // Trigger completion effects
+    if (this.petalStream) {
+      // Brief celebratory burst
+      const centerX = 0.5;
+      const centerY = 0.5;
+      this.petalStream.triggerWindPush(centerX, centerY, 0.08);
+    }
+  }
+  
+  /**
+   * Get visibility factor for a pose joint based on entrance progress
+   * @param {number} jointIdx - Pose landmark index
+   * @returns {number} 0-1 visibility factor
+   */
+  getJointVisibility(jointIdx) {
+    if (this.entrancePhase === 'waiting') return 0;
+    if (this.entrancePhase === 'complete') return 1;
+    
+    const revealTime = this.jointRevealTiming[jointIdx] || 0;
+    const revealDuration = 0.15; // Each joint takes 15% of animation to fully appear
+    
+    const progress = (this.entranceProgress - revealTime) / revealDuration;
+    return Math.max(0, Math.min(1, progress));
+  }
+  
+  /**
+   * Get visibility factor for a hand landmark
+   * @param {number} landmarkIdx - Hand landmark index (0-20)
+   * @returns {number} 0-1 visibility factor
+   */
+  getHandLandmarkVisibility(landmarkIdx) {
+    if (this.entrancePhase === 'waiting') return 0;
+    if (this.entrancePhase === 'complete') return 1;
+    
+    // Hands appear after body (start at 35% progress)
+    const handStartTime = 0.35;
+    const adjustedProgress = Math.max(0, this.entranceProgress - handStartTime) / (1 - handStartTime);
+    
+    const revealTime = this.handRevealTiming[landmarkIdx] || 0;
+    const revealDuration = 0.2;
+    
+    const progress = (adjustedProgress - revealTime) / revealDuration;
+    return Math.max(0, Math.min(1, progress));
+  }
+  
+  /**
+   * Get visibility factor for face features
+   * @returns {number} 0-1 visibility factor
+   */
+  getFaceVisibility() {
+    if (this.entrancePhase === 'waiting') return 0;
+    if (this.entrancePhase === 'complete') return 1;
+    
+    // Face appears last (start at 50% progress)
+    const faceStartTime = this.faceRevealBase;
+    const adjustedProgress = Math.max(0, this.entranceProgress - faceStartTime) / (1 - faceStartTime);
+    
+    return Math.min(1, adjustedProgress * 1.5); // Slightly faster reveal once started
+  }
+  
+  /**
+   * Get scale factor for entrance animation (joints grow from 0)
+   * @param {number} visibility - Current visibility (0-1)
+   * @returns {number} Scale factor with easing
+   */
+  getEntranceScale(visibility) {
+    if (visibility >= 1) return 1;
+    // Elastic ease-out for satisfying "pop" effect
+    const t = visibility;
+    const c4 = (2 * Math.PI) / 3;
+    return t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+  }
+  
   /**
    * IMPROVED: Match incoming hands to existing tracked slots to prevent swap glitch
    * Uses Hungarian-style nearest-neighbor matching
@@ -692,18 +861,22 @@ export class HumanAvatarRenderer {
   drawFace(ctx, w, h, c) {
     const f = this.face;
     
+    // Get face entrance visibility
+    const faceVis = this.getFaceVisibility();
+    if (faceVis <= 0) return; // Skip if not visible yet
+    
     // ===== FACE OVAL - IMPROVED with smooth curve =====
     const ovalPoints = FACE_OVAL.map(idx => ({ x: f[idx].x * w, y: f[idx].y * h }));
     
     // Draw smooth face outline using quadratic curves
     ctx.save();
-    ctx.globalAlpha = 0.7;
+    ctx.globalAlpha = 0.7 * faceVis;
     
     // Outer glow for face - neutral, elegant tones (not brown)
     ctx.beginPath();
     this.drawSmoothPath(ctx, ovalPoints, true);
     ctx.strokeStyle = this.theme === 'light' ? 'rgba(140,130,140,0.15)' : 'rgba(220,210,220,0.12)';
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 5 * faceVis;
     ctx.stroke();
     
     // Main face outline
@@ -924,10 +1097,30 @@ export class HumanAvatarRenderer {
     }
   }
   
-  // ===== ENHANCED LIP RENDERING =====
+  // ===== LOUVRE-QUALITY LIP RENDERING =====
+  // Elegant, sophisticated lip colors with proper depth
   drawEnhancedLips(ctx, f, w, h, c) {
-    // 1. Outer lip fill (entire lip area)
-    ctx.fillStyle = c.roseGlow;
+    // Define Louvre-quality lip colors (elegant rose tones, no brown)
+    const lipColors = this.theme === 'light' 
+      ? {
+          outer: 'rgba(185, 130, 140, 0.25)',       // Soft rose fill
+          contour: '#9A7078',                        // Muted mauve contour
+          inner: 'rgba(60, 45, 55, 0.65)',          // Deep plum-gray interior
+          innerLine: '#806068',                      // Soft mauve inner line
+          highlight: 'rgba(255, 252, 250, 0.4)',   // Subtle highlight
+          corner: '#907078'                          // Corner accent
+        }
+      : {
+          outer: 'rgba(200, 160, 168, 0.2)',        // Soft blush fill
+          contour: '#C8A0A8',                        // Dusty rose contour
+          inner: 'rgba(35, 25, 35, 0.7)',           // Deep burgundy-gray interior (not brown)
+          innerLine: '#A08088',                      // Soft mauve-pink inner line
+          highlight: 'rgba(255, 248, 245, 0.35)',  // Warm highlight
+          corner: '#B08890'                          // Corner accent
+        };
+    
+    // 1. Outer lip fill - subtle blush
+    ctx.fillStyle = lipColors.outer;
     ctx.beginPath();
     LIPS_OUTER.forEach((idx, i) => {
       const p = f[idx];
@@ -937,13 +1130,23 @@ export class HumanAvatarRenderer {
     ctx.closePath();
     ctx.fill();
     
-    // 2. Outer lip contour (vermillion border)
-    this.drawPath(ctx, f, LIPS_OUTER, w, h, c.roseBlush, 2, true);
+    // 2. Outer lip contour - elegant line
+    ctx.strokeStyle = lipColors.contour;
+    ctx.lineWidth = 1.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    LIPS_OUTER.forEach((idx, i) => {
+      const p = f[idx];
+      if (i === 0) ctx.moveTo(p.x * w, p.y * h);
+      else ctx.lineTo(p.x * w, p.y * h);
+    });
+    ctx.closePath();
+    ctx.stroke();
     
-    // 3. Inner lip (mouth opening) - darker for depth
+    // 3. Mouth interior - deep, sophisticated (not brown!)
     if (LIPS_INNER.every(idx => f[idx])) {
-      // Fill mouth opening darker
-      ctx.fillStyle = this.theme === 'light' ? 'rgba(80, 40, 40, 0.6)' : 'rgba(40, 20, 30, 0.7)';
+      ctx.fillStyle = lipColors.inner;
       ctx.beginPath();
       LIPS_INNER.forEach((idx, i) => {
         const p = f[idx];
@@ -953,47 +1156,55 @@ export class HumanAvatarRenderer {
       ctx.closePath();
       ctx.fill();
       
-      // Inner lip line
-      this.drawPath(ctx, f, LIPS_INNER, w, h, c.dustyRose, 1.2, true);
+      // Subtle inner edge
+      ctx.strokeStyle = lipColors.innerLine;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
     }
     
-    // 4. Upper lip highlight (cupid's bow area)
+    // 4. Upper lip highlight (cupid's bow)
     if (CUPIDS_BOW.every(idx => f[idx])) {
-      ctx.strokeStyle = c.warmWhite;
-      ctx.globalAlpha = 0.3;
-      ctx.lineWidth = 1;
+      ctx.save();
+      ctx.globalAlpha = 0.25;
+      ctx.strokeStyle = lipColors.highlight;
+      ctx.lineWidth = 1.5;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      CUPIDS_BOW.forEach((idx, i) => {
+      const cupidPoints = CUPIDS_BOW.slice(0, 5);
+      cupidPoints.forEach((idx, i) => {
         const p = f[idx];
         if (i === 0) ctx.moveTo(p.x * w, p.y * h);
         else ctx.lineTo(p.x * w, p.y * h);
       });
       ctx.stroke();
-      ctx.globalAlpha = 1;
+      ctx.restore();
     }
     
-    // 5. Upper lip edge (more defined)
-    if (LIP_UPPER_OUTER.every(idx => f[idx])) {
-      this.drawPath(ctx, f, LIP_UPPER_OUTER, w, h, c.dustyRose, 1.5, false);
+    // 5. Lower lip highlight (center reflection)
+    const lowerCenter = f[17]; // Lower lip center
+    if (lowerCenter) {
+      ctx.save();
+      ctx.globalAlpha = 0.2;
+      ctx.beginPath();
+      ctx.ellipse(lowerCenter.x * w, lowerCenter.y * h - 2, 8, 3, 0, 0, Math.PI * 2);
+      ctx.fillStyle = lipColors.highlight;
+      ctx.fill();
+      ctx.restore();
     }
     
-    // 6. Lower lip edge (more defined)
-    if (LIP_LOWER_OUTER.every(idx => f[idx])) {
-      this.drawPath(ctx, f, LIP_LOWER_OUTER, w, h, c.dustyRose, 1.5, false);
-    }
-    
-    // 7. Corner of mouth detail
+    // 6. Subtle corner shadows
     const leftCorner = f[61];
     const rightCorner = f[291];
     if (leftCorner && rightCorner) {
-      ctx.fillStyle = c.dustyRose;
-      ctx.globalAlpha = 0.6;
+      ctx.save();
+      ctx.globalAlpha = 0.3;
+      ctx.fillStyle = lipColors.corner;
       [leftCorner, rightCorner].forEach(p => {
         ctx.beginPath();
-        ctx.arc(p.x * w, p.y * h, 2, 0, Math.PI * 2);
+        ctx.arc(p.x * w, p.y * h, 1.5, 0, Math.PI * 2);
         ctx.fill();
       });
-      ctx.globalAlpha = 1;
+      ctx.restore();
     }
   }
   
@@ -1261,10 +1472,17 @@ export class HumanAvatarRenderer {
   
   // ===== LOUVRE-QUALITY BONE RENDERING =====
   // Smooth, organic curves instead of harsh straight lines
-  drawBone(ctx, x1, y1, x2, y2, color, c) {
+  drawBone(ctx, x1, y1, x2, y2, color, c, entranceVisibility = 1) {
+    // Skip if not visible during entrance
+    if (entranceVisibility <= 0) return;
+    
     const breathe = 1 + Math.sin(this.time * 1.2) * 0.01;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    
+    // Apply entrance animation
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, entranceVisibility * 1.2);
     
     // Calculate midpoint with slight curve offset for organic feel
     const midX = (x1 + x2) / 2;
@@ -1285,17 +1503,20 @@ export class HumanAvatarRenderer {
     const g = parseInt(color.slice(3,5), 16);
     const b = parseInt(color.slice(5,7), 16);
     
+    // Entrance animation: draw bone progressively
+    const drawProgress = Math.min(1, entranceVisibility * 1.5);
+    
     // Outer glow - soft diffuse
-    ctx.strokeStyle = `rgba(${r},${g},${b},0.2)`;
-    ctx.lineWidth = 16 * breathe;
+    ctx.strokeStyle = `rgba(${r},${g},${b},${0.2 * drawProgress})`;
+    ctx.lineWidth = 16 * breathe * drawProgress;
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.quadraticCurveTo(cpX, cpY, x2, y2);
     ctx.stroke();
     
     // Mid glow
-    ctx.strokeStyle = `rgba(${r},${g},${b},0.45)`;
-    ctx.lineWidth = 6 * breathe;
+    ctx.strokeStyle = `rgba(${r},${g},${b},${0.45 * drawProgress})`;
+    ctx.lineWidth = 6 * breathe * drawProgress;
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.quadraticCurveTo(cpX, cpY, x2, y2);
@@ -1303,18 +1524,30 @@ export class HumanAvatarRenderer {
     
     // Core line - crisp
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2 * drawProgress;
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.quadraticCurveTo(cpX, cpY, x2, y2);
     ctx.stroke();
+    
+    ctx.restore();
   }
   
   // ===== LOUVRE-QUALITY JOINT RENDERING =====
   // Elegant, glowing joint points with smooth gradients
-  drawJoint(ctx, x, y, r, c) {
+  drawJoint(ctx, x, y, r, c, entranceVisibility = 1) {
+    // Skip if not visible during entrance animation
+    if (entranceVisibility <= 0) return;
+    
     const breathe = 1 + Math.sin(this.time * 1.2) * 0.02;
-    const radius = r * breathe;
+    
+    // Apply entrance animation scale
+    const entranceScale = this.getEntranceScale(entranceVisibility);
+    const radius = r * breathe * entranceScale;
+    
+    // Apply entrance animation opacity
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, entranceVisibility * 1.5);
     
     // Large soft outer glow
     const outerGlow = ctx.createRadialGradient(x, y, 0, x, y, radius * 4);
@@ -1341,6 +1574,8 @@ export class HumanAvatarRenderer {
     ctx.arc(x - radius * 0.25, y - radius * 0.25, radius * 0.3, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     ctx.fill();
+    
+    ctx.restore();
   }
   
   drawAllJoints(ctx, w, h, mode, c) {
@@ -1358,22 +1593,23 @@ export class HumanAvatarRenderer {
       }
     }
     
-    if (vis(11)) this.drawJoint(ctx, p[11].x * w, p[11].y * h, 8, c);
-    if (vis(12)) this.drawJoint(ctx, p[12].x * w, p[12].y * h, 8, c);
-    if (vis(13)) this.drawJoint(ctx, p[13].x * w, p[13].y * h, 6, c);
-    if (vis(14)) this.drawJoint(ctx, p[14].x * w, p[14].y * h, 6, c);
-    if (vis(15) && leftHandIdx === -1) this.drawJoint(ctx, p[15].x * w, p[15].y * h, 5, c);
-    if (vis(16) && rightHandIdx === -1) this.drawJoint(ctx, p[16].x * w, p[16].y * h, 5, c);
+    // Apply entrance animation visibility to each joint
+    if (vis(11)) this.drawJoint(ctx, p[11].x * w, p[11].y * h, 8, c, this.getJointVisibility(11));
+    if (vis(12)) this.drawJoint(ctx, p[12].x * w, p[12].y * h, 8, c, this.getJointVisibility(12));
+    if (vis(13)) this.drawJoint(ctx, p[13].x * w, p[13].y * h, 6, c, this.getJointVisibility(13));
+    if (vis(14)) this.drawJoint(ctx, p[14].x * w, p[14].y * h, 6, c, this.getJointVisibility(14));
+    if (vis(15) && leftHandIdx === -1) this.drawJoint(ctx, p[15].x * w, p[15].y * h, 5, c, this.getJointVisibility(15));
+    if (vis(16) && rightHandIdx === -1) this.drawJoint(ctx, p[16].x * w, p[16].y * h, 5, c, this.getJointVisibility(16));
     
     if (mode === 'full') {
-      if (vis(23)) this.drawJoint(ctx, p[23].x * w, p[23].y * h, 7, c);
-      if (vis(24)) this.drawJoint(ctx, p[24].x * w, p[24].y * h, 7, c);
-      if (vis(25)) this.drawJoint(ctx, p[25].x * w, p[25].y * h, 6, c);
-      if (vis(26)) this.drawJoint(ctx, p[26].x * w, p[26].y * h, 6, c);
-      if (vis(27)) this.drawJoint(ctx, p[27].x * w, p[27].y * h, 5, c);
-      if (vis(28)) this.drawJoint(ctx, p[28].x * w, p[28].y * h, 5, c);
-      if (vis(31)) this.drawJoint(ctx, p[31].x * w, p[31].y * h, 4, c);
-      if (vis(32)) this.drawJoint(ctx, p[32].x * w, p[32].y * h, 4, c);
+      if (vis(23)) this.drawJoint(ctx, p[23].x * w, p[23].y * h, 7, c, this.getJointVisibility(23));
+      if (vis(24)) this.drawJoint(ctx, p[24].x * w, p[24].y * h, 7, c, this.getJointVisibility(24));
+      if (vis(25)) this.drawJoint(ctx, p[25].x * w, p[25].y * h, 6, c, this.getJointVisibility(25));
+      if (vis(26)) this.drawJoint(ctx, p[26].x * w, p[26].y * h, 6, c, this.getJointVisibility(26));
+      if (vis(27)) this.drawJoint(ctx, p[27].x * w, p[27].y * h, 5, c, this.getJointVisibility(27));
+      if (vis(28)) this.drawJoint(ctx, p[28].x * w, p[28].y * h, 5, c, this.getJointVisibility(28));
+      if (vis(31)) this.drawJoint(ctx, p[31].x * w, p[31].y * h, 4, c, this.getJointVisibility(31));
+      if (vis(32)) this.drawJoint(ctx, p[32].x * w, p[32].y * h, 4, c, this.getJointVisibility(32));
     }
   }
   

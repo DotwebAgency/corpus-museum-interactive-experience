@@ -825,16 +825,60 @@ button {
   transition: background var(--theme-transition);
 }
 
-/* Subtle canvas texture overlay */
+/* Elegant museum-quality background pattern */
 .app-main::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  /* Subtle noise texture */
+  /* Subtle diamond parquet pattern - museum floor inspired */
+  background-image: 
+    /* Central radial vignette for depth */
+    radial-gradient(ellipse 80% 60% at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.15) 100%),
+    /* Diagonal lines creating subtle herringbone */
+    repeating-linear-gradient(
+      45deg,
+      transparent 0px,
+      transparent 1px,
+      rgba(180, 160, 140, 0.025) 1px,
+      rgba(180, 160, 140, 0.025) 2px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px,
+      transparent 1px,
+      rgba(180, 160, 140, 0.025) 1px,
+      rgba(180, 160, 140, 0.025) 2px
+    ),
+    /* Micro grid for canvas texture */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 30px,
+      rgba(160, 140, 120, 0.02) 30px,
+      rgba(160, 140, 120, 0.02) 31px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 30px,
+      rgba(160, 140, 120, 0.02) 30px,
+      rgba(160, 140, 120, 0.02) 31px
+    );
+  background-size: 100% 100%, 24px 24px, 24px 24px, 31px 31px, 31px 31px;
+  opacity: 1;
+}
+
+/* Noise texture overlay for canvas feel */
+.app-main::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.025;
+  opacity: 0.02;
   mix-blend-mode: overlay;
 }
 
@@ -843,6 +887,42 @@ button {
 }
 
 [data-theme="light"] .app-main::before {
+  background-image: 
+    /* Light vignette */
+    radial-gradient(ellipse 80% 60% at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.05) 100%),
+    /* Herringbone - warmer for light mode */
+    repeating-linear-gradient(
+      45deg,
+      transparent 0px,
+      transparent 1px,
+      rgba(160, 140, 120, 0.04) 1px,
+      rgba(160, 140, 120, 0.04) 2px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px,
+      transparent 1px,
+      rgba(160, 140, 120, 0.04) 1px,
+      rgba(160, 140, 120, 0.04) 2px
+    ),
+    /* Grid */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 30px,
+      rgba(120, 100, 80, 0.025) 30px,
+      rgba(120, 100, 80, 0.025) 31px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 30px,
+      rgba(120, 100, 80, 0.025) 30px,
+      rgba(120, 100, 80, 0.025) 31px
+    );
+}
+
+[data-theme="light"] .app-main::after {
   opacity: 0.015;
   mix-blend-mode: multiply;
 }
