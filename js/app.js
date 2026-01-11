@@ -1327,15 +1327,17 @@ function handleScaleChange(e) {
 
 function handleSoundTrigger(type, note, volume) {
   // Visual feedback for sound events
-  if (state.gsap) {
-    // Pulse effect on sound
-    if (type === 'scale') {
-      // Show scale name briefly
-      showScaleNotification(note);
-    } else if (type === 'kick' || type === 'snare') {
-      // Pulse the canvas border on drums
-      pulseOnDrum(type);
+  if (type === 'scale') {
+    // Update the scale selector dropdown
+    if (elements.scaleSelect) {
+      elements.scaleSelect.value = note; // note contains the scale name
     }
+    // Show scale name briefly
+    showScaleNotification(note);
+    console.log('[CORPUS] 🎼 Scale changed via gesture to:', note);
+  } else if (state.gsap && (type === 'kick' || type === 'snare')) {
+    // Pulse the canvas border on drums
+    pulseOnDrum(type);
   }
 }
 

@@ -502,8 +502,15 @@ export class BodyInstrument {
       
       const side = idx === 0 ? 'left' : 'right';
       
+      // DEBUG: Log all detected gestures
+      console.log(`[BodyInstrument] Gesture detected: ${gesture.name} (${side})`);
+      
       // Debounce gestures
-      if (now - this.lastGestureTime[side] < this.gestureDebounce) return;
+      const timeSinceLast = now - this.lastGestureTime[side];
+      if (timeSinceLast < this.gestureDebounce) {
+        console.log(`[BodyInstrument] Debounced: ${timeSinceLast}ms < ${this.gestureDebounce}ms`);
+        return;
+      }
       
       switch(gesture.name) {
         case 'Open_Palm':
@@ -522,6 +529,7 @@ export class BodyInstrument {
           break;
           
         case 'Victory':
+          console.log('[BodyInstrument] ✌️ Victory gesture - cycling scale!');
           this.cycleScale();
           this.lastGestureTime[side] = now;
           break;
