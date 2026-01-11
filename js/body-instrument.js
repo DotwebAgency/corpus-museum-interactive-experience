@@ -67,7 +67,7 @@ export class BodyInstrument {
     this.historyLength = 5;
     
     // Thresholds - lower = more sensitive
-    this.velocityThreshold = 0.004; // Very sensitive - any movement plays notes
+    this.velocityThreshold = 0.001; // Extremely sensitive - almost any movement plays notes
     this.gestureDebounce = 300; // ms between gesture triggers
     this.chordDebounce = 500; // ms between chord strums
     
@@ -234,8 +234,17 @@ export class BodyInstrument {
   // ==============================================
   
   update(pose, hands, velocityTracker, gestures, faceBlendshapes) {
-    if (!this.isInitialized || this.isMuted || !this.isEnabled) return;
-    if (!pose || pose.length < 17) return; // Need at least wrist landmarks
+    if (!this.isInitialized || this.isMuted || !this.isEnabled) {
+      // Debug: log why we're not playing
+      if (this.isEnabled && !this.isInitialized) {
+        console.log('[BodyInstrument] Skipping - not initialized');
+      }
+      return;
+    }
+    if (!pose || pose.length < 17) {
+      console.log('[BodyInstrument] Skipping - no valid pose. Length:', pose?.length);
+      return; // Need at least wrist landmarks
+    }
     
     // Ensure audio context is running (can get suspended)
     if (this.Tone && this.Tone.context.state !== 'running') {
@@ -269,9 +278,11 @@ export class BodyInstrument {
     
     // ===== RIGHT ARM = MELODY =====
     if (rightWrist && rightWrist.visibility > 0.5) {
+      // Debug logging
       if (rightVel > this.velocityThreshold) {
         const note = this.positionToNote(rightWrist.y, this.currentScale);
         const volume = this.velocityToVolume(rightVel);
+        console.log('[BodyInstrument] 🎵 Playing melody:', note, 'vel:', rightVel.toFixed(4));
         this.playMelody(note, volume);
       }
     }

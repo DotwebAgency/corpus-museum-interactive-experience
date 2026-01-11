@@ -1,5 +1,3 @@
 Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-The bottom bar is still too high and depending on the status and layout shifts. No need to stack all of this for fuck's sake. Put it inline or something. I don't know. Like redesign all of this better.
-
-Yeah, yeah, bottom, like fucking hell. Layout shifts every time it recognizes something. Then the corpus guide pop-up is not sliding in from the right. Like I said, it should slide in in the main area and not overlap the header or footer. know what I mean on the right side it slides in and then I can see it and I can just close it with a chevron and
+Now it seems like the audio is not working at all anymore. No matter what I try, nothing. Audio doesn't play anymore. 

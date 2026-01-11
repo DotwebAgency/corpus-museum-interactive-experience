@@ -1151,6 +1151,7 @@ async function toggleSound() {
   // Toggle enabled state
   state.soundEnabled = !state.soundEnabled;
   bodyInstrument.setEnabled(state.soundEnabled);
+  console.log('[CORPUS] 🎵 Body instrument isEnabled:', bodyInstrument.isEnabled, 'isInitialized:', bodyInstrument.isInitialized);
   
   // Ensure audio context is running when enabling
   if (state.soundEnabled && window.Tone) {
