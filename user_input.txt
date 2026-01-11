@@ -1,5 +1,3 @@
 Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
-Let's create a GitHub commit and then implement the following idea of yours. I'll read it now. I like... What sounds like we can do it? The musical body instrument sounds good.
-
-But how do we implement it here properly? In our existing setup, you need to in-depth audit our existing setup, okay? yeah that sounds good let's do that plan that out in a markdown file letter a www ard jerry plan that out based on our code base how we do it within our capabilities and then let's do a setup of a long long long to-do list to make 
+Look, if I wave my arms around really fast, the hand can't keep up. Know what I mean? The forearm bone is really accurate, but the hand can't keep up. Can we prove that? 
