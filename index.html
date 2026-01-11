@@ -311,30 +311,119 @@
       </aside>
     </main>
 
-    <!-- Footer - Minimal inline bar -->
-    <footer class="app-footer">
-      <!-- Detection dots -->
-      <div class="detect-dots">
-        <span class="detect-dot-mini" id="detect-body" title="Body"></span>
-        <span class="detect-dot-mini" id="detect-hands" title="Hands"></span>
-        <span class="detect-dot-mini" id="detect-face" title="Face"></span>
+    <!-- Footer — AWWWARDS-Quality 3-Section Design -->
+    <footer class="corpus-footer" role="contentinfo">
+      
+      <!-- Section 1: Tracking Status (Left) -->
+      <div class="footer-section footer-tracking">
+        <span class="section-label">TRACKING</span>
+        <div class="tracking-indicators">
+          <div class="tracking-item" id="track-body" data-tooltip="Body tracking - 33 landmarks">
+            <span class="tracking-dot"></span>
+            <span class="tracking-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="5" r="3"/>
+                <path d="M12 8v8M8 12h8M8 20l4-4 4 4"/>
+              </svg>
+            </span>
+            <span class="tracking-label">Body</span>
+          </div>
+          <div class="tracking-item" id="track-hands" data-tooltip="Hand tracking - gestures enabled">
+            <span class="tracking-dot"></span>
+            <span class="tracking-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v11M10 10V6a2 2 0 0 0-4 0v8a8 8 0 0 0 16 0v-3a2 2 0 0 0-4 0"/>
+              </svg>
+            </span>
+            <span class="tracking-label">Hands</span>
+          </div>
+          <div class="tracking-item" id="track-face" data-tooltip="Face tracking - expressions detected">
+            <span class="tracking-dot"></span>
+            <span class="tracking-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="9" cy="10" r="1" fill="currentColor"/>
+                <circle cx="15" cy="10" r="1" fill="currentColor"/>
+                <path d="M8 15c1 2 3 3 4 3s3-1 4-3"/>
+              </svg>
+            </span>
+            <span class="tracking-label">Face</span>
+          </div>
+        </div>
       </div>
-      
-      <!-- Instruction -->
-      <span class="footer-instruction" id="footer-instruction">[?] guide · 🔊 music · ✊ sparks</span>
-      
-      <!-- Scale (shown when sound enabled) -->
-      <select id="scale-select" class="scale-select-mini" title="Scale">
-        <option value="pentatonic">Pentatonic</option>
-        <option value="minor">Minor</option>
-        <option value="major">Major</option>
-        <option value="blues">Blues</option>
-        <option value="japanese">Japanese</option>
-        <option value="dorian">Dorian</option>
-      </select>
-      
-      <!-- FPS -->
-      <span class="fps-counter" id="fps-counter">-- fps</span>
+
+      <!-- Section 2: Controls (Center) -->
+      <div class="footer-section footer-controls">
+        <!-- Sound Toggle -->
+        <button class="control-btn" id="footer-sound-toggle" data-tooltip="Toggle musical instrument (S key)" aria-pressed="false">
+          <span class="control-icon control-icon-on">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+          </span>
+          <span class="control-icon control-icon-off">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+              <line x1="23" y1="9" x2="17" y2="15"/>
+              <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+          </span>
+          <span class="control-text">
+            <span class="control-label">Sound</span>
+            <span class="control-state" id="sound-state">OFF</span>
+          </span>
+        </button>
+
+        <!-- Scale Selector -->
+        <div class="control-item control-scale" id="footer-scale-control" data-tooltip="Musical scale - use 🤟 gesture to change">
+          <span class="control-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="10" width="3" height="10" rx="1"/>
+              <rect x="6" y="6" width="3" height="14" rx="1"/>
+              <rect x="10" y="8" width="3" height="12" rx="1"/>
+              <rect x="14" y="4" width="3" height="16" rx="1"/>
+              <rect x="18" y="7" width="3" height="13" rx="1"/>
+            </svg>
+          </span>
+          <span class="control-text">
+            <span class="control-label">Scale</span>
+            <select id="scale-select" class="control-select">
+              <option value="pentatonic">Pentatonic</option>
+              <option value="minor">Minor</option>
+              <option value="major">Major</option>
+              <option value="blues">Blues</option>
+              <option value="japanese">Japanese</option>
+              <option value="dorian">Dorian</option>
+            </select>
+          </span>
+        </div>
+
+        <!-- Spark Status -->
+        <div class="control-item control-sparks" id="footer-spark-status" data-tooltip="Make a fist to summon sparks">
+          <span class="control-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2L9 12h6L9 22l3-10H6l6-10z"/>
+            </svg>
+          </span>
+          <span class="control-text">
+            <span class="control-label">Sparks</span>
+            <span class="control-state" id="spark-state">Ready</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Section 3: Info (Right) -->
+      <div class="footer-section footer-info">
+        <button class="info-btn" id="footer-help-btn" data-tooltip="Help & Guide (H key)" aria-label="Open help guide">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <circle cx="12" cy="17" r="0.5" fill="currentColor"/>
+          </svg>
+        </button>
+        <span class="fps-display" id="footer-fps">-- fps</span>
+      </div>
     </footer>
   </div>
 

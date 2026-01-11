@@ -116,25 +116,31 @@ function getElements() {
   // Legacy alias
   elements.statusPanel = elements.detectionPanel;
   elements.appHeader = document.querySelector('.app-header');
-  elements.appFooter = document.querySelector('.app-footer');
+  elements.appFooter = document.querySelector('.corpus-footer'); // Updated to new footer
   elements.frameBorders = document.querySelectorAll('.frame-border');
   elements.candleFlame = document.querySelector('.candle-flame');
   
-  // NEW: Footer status elements (integrated status bar)
-  elements.footerBodyStatus = document.getElementById('footer-body-status');
-  elements.footerHandsStatus = document.getElementById('footer-hands-status');
-  elements.footerFaceStatus = document.getElementById('footer-face-status');
-  elements.footerLandmarks = document.getElementById('footer-landmarks');
-  elements.footerParticles = document.getElementById('footer-particles');
+  // ===== NEW CORPUS FOOTER ELEMENTS =====
+  // Section 1: Tracking indicators
+  elements.trackBody = document.getElementById('track-body');
+  elements.trackHands = document.getElementById('track-hands');
+  elements.trackFace = document.getElementById('track-face');
   
-  // NEW: Detection pills
+  // Section 2: Controls
+  elements.footerSoundToggle = document.getElementById('footer-sound-toggle');
+  elements.footerScaleControl = document.getElementById('footer-scale-control');
+  elements.footerSparkStatus = document.getElementById('footer-spark-status');
+  elements.soundState = document.getElementById('sound-state');
+  elements.sparkState = document.getElementById('spark-state');
+  
+  // Section 3: Info
+  elements.footerHelpBtn = document.getElementById('footer-help-btn');
+  elements.footerFps = document.getElementById('footer-fps');
+  
+  // Legacy: Keep old refs for backwards compatibility
   elements.detectBody = document.getElementById('detect-body');
   elements.detectHands = document.getElementById('detect-hands');
   elements.detectFace = document.getElementById('detect-face');
-  
-  // NEW: Hand gesture indicators
-  elements.leftHandGesture = document.getElementById('left-hand-gesture');
-  elements.rightHandGesture = document.getElementById('right-hand-gesture');
   
   // Intro elements for animation
   elements.introLogo = document.querySelector('.intro-logo');
@@ -871,7 +877,7 @@ function updateUI(hasPose, handCount, hasFace) {
     elements.footerParticles.textContent = avatarRenderer.getParticleCount();
   }
   
-  // ===== UPDATE DETECTION PILLS =====
+  // ===== UPDATE DETECTION PILLS (Legacy) =====
   if (elements.detectBody) {
     elements.detectBody.classList.toggle('active', hasPose);
   }
@@ -882,7 +888,32 @@ function updateUI(hasPose, handCount, hasFace) {
     elements.detectFace.classList.toggle('active', hasFace);
   }
   
-  // ===== UPDATE HAND GESTURE INDICATORS =====
+  // ===== UPDATE NEW CORPUS FOOTER TRACKING =====
+  if (elements.trackBody) {
+    elements.trackBody.classList.toggle('active', hasPose);
+  }
+  if (elements.trackHands) {
+    elements.trackHands.classList.toggle('active', handCount > 0);
+  }
+  if (elements.trackFace) {
+    elements.trackFace.classList.toggle('active', hasFace);
+  }
+  
+  // ===== UPDATE SPARK STATUS =====
+  if (elements.footerSparkStatus) {
+    elements.footerSparkStatus.classList.toggle('active', state.sparkActive);
+  }
+  if (elements.sparkState) {
+    if (state.sparkActive) {
+      elements.sparkState.textContent = 'Active';
+    } else if (state.soundEnabled) {
+      elements.sparkState.textContent = 'Ready';
+    } else {
+      elements.sparkState.textContent = '—';
+    }
+  }
+  
+  // ===== UPDATE HAND GESTURE INDICATORS (Legacy) =====
   if (elements.leftHandGesture) {
     const leftGesture = state.currentGestures[0]?.name || null;
     const isLeftActive = handCount > 0 && leftGesture !== null;
@@ -922,6 +953,9 @@ function mainLoop(timestamp) {
     state.fps = state.frameCount;
     state.frameCount = 0;
     state.lastFpsTime = timestamp;
+    // Update FPS in new footer
+    if (elements.footerFps) elements.footerFps.textContent = `${state.fps} fps`;
+    // Legacy fallback
     if (elements.fpsCounter) elements.fpsCounter.textContent = `${state.fps} fps`;
   }
   
@@ -1187,9 +1221,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   elements.portalButton?.addEventListener('click', handleEnableCamera);
   
   elements.themeToggle?.addEventListener('click', toggleTheme);
+  
+  // Sound toggle - both header and footer buttons
   elements.soundToggle?.addEventListener('click', toggleSound);
+  elements.footerSoundToggle?.addEventListener('click', toggleSound);
+  
+  // Scale selector
   elements.scaleSelect?.addEventListener('change', handleScaleChange);
+  
+  // Help button - both header and footer
   elements.helpBtn?.addEventListener('click', () => helpModal.toggle());
+  elements.footerHelpBtn?.addEventListener('click', () => helpModal.toggle());
   
   // Setup sound visual feedback
   bodyInstrument.onSoundTrigger = handleSoundTrigger;
@@ -1304,14 +1346,31 @@ async function toggleSound() {
 }
 
 function updateSoundUI() {
+  // Header sound toggle (legacy)
   if (elements.soundToggle) {
     elements.soundToggle.classList.toggle('active', state.soundEnabled);
     elements.soundToggle.setAttribute('aria-pressed', state.soundEnabled);
   }
   
+  // New footer sound toggle
+  if (elements.footerSoundToggle) {
+    elements.footerSoundToggle.classList.toggle('active', state.soundEnabled);
+    elements.footerSoundToggle.setAttribute('aria-pressed', state.soundEnabled);
+  }
+  
+  // Update sound state text
+  if (elements.soundState) {
+    elements.soundState.textContent = state.soundEnabled ? 'ON' : 'OFF';
+  }
+  
+  // Scale selector - make visible when sound enabled
   if (elements.scaleSelect) {
-    elements.scaleSelect.style.display = state.soundEnabled ? 'block' : 'none';
     elements.scaleSelect.value = bodyInstrument.getCurrentScale();
+  }
+  
+  // New footer scale control visibility
+  if (elements.footerScaleControl) {
+    elements.footerScaleControl.classList.toggle('visible', state.soundEnabled);
   }
 }
 
