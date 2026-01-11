@@ -2,4 +2,10 @@ Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
 
 So the audio feature was working for a moment, it was working beautifully, but now it just doesn't work anymore. Click on the audio thing. By the way, the logic is inverted there. When it's enabled, you have a closing X there, right?
 
-That doesn't make sense. It should be a lot of around. Anyways, it doesn't work no matter which one I select. Japanese, Dorian, Pentatonic, I lift my arms and stuff and the audio doesn't happen anymore. Why? 
+That doesn't make sense. It should be a lot of around. Anyways, it doesn't work no matter which one I select. Japanese, Dorian, Pentatonic, I lift my arms and stuff and the audio doesn't happen anymore. Why? Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
+
+Yeah, no, now again I reloaded for a moment, it played the audio, but now it just doesn't play anymore. What's going on? Something really wrong here. Your trial has expired. Upgrade to VoiceInk Pro at tryvoiceink.com/buy
+
+And I change like the blues major and whatnot in the bottom bar, but the audio doesn't change. Is that intended to be like that? That it just stays the same and has no functionality? Not right? Like we need to really flesh this out.
+
+It's such a cool feature. Makes it so engaging. 
